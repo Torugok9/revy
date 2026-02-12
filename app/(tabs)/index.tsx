@@ -6,6 +6,7 @@ import { VehicleListSkeleton } from "@/components/vehicles/VehicleListSkeleton";
 import { Colors, Fonts, Spacing } from "@/constants/theme";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import { useVehicles } from "@/hooks/useVehicles";
+import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
@@ -29,6 +30,13 @@ export default function VehiclesScreen() {
     await refetch();
     setRefreshing(false);
   }, [refetch]);
+
+  // Refetch veículos quando a tela ganha foco (após criar novo veículo, por exemplo)
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
 
   const handleAddVehicle = useCallback(() => {
     if (!plan) {

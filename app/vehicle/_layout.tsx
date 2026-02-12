@@ -5,6 +5,7 @@ export default function VehicleLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
+        presentation: "modal",
       }}
     />
   );
