@@ -2,6 +2,25 @@
  * Types relacionados a Veículos
  */
 
+export type MaintenanceType = "revision" | "part_change" | "repair" | "other";
+
+export interface Maintenance {
+  id: string;
+  vehicle_id: string;
+  type: MaintenanceType;
+  title: string;
+  description?: string | null;
+  date: string;
+  km_at_maintenance?: number | null;
+  cost?: number | null;
+  workshop_name?: string | null;
+  next_maintenance_km?: number | null;
+  next_maintenance_date?: string | null;
+  receipt_url?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Vehicle {
   id: string;
   user_id: string;
