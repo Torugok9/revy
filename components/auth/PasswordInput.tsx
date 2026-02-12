@@ -38,7 +38,7 @@ export function PasswordInput({
   const [isFocused, setIsFocused] = useState(false);
 
   const textColor = useThemeColor({}, "text");
-  const backgroundColor = useThemeColor({}, "input");
+  const backgroundColor = useThemeColor({}, "card");
   const tintColor = useThemeColor({}, "tint");
   const errorColor = "#ef4444";
   const subtitleColor = useThemeColor({}, "subtitle");

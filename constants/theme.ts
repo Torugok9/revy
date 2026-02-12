@@ -7,12 +7,14 @@
 export const Colors = {
   dark: {
     // Superfícies
-    bg: "#0B0A0D",
-    background: "#0B0A0D",
-    surface: "#151417",
-    surfaceHover: "#1E1D21",
-    card: "#18171B",
-    border: "#2A282E",
+    bg: "#0A0A0A",
+    background: "#0A0A0A",
+    surface: "#141414",
+    surfaceElevated: "#1C1C1C",
+    surfaceHover: "#1C1C1C",
+    card: "#141414",
+    border: "#1E1E1E",
+    borderStrong: "#2A2A2A",
 
     // Marca
     primary: "#DC2626",
@@ -22,29 +24,31 @@ export const Colors = {
     tint: "#DC2626",
 
     // Texto
-    text: "#F5F5F4",
-    textSecondary: "#A8A29E",
-    subtitle: "#A8A29E",
-    textMuted: "#78716C",
+    text: "#F5F5F5",
+    textSecondary: "#737373",
+    subtitle: "#737373",
+    textMuted: "#525252",
 
     // Estados
     success: "#22C55E",
-    danger: "#FB923C",
-    warning: "#FBBF24",
+    danger: "#EF4444",
+    warning: "#F59E0B",
 
     // Navegação
-    icon: "#78716C",
-    tabIconDefault: "#78716C",
+    icon: "#737373",
+    tabIconDefault: "#737373",
     tabIconSelected: "#DC2626",
   },
   light: {
     // Superfícies
-    bg: "#0B0A0D",
-    background: "#0B0A0D",
-    surface: "#151417",
-    surfaceHover: "#1E1D21",
-    card: "#18171B",
-    border: "#2A282E",
+    bg: "#0A0A0A",
+    background: "#0A0A0A",
+    surface: "#141414",
+    surfaceElevated: "#1C1C1C",
+    surfaceHover: "#1C1C1C",
+    card: "#141414",
+    border: "#1E1E1E",
+    borderStrong: "#2A2A2A",
 
     // Marca
     primary: "#DC2626",
@@ -54,19 +58,19 @@ export const Colors = {
     tint: "#DC2626",
 
     // Texto
-    text: "#F5F5F4",
-    textSecondary: "#A8A29E",
-    subtitle: "#A8A29E",
-    textMuted: "#78716C",
+    text: "#F5F5F5",
+    textSecondary: "#737373",
+    subtitle: "#737373",
+    textMuted: "#525252",
 
     // Estados
     success: "#22C55E",
-    danger: "#FB923C",
-    warning: "#FBBF24",
+    danger: "#EF4444",
+    warning: "#F59E0B",
 
     // Navegação
-    icon: "#78716C",
-    tabIconDefault: "#78716C",
+    icon: "#737373",
+    tabIconDefault: "#737373",
     tabIconSelected: "#DC2626",
   },
 };

@@ -30,7 +30,7 @@ export function AuthInput({
   testID,
 }: AuthInputProps) {
   const textColor = useThemeColor({}, "text");
-  const backgroundColor = useThemeColor({}, "input");
+  const backgroundColor = useThemeColor({}, "card");
   const tintColor = useThemeColor({}, "tint");
   const errorColor = "#ef4444";
   const subtitleColor = useThemeColor({}, "subtitle");

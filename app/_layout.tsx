@@ -1,14 +1,29 @@
-import { useEffect } from 'react';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack, useRouter, useSegments } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+import { Stack, useRouter, useSegments } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useEffect, useState } from "react";
+import "react-native-reanimated";
+import * as Font from "expo-font";
+import * as SplashScreen from "expo-splash-screen";
+import {
+  DMSans_400Regular,
+  DMSans_500Medium,
+  DMSans_600SemiBold,
+  DMSans_700Bold,
+} from "@expo-google-fonts/dm-sans";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { AuthProvider, useAuthContext } from '@/contexts/AuthContext';
+import { AuthProvider, useAuthContext } from "@/contexts/AuthContext";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+
+// Keep the splash screen visible while we fetch resources
+SplashScreen.preventAutoHideAsync();
 
 export const unstable_settings = {
-  anchor: '(tabs)',
+  anchor: "(tabs)",
 };
 
 function RootLayoutNav() {
@@ -18,7 +33,7 @@ function RootLayoutNav() {
   const { user, loading: authLoading } = useAuthContext();
 
   useEffect(() => {
-    const isAuthGroup = segments[0] === 'auth';
+    const isAuthGroup = segments[0] === "auth";
 
     // Se está carregando, não fazer nada
     if (authLoading) {
@@ -27,12 +42,12 @@ function RootLayoutNav() {
 
     // Se não tem usuário e não está na tela de auth, redirecionar para auth
     if (!user && !isAuthGroup) {
-      router.replace('/auth');
+      router.replace("/auth");
     }
 
     // Se tem usuário e está na tela de auth, redirecionar para home
     if (user && isAuthGroup) {
-      router.replace('/(tabs)');
+      router.replace("/(tabs)");
     }
   }, [user, segments, authLoading, router]);
 
@@ -41,11 +56,14 @@ function RootLayoutNav() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="auth" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+        <Stack.Screen
+          name="modal"
+          options={{ presentation: "modal", title: "Modal" }}
+        />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
@@ -53,6 +71,32 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  useEffect(() => {
+    async function loadFonts() {
+      try {
+        await Font.loadAsync({
+          DMSans_400Regular,
+          DMSans_500Medium,
+          DMSans_600SemiBold,
+          DMSans_700Bold,
+        });
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        setFontsLoaded(true);
+        SplashScreen.hideAsync();
+      }
+    }
+
+    loadFonts();
+  }, []);
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <AuthProvider>
       <RootLayoutNav />

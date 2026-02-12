@@ -1,98 +1,207 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { EmptyState } from "@/components/vehicles/EmptyState";
+import { FloatingActionButton } from "@/components/vehicles/FloatingActionButton";
+import { LimitReachedModal } from "@/components/vehicles/LimitReachedModal";
+import { VehicleCard } from "@/components/vehicles/VehicleCard";
+import { VehicleListSkeleton } from "@/components/vehicles/VehicleListSkeleton";
+import { Colors, Fonts, Spacing } from "@/constants/theme";
+import { useUserPlan } from "@/hooks/useUserPlan";
+import { useVehicles } from "@/hooks/useVehicles";
+import { useRouter } from "expo-router";
+import React, { useCallback, useState } from "react";
+import {
+  Alert,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+export default function VehiclesScreen() {
+  const router = useRouter();
+  const { vehicles, loading, error, refetch } = useVehicles();
+  const { plan, loading: planLoading } = useUserPlan();
+  const [limitModalVisible, setLimitModalVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-export default function HomeScreen() {
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
+
+  const handleAddVehicle = useCallback(() => {
+    if (!plan) {
+      Alert.alert("Erro", "Não foi possível carregar seu plano");
+      return;
+    }
+
+    const isAtLimit = vehicles.length >= plan.max_vehicles;
+
+    if (isAtLimit) {
+      setLimitModalVisible(true);
+      return;
+    }
+
+    router.push("/vehicle/new");
+  }, [vehicles.length, plan, router]);
+
+  const handleVehiclePress = useCallback(
+    (vehicleId: string) => {
+      router.push(`/vehicle/${vehicleId}`);
+    },
+    [router],
+  );
+
+  const handleUpgradePlan = useCallback(() => {
+    // TODO: Navegar para tela de upgrade de planos
+    router.push("/(tabs)/explore");
+  }, [router]);
+
+  const handleRetry = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  const isAtLimit = plan && vehicles.length >= plan.max_vehicles;
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.title}>Veículos</Text>
+        <View style={styles.subtitleContainer}>
+          <Text style={styles.subtitle}>
+            {vehicles.length}{" "}
+            {vehicles.length === 1
+              ? "veículo cadastrado"
+              : "veículos cadastrados"}
+          </Text>
+          {plan && (
+            <Text style={[styles.badge, isAtLimit && styles.badgeFull]}>
+              {plan.name} · {vehicles.length}/{plan.max_vehicles}{" "}
+              {plan.max_vehicles === 1 ? "veículo" : "veículos"}
+            </Text>
+          )}
+        </View>
+      </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      {/* Content */}
+      {loading || planLoading ? (
+        <VehicleListSkeleton itemCount={3} />
+      ) : error ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>
+            Não foi possível carregar seus veículos.
+          </Text>
+          <View
+            style={{
+              backgroundColor: Colors.dark.primary,
+              borderRadius: 10,
+              overflow: "hidden",
+              marginTop: Spacing.lg,
+            }}
+          >
+            <Text
+              style={{
+                paddingVertical: Spacing.lg,
+                paddingHorizontal: Spacing.lg,
+                color: "#FFFFFF",
+                fontFamily: Fonts.family.semibold,
+                fontSize: Fonts.size.sm,
+                textAlign: "center",
+              }}
+              onPress={handleRetry}
+            >
+              Tentar novamente
+            </Text>
+          </View>
+        </View>
+      ) : vehicles.length === 0 ? (
+        <EmptyState onAddVehicle={handleAddVehicle} />
+      ) : (
+        <FlatList
+          data={vehicles}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <VehicleCard vehicle={item} onPress={handleVehiclePress} />
+          )}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              tintColor={Colors.dark.primary}
+            />
+          }
+          contentContainerStyle={styles.listContent}
+        />
+      )}
+
+      {/* FAB */}
+      <FloatingActionButton onPress={handleAddVehicle} />
+
+      {/* Modal - Limite Atingido */}
+      <LimitReachedModal
+        visible={limitModalVisible}
+        onClose={() => setLimitModalVisible(false)}
+        planName={plan?.name || "seu plano"}
+        maxVehicles={plan?.max_vehicles || 1}
+        onUpgrade={handleUpgradePlan}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: Colors.dark.background,
+    padding: Spacing.lg,
+    paddingTop: Spacing["4xl"],
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  header: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.xl,
+    paddingTop: Spacing["3xl"],
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.dark.border,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  title: {
+    fontFamily: Fonts.family.semibold,
+    fontSize: Fonts.size["2xl"],
+    color: Colors.dark.text,
+    marginBottom: Spacing.md,
+    lineHeight: Fonts.lineHeight.tight * Fonts.size["2xl"],
+  },
+  subtitleContainer: {
+    gap: Spacing.sm,
+  },
+  subtitle: {
+    fontFamily: Fonts.family.regular,
+    fontSize: Fonts.size.sm,
+    color: Colors.dark.textSecondary,
+  },
+  badge: {
+    fontFamily: Fonts.family.regular,
+    fontSize: Fonts.size.xs,
+    color: Colors.dark.textSecondary,
+  },
+  badgeFull: {
+    color: Colors.dark.primary,
+  },
+  listContent: {
+    paddingVertical: Spacing.lg,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: Spacing.lg,
+    gap: Spacing.lg,
+  },
+  errorText: {
+    fontFamily: Fonts.family.regular,
+    fontSize: Fonts.size.base,
+    color: Colors.dark.textSecondary,
+    textAlign: "center",
   },
 });

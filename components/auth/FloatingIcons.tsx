@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import Animated, {
   Easing,
+  SharedValue,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
@@ -16,7 +17,7 @@ export function FloatingIcons() {
   const bobbing3 = useSharedValue(0);
 
   useEffect(() => {
-    const animation = (val: Animated.SharedValue<number>, delay: number) => {
+    const animation = (val: SharedValue<number>, delay: number) => {
       val.value = withRepeat(
         withSequence(
           withTiming(-15, {
