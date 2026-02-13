@@ -119,7 +119,7 @@ export default function AuthScreen() {
     if (authState === "onboarding") {
       return (
         <View style={styles.header}>
-          <Text style={[styles.logoText, { color: textColor }]}>Revy</Text>
+          <Text style={[styles.logoText, { color: textColor }]}>Revvy</Text>
           {renderPagination()}
         </View>
       );
@@ -130,7 +130,7 @@ export default function AuthScreen() {
         <TouchableOpacity onPress={() => setAuthState("onboarding")}>
           <Ionicons name="chevron-back" size={28} color="white" />
         </TouchableOpacity>
-        <Text style={[styles.logoTextSmall, { color: textColor }]}>Revy</Text>
+        <Text style={[styles.logoTextSmall, { color: textColor }]}>Revvy</Text>
         <TouchableOpacity
           style={styles.headerPill}
           onPress={() =>
@@ -159,7 +159,7 @@ export default function AuthScreen() {
             <FloatingIcons />
             <View style={styles.onboardingTextContainer}>
               <Text style={[styles.smallLabel, { color: subtitleColor }]}>
-                REVY
+                REVvY
               </Text>
               <Text style={[styles.headline, { color: textColor }]}>
                 Tome o controle de todos os seus veículos
@@ -190,7 +190,7 @@ export default function AuthScreen() {
             <View style={styles.form}>
               <AuthInput
                 label="Email"
-                placeholder="driver@revy.com"
+                placeholder="driver@revvy.com"
                 value={formData.email}
                 onChangeText={(val) => handleInputChange("email", val)}
                 keyboardType="email-address"
@@ -231,7 +231,7 @@ export default function AuthScreen() {
             style={styles.cardContent}
           >
             <Text style={[styles.cardTitle, { color: textColor }]}>
-              Comece a usar o Revy.
+              Comece a usar o Revvy.
             </Text>
             <Text style={[styles.cardSubtitle, { color: subtitleColor }]}>
               É grátis.
@@ -240,7 +240,7 @@ export default function AuthScreen() {
             <View style={styles.form}>
               <AuthInput
                 label="Email"
-                placeholder="driver@revy.com"
+                placeholder="driver@revvy.com"
                 value={formData.email}
                 onChangeText={(val) => handleInputChange("email", val)}
                 keyboardType="email-address"

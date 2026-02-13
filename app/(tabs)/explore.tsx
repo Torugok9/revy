@@ -1,17 +1,10 @@
-import { Colors, Fonts, Spacing } from "@/constants/theme";
 import { LogoutButton } from "@/components/settings/LogoutButton";
 import { SettingsMenuItem } from "@/components/settings/SettingsMenuItem";
 import { UserProfileCard } from "@/components/settings/UserProfileCard";
-import React from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  Linking,
-  Pressable,
-} from "react-native";
+import { Colors, Fonts, Spacing } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
+import React from "react";
+import { Linking, ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function SettingsScreen() {
   const handleOpenLink = (url: string) => {
@@ -29,7 +22,9 @@ export default function SettingsScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Configurações</Text>
-        <Text style={styles.headerSubtitle}>Gerencie sua conta e preferências</Text>
+        <Text style={styles.headerSubtitle}>
+          Gerencie sua conta e preferências
+        </Text>
       </View>
 
       {/* User Profile Card */}
@@ -84,9 +79,7 @@ export default function SettingsScreen() {
           onPress={() => {
             console.log("Sobre o app");
           }}
-          rightElement={
-            <Text style={styles.versionText}>v1.0.0</Text>
-          }
+          rightElement={<Text style={styles.versionText}>v1.0.0</Text>}
         />
 
         <SettingsMenuItem
@@ -135,7 +128,7 @@ export default function SettingsScreen() {
       {/* Footer */}
       <View style={styles.footer}>
         <Text style={styles.footerText}>
-          Revy - Gerencie seus veículos com inteligência
+          Revvy - Gerencie seus veículos com inteligência
         </Text>
       </View>
     </ScrollView>

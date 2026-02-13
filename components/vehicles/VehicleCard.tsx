@@ -6,8 +6,10 @@ import {
   View,
   Animated,
 } from "react-native";
+import { Image } from "expo-image";
 import { Vehicle } from "@/types/vehicle";
 import { Colors, Fonts, Spacing, BorderRadius } from "@/constants/theme";
+import { IconSymbol } from "@/components/ui/icon-symbol";
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -52,30 +54,41 @@ export function VehicleCard({ vehicle, onPress }: VehicleCardProps) {
         onPressOut={handlePressOut}
         style={styles.container}
       >
-        <View style={styles.content}>
-          {/* Brand and Model */}
-          <Text style={styles.brandModel}>
-            {vehicle.brand} {vehicle.model}
-          </Text>
+        {/* Vehicle Image Area */}
+        <View style={styles.imageContainer}>
+          {vehicle.photo_url ? (
+            <Image
+              source={{ uri: vehicle.photo_url }}
+              style={styles.image}
+              contentFit="contain"
+            />
+          ) : (
+            <View style={styles.iconPlaceholder}>
+              <IconSymbol
+                name="car.fill"
+                size={56}
+                color={Colors.dark.textSecondary}
+              />
+            </View>
+          )}
+        </View>
 
-          {/* Year and Plate */}
-          <View style={styles.row}>
-            <Text style={styles.year}>{vehicle.year}</Text>
-            <Text style={styles.plate}>{vehicle.plate.toUpperCase()}</Text>
+        {/* Vehicle Info */}
+        <View style={styles.infoContainer}>
+          {/* Left Column */}
+          <View style={styles.leftColumn}>
+            <Text style={styles.brandModel}>
+              {vehicle.brand} {vehicle.model}
+            </Text>
+            <Text style={styles.details}>
+              {vehicle.year} • {vehicle.plate.toUpperCase()}
+            </Text>
           </View>
 
-          {/* KM */}
-          <Text
-            style={[
-              styles.km,
-              vehicle.current_km === null ||
-              vehicle.current_km === undefined
-                ? styles.kmEmpty
-                : styles.kmValue,
-            ]}
-          >
-            {kmText}
-          </Text>
+          {/* Right Column */}
+          <View style={styles.rightColumn}>
+            <Text style={styles.kmValue}>{kmText}</Text>
+          </View>
         </View>
       </Pressable>
     </Animated.View>
@@ -84,47 +97,58 @@ export function VehicleCard({ vehicle, onPress }: VehicleCardProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.dark.card,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.lg,
+    backgroundColor: Colors.dark.surfaceElevated,
+    borderRadius: BorderRadius["2xl"],
     marginHorizontal: Spacing.lg,
     marginBottom: Spacing.lg,
-    borderWidth: 1,
-    borderColor: Colors.dark.border,
+    overflow: "hidden",
+    borderWidth: 0.5,
+    borderColor: Colors.dark.borderStrong,
   },
-  content: {
-    gap: Spacing.md,
+  imageContainer: {
+    width: "100%",
+    height: 190,
+    backgroundColor: Colors.dark.background,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+  },
+  iconPlaceholder: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  infoContainer: {
+    flexDirection: "row",
+    padding: Spacing.lg,
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: Spacing.lg,
+  },
+  leftColumn: {
+    flex: 1,
+    gap: Spacing.xs,
+  },
+  rightColumn: {
+    alignItems: "flex-end",
+    justifyContent: "flex-start",
   },
   brandModel: {
-    fontFamily: Fonts.family.semibold,
+    fontFamily: Fonts.family.bold,
     fontSize: Fonts.size.lg,
     color: Colors.dark.text,
     lineHeight: Fonts.lineHeight.tight * Fonts.size.lg,
   },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.lg,
-  },
-  year: {
+  details: {
     fontFamily: Fonts.family.regular,
     fontSize: Fonts.size.sm,
-    color: Colors.dark.textSecondary,
-  },
-  plate: {
-    fontFamily: Fonts.family.medium,
-    fontSize: Fonts.size.xs,
-    color: Colors.dark.textSecondary,
-    letterSpacing: 1,
-  },
-  km: {
-    fontFamily: Fonts.family.medium,
-    fontSize: Fonts.size.base,
+    color: "#9CA3AF",
   },
   kmValue: {
+    fontFamily: Fonts.family.bold,
+    fontSize: Fonts.size.lg,
     color: Colors.dark.primary,
-  },
-  kmEmpty: {
-    color: Colors.dark.textMuted,
   },
 });

@@ -25,7 +25,7 @@ export default function TabLayout() {
         name="index"
         options={{
           headerShown: false,
-          title: "Veículos",
+          title: "Garagem",
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="car.fill" color={color} />
           ),

@@ -1,9 +1,3 @@
-/**
- * Revy — Design System
- * Identidade visual: Guards Red (Dark Mode)
- * Fonte: DM Sans (SemiBold para títulos, Bold para logo/destaques)
- */
-
 export const Colors = {
   dark: {
     // Superfícies
