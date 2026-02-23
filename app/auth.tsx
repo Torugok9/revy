@@ -7,6 +7,7 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { useThemeColor } from "@/hooks/use-theme-color";
 
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -78,7 +79,12 @@ export default function AuthScreen() {
     try {
       setGeneralError(null);
       await signUp(formData.email, formData.password, formData.name);
-      router.replace("/(tabs)");
+      const onboardingCompleted = await AsyncStorage.getItem("revy_onboarding_completed");
+      if (onboardingCompleted === "true") {
+        router.replace("/(tabs)");
+      } else {
+        router.replace("/onboarding" as any);
+      }
     } catch (error: any) {
       setGeneralError(error.message || "Erro ao criar conta");
     }

@@ -1,15 +1,19 @@
 import { LogoutButton } from "@/components/settings/LogoutButton";
 import { SettingsMenuItem } from "@/components/settings/SettingsMenuItem";
 import { UserProfileCard } from "@/components/settings/UserProfileCard";
-import { Colors, Fonts, Spacing } from "@/constants/theme";
+import { BorderRadius, Colors, Fonts, Spacing } from "@/constants/theme";
+import { useFeaturesContext } from "@/contexts/FeaturesContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Linking, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const { planId } = useFeaturesContext();
+
+  const planLabel = planId === "free" ? "Gratuito" : planId === "premium" ? "Pro" : "Frota";
 
   const handleOpenLink = (url: string) => {
     Linking.openURL(url).catch(() => {
@@ -35,6 +39,32 @@ export default function SettingsScreen() {
       {/* User Profile Card */}
       <UserProfileCard />
 
+      {/* My Plan Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Meu Plano</Text>
+        <Pressable
+          onPress={() => router.push("/plans" as any)}
+          style={({ pressed }) => [
+            styles.planCard,
+            pressed && { opacity: 0.8 },
+          ]}
+        >
+          <View style={styles.planCardLeft}>
+            <View style={styles.planBadge}>
+              <Text style={styles.planBadgeText}>{planLabel}</Text>
+            </View>
+            <Text style={styles.planCardHint}>
+              {planId === "free" ? "Faça upgrade para desbloquear recursos" : "Gerenciar assinatura"}
+            </Text>
+          </View>
+          <Ionicons
+            name="chevron-forward"
+            size={20}
+            color={Colors.dark.textSecondary}
+          />
+        </Pressable>
+      </View>
+
       {/* Account Section */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Conta</Text>
@@ -49,7 +79,7 @@ export default function SettingsScreen() {
 
         <SettingsMenuItem
           icon="card-outline"
-          label="Meu Plano"
+          label="Detalhes do Plano"
           onPress={() => {
             router.push("/profile/plan");
           }}
@@ -193,6 +223,39 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   versionText: {
+    fontFamily: Fonts.family.regular,
+    fontSize: Fonts.size.sm,
+    color: Colors.dark.textSecondary,
+  },
+  planCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: Colors.dark.surface,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.dark.border,
+  },
+  planCardLeft: {
+    flex: 1,
+    gap: Spacing.xs,
+  },
+  planBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: Colors.dark.primaryGlow,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.sm,
+    borderWidth: 1,
+    borderColor: Colors.dark.primary,
+  },
+  planBadgeText: {
+    fontFamily: Fonts.family.semibold,
+    fontSize: Fonts.size.xs,
+    color: Colors.dark.primary,
+  },
+  planCardHint: {
     fontFamily: Fonts.family.regular,
     fontSize: Fonts.size.sm,
     color: Colors.dark.textSecondary,

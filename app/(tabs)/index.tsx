@@ -6,7 +6,9 @@ import { MaintenanceStatsCards } from "@/components/dashboard/MaintenanceStatsCa
 import { RecentActivityList } from "@/components/dashboard/RecentActivityList";
 import { VehiclePickerModal } from "@/components/dashboard/VehiclePickerModal";
 import { VehicleSelector } from "@/components/dashboard/VehicleSelector";
+import { UpgradeBanner } from "@/components/UpgradeBanner";
 import { Colors, Fonts, Spacing } from "@/constants/theme";
+import { useFeaturesContext } from "@/contexts/FeaturesContext";
 import { useMaintenances } from "@/hooks/useMaintenances";
 import { useOdometer } from "@/hooks/useOdometer";
 import { useVehicleHealth } from "@/hooks/useVehicleHealth";
@@ -27,6 +29,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function DashboardScreen() {
   const router = useRouter();
+  const { planId } = useFeaturesContext();
   const {
     vehicles,
     loading: vehiclesLoading,
@@ -161,6 +164,16 @@ export default function DashboardScreen() {
             />
           }
         >
+          {/* Upgrade Banner (Free users only) */}
+          {planId === "free" && (
+            <UpgradeBanner
+              hasOverdueMaintenance={health?.overdue_count ? health.overdue_count > 0 : false}
+              hasFuelLogs={false}
+              vehicleCount={vehicles.length}
+              maxVehicles={1}
+            />
+          )}
+
           {/* Vehicle Selector */}
           <VehicleSelector
             vehicle={selectedVehicle}

@@ -574,9 +574,29 @@ export default function VehicleDetailScreen() {
                 </View>
               )}
 
+              {/* Stats Avançados de Combustível (Premium) */}
+              <FeatureGate feature="fuel_stats_advanced">
+                <View style={styles.advancedStatsPlaceholder}>
+                  <Text style={styles.fuelStatLabel}>ANÁLISE AVANÇADA</Text>
+                  <Text style={styles.fuelStatValue}>
+                    Tendência de consumo e gastos detalhados
+                  </Text>
+                </View>
+              </FeatureGate>
+
               {/* Comparação de Combustível (Premium) */}
               <FeatureGate feature="fuel_comparison">
                 <FuelComparison vehicleId={vehicleId} />
+              </FeatureGate>
+
+              {/* Custo por Km (Premium) */}
+              <FeatureGate feature="cost_per_km">
+                <View style={styles.advancedStatsPlaceholder}>
+                  <Text style={styles.fuelStatLabel}>CUSTO POR KM</Text>
+                  <Text style={styles.fuelStatValue}>
+                    Cálculo integrado de combustível + manutenção
+                  </Text>
+                </View>
               </FeatureGate>
 
               {/* Ver Histórico */}
@@ -681,6 +701,23 @@ export default function VehicleDetailScreen() {
               ))}
             </View>
           )}
+        </View>
+
+        {/* Premium Action Buttons */}
+        <View style={styles.premiumActionsContainer}>
+          <FeatureGate feature="pdf_export" mode="action">
+            <Pressable style={styles.premiumActionButton}>
+              <Ionicons name="document-text-outline" size={20} color={Colors.dark.text} />
+              <Text style={styles.premiumActionText}>Exportar PDF</Text>
+            </Pressable>
+          </FeatureGate>
+
+          <FeatureGate feature="sale_report" mode="action">
+            <Pressable style={styles.premiumActionButton}>
+              <Ionicons name="clipboard-outline" size={20} color={Colors.dark.text} />
+              <Text style={styles.premiumActionText}>Relatório de Venda</Text>
+            </Pressable>
+          </FeatureGate>
         </View>
 
         <View style={{ height: Spacing["3xl"] }} />
@@ -1038,5 +1075,33 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.family.medium,
     fontSize: Fonts.size.sm,
     color: Colors.dark.primary,
+  },
+  advancedStatsPlaceholder: {
+    backgroundColor: Colors.dark.surfaceElevated,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    borderWidth: 0.5,
+    borderColor: Colors.dark.borderStrong,
+    marginBottom: Spacing.lg,
+  },
+  premiumActionsContainer: {
+    paddingHorizontal: Spacing.lg,
+    gap: Spacing.sm,
+    marginBottom: Spacing.lg,
+  },
+  premiumActionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.md,
+    backgroundColor: Colors.dark.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.dark.border,
+  },
+  premiumActionText: {
+    fontFamily: Fonts.family.medium,
+    fontSize: Fonts.size.base,
+    color: Colors.dark.text,
   },
 });

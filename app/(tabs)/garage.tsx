@@ -5,6 +5,7 @@ import { RegisterNewVehicleCard } from "@/components/vehicles/RegisterNewVehicle
 import { SearchBar } from "@/components/vehicles/SearchBar";
 import { VehicleCard } from "@/components/vehicles/VehicleCard";
 import { VehicleListSkeleton } from "@/components/vehicles/VehicleListSkeleton";
+import { PlanUsageIndicator } from "@/components/PlanUsageIndicator";
 import { Colors, Fonts, Spacing } from "@/constants/theme";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import { useVehicles } from "@/hooks/useVehicles";
@@ -64,8 +65,7 @@ export default function GarageScreen() {
   );
 
   const handleUpgradePlan = useCallback(() => {
-    // TODO: Navegar para tela de upgrade de planos
-    router.push("/(tabs)/explore");
+    router.push("/plans" as any);
   }, [router]);
 
   const handleRetry = useCallback(() => {
@@ -96,6 +96,15 @@ export default function GarageScreen() {
         <View style={styles.header}>
           <Text style={styles.title}>Garagem</Text>
         </View>
+
+        {/* Plan Usage Indicator */}
+        {!loading && !planLoading && vehicles.length > 0 && (
+          <PlanUsageIndicator
+            currentCount={vehicles.length}
+            maxCount={maxVehicles}
+            planId={planId}
+          />
+        )}
 
         {/* Content */}
         {loading || planLoading ? (

@@ -1,3 +1,4 @@
+import { FeatureGate } from "@/components/FeatureGate";
 import { MaskedVehicleInput } from "@/components/vehicles/MaskedVehicleInput";
 import { BorderRadius, Colors, Fonts, Spacing } from "@/constants/theme";
 import { useVehicle } from "@/hooks/useVehicle";
@@ -424,31 +425,33 @@ export default function NewMaintenanceScreen() {
         {/* Proof of Service */}
         <Text style={styles.sectionHeader}>COMPROVANTE</Text>
 
-        <Pressable onPress={handlePickImage} style={styles.photoSection}>
-          {photoUri ? (
-            <Image
-              source={{ uri: photoUri }}
-              style={styles.photoPreview}
-              contentFit="cover"
-            />
-          ) : (
-            <>
-              <View style={styles.cameraIconCircle}>
-                <Ionicons
-                  name="camera-outline"
-                  size={32}
-                  color={Colors.dark.primary}
-                />
-              </View>
-              <Text style={styles.photoTitle}>
-                Adicionar foto do comprovante
-              </Text>
-              <Text style={styles.photoSubtitle}>
-                Suporta JPG, PNG até 10MB
-              </Text>
-            </>
-          )}
-        </Pressable>
+        <FeatureGate feature="receipt_photo" mode="action">
+          <Pressable onPress={handlePickImage} style={styles.photoSection}>
+            {photoUri ? (
+              <Image
+                source={{ uri: photoUri }}
+                style={styles.photoPreview}
+                contentFit="cover"
+              />
+            ) : (
+              <>
+                <View style={styles.cameraIconCircle}>
+                  <Ionicons
+                    name="camera-outline"
+                    size={32}
+                    color={Colors.dark.primary}
+                  />
+                </View>
+                <Text style={styles.photoTitle}>
+                  Adicionar foto do comprovante
+                </Text>
+                <Text style={styles.photoSubtitle}>
+                  Suporta JPG, PNG até 10MB
+                </Text>
+              </>
+            )}
+          </Pressable>
+        </FeatureGate>
 
         {/* Save Button */}
         <Pressable
