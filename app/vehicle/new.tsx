@@ -1,14 +1,14 @@
 import { LimitReachedModal } from "@/components/vehicles/LimitReachedModal";
 import { MaskedVehicleInput } from "@/components/vehicles/MaskedVehicleInput";
-import { Colors, Fonts, Spacing, BorderRadius } from "@/constants/theme";
+import { BorderRadius, Colors, Fonts, Spacing } from "@/constants/theme";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import { supabase } from "@/lib/supabase";
-import { cleanCurrency, cleanKilometers, cleanPlate } from "@/utils/formatters";
+import { cleanCurrency, cleanDate, cleanKilometers, cleanPlate } from "@/utils/formatters";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
+import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -18,10 +18,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  TextInput as RNTextInput,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput as RNTextInput,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -80,7 +80,7 @@ export default function NewVehicleScreen() {
     (field: keyof VehicleFormData, value: string) => {
       setFormData((prev) => ({ ...prev, [field]: value }));
     },
-    []
+    [],
   );
 
   // Validação: campos obrigatórios preenchidos
@@ -110,7 +110,7 @@ export default function NewVehicleScreen() {
       try {
         await AsyncStorage.setItem(
           STORAGE_KEY,
-          JSON.stringify({ formData, photoUri })
+          JSON.stringify({ formData, photoUri }),
         );
       } catch {}
     }, 1000);
@@ -127,7 +127,7 @@ export default function NewVehicleScreen() {
         async (buttonIndex) => {
           if (buttonIndex === 0) await launchCamera();
           else if (buttonIndex === 1) await launchGallery();
-        }
+        },
       );
     } else {
       Alert.alert("Foto do Veículo", "Como deseja adicionar a foto?", [
@@ -143,7 +143,7 @@ export default function NewVehicleScreen() {
     if (!permission.granted) {
       Alert.alert(
         "Permissão necessária",
-        "Precisamos de acesso à câmera para tirar fotos."
+        "Precisamos de acesso à câmera para tirar fotos.",
       );
       return;
     }
@@ -159,12 +159,11 @@ export default function NewVehicleScreen() {
   };
 
   const launchGallery = async () => {
-    const permission =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
       Alert.alert(
         "Permissão necessária",
-        "Precisamos de acesso à galeria para selecionar fotos."
+        "Precisamos de acesso à galeria para selecionar fotos.",
       );
       return;
     }
@@ -221,6 +220,18 @@ export default function NewVehicleScreen() {
 
     setIsLoading(true);
     try {
+      // Converte DD/MM/YYYY → YYYY-MM-DD para o banco de dados
+      let purchaseDateISO: string | null = null;
+      if (formData.purchaseDate.trim()) {
+        const cleaned = cleanDate(formData.purchaseDate);
+        if (cleaned.length === 8) {
+          const day = cleaned.substring(0, 2);
+          const month = cleaned.substring(2, 4);
+          const year = cleaned.substring(4, 8);
+          purchaseDateISO = `${year}-${month}-${day}`;
+        }
+      }
+
       const insertData = {
         brand: formData.brand.trim(),
         model: formData.model.trim(),
@@ -231,7 +242,7 @@ export default function NewVehicleScreen() {
           ? parseInt(cleanKilometers(formData.currentKm), 10)
           : 0,
         chassis_number: formData.chassisNumber.trim() || null,
-        purchase_date: formData.purchaseDate.trim() || null,
+        purchase_date: purchaseDateISO,
         purchase_value: formData.purchaseValue
           ? parseFloat(cleanCurrency(formData.purchaseValue))
           : null,
