@@ -1,9 +1,11 @@
 import { BorderRadius, Colors, Fonts, Spacing } from "@/constants/theme";
+import { useFeaturesContext } from "@/contexts/FeaturesContext";
 import { useUserInfo } from "@/hooks/useUserInfo";
 import { useVehicles } from "@/hooks/useVehicles";
+import type { FeatureKey } from "@/types/plans";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useMemo } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -14,31 +16,25 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const PLAN_FEATURES: Record<string, { icon: string; label: string }[]> = {
-  free: [
-    { icon: "car-outline", label: "Até 1 veículo" },
-    { icon: "construct-outline", label: "Registro de manutenções" },
-    { icon: "speedometer-outline", label: "Controle de quilometragem" },
-  ],
-  pro: [
-    { icon: "car-outline", label: "Até 5 veículos" },
-    { icon: "construct-outline", label: "Registro de manutenções" },
-    { icon: "speedometer-outline", label: "Controle de quilometragem" },
-    { icon: "document-text-outline", label: "Exportação em PDF" },
-    { icon: "notifications-outline", label: "Lembretes push" },
-    { icon: "camera-outline", label: "Foto de comprovantes" },
-  ],
-  premium: [
-    { icon: "car-outline", label: "Veículos ilimitados" },
-    { icon: "construct-outline", label: "Registro de manutenções" },
-    { icon: "speedometer-outline", label: "Controle de quilometragem" },
-    { icon: "document-text-outline", label: "Exportação em PDF" },
-    { icon: "notifications-outline", label: "Lembretes push" },
-    { icon: "camera-outline", label: "Foto de comprovantes" },
-    { icon: "people-outline", label: "Multi-usuário" },
-    { icon: "stats-chart-outline", label: "Dashboard de frota" },
-  ],
+const FEATURE_DISPLAY: Record<FeatureKey, { icon: string; label: string }> = {
+  pdf_export: { icon: "document-text-outline", label: "Exportação em PDF" },
+  push_reminders: { icon: "notifications-outline", label: "Lembretes push" },
+  receipt_photo: { icon: "camera-outline", label: "Foto de comprovantes" },
+  multi_user: { icon: "people-outline", label: "Multi-usuário" },
+  fleet_dashboard: { icon: "stats-chart-outline", label: "Dashboard de frota" },
+  km_charts: { icon: "trending-up-outline", label: "Gráficos de km" },
+  cost_per_km: { icon: "calculator-outline", label: "Custo por km" },
+  fuel_comparison: { icon: "swap-horizontal-outline", label: "Comparação de combustível" },
+  fuel_stats_advanced: { icon: "bar-chart-outline", label: "Estatísticas avançadas" },
+  sale_report: { icon: "clipboard-outline", label: "Relatório para venda" },
+  odometer_history: { icon: "time-outline", label: "Histórico de km" },
 };
+
+/** Features base que todos os planos têm */
+const BASE_FEATURES: { icon: string; label: string }[] = [
+  { icon: "construct-outline", label: "Registro de manutenções" },
+  { icon: "speedometer-outline", label: "Controle de quilometragem" },
+];
 
 function getStatusLabel(status?: string): { text: string; color: string } {
   switch (status) {
@@ -60,9 +56,23 @@ export default function MyPlanScreen() {
   const insets = useSafeAreaInsets();
   const { plan, planName, planIcon } = useUserInfo();
   const { vehicles, loading: vehiclesLoading } = useVehicles();
+  const { features: userFeatures } = useFeaturesContext();
 
-  const planKey = planName.toLowerCase();
-  const features = PLAN_FEATURES[planKey] || PLAN_FEATURES.free;
+  const features = useMemo(() => {
+    const vehicleLabel =
+      (plan?.max_vehicles ?? 1) === 1
+        ? "Até 1 veículo"
+        : plan?.max_vehicles === 999
+          ? "Veículos ilimitados"
+          : `Até ${plan?.max_vehicles} veículos`;
+
+    const base = [{ icon: "car-outline", label: vehicleLabel }, ...BASE_FEATURES];
+    const dynamic = userFeatures
+      .map((key) => FEATURE_DISPLAY[key])
+      .filter(Boolean);
+
+    return [...base, ...dynamic];
+  }, [userFeatures, plan?.max_vehicles]);
   const status = getStatusLabel(plan?.subscription_status);
   const vehicleCount = vehicles.length;
   const maxVehicles = plan?.max_vehicles ?? 1;
@@ -177,7 +187,7 @@ export default function MyPlanScreen() {
         </View>
 
         {/* Upgrade CTA */}
-        {planKey === "free" ? (
+        {planName.toLowerCase() === "free" ? (
           <View style={styles.upgradeSection}>
             <Text style={styles.upgradeTitle}>Quer mais recursos?</Text>
             <Text style={styles.upgradeDescription}>

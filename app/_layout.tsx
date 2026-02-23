@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import "react-native-reanimated";
 
 import { AuthProvider, useAuthContext } from "@/contexts/AuthContext";
+import { FeaturesProvider } from "@/contexts/FeaturesContext";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
 // Keep the splash screen visible while we fetch resources
@@ -103,7 +104,9 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <RootLayoutNav />
+      <FeaturesProvider>
+        <RootLayoutNav />
+      </FeaturesProvider>
     </AuthProvider>
   );
 }

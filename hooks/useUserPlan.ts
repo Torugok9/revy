@@ -1,27 +1,28 @@
-// eslint-disable-next-line import/no-unresolved
 import { useAuthContext } from "@/contexts/AuthContext";
-// eslint-disable-next-line import/no-unresolved
+
 import { supabase } from "@/lib/supabase";
-// eslint-disable-next-line import/no-unresolved
-import { UserPlan } from "@/types/vehicle";
-import { useCallback, useEffect, useState } from "react";
+
+import { FeatureKey, UserFeatures } from "@/types/plans";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface UseUserPlanResult {
-  plan: UserPlan | null;
+  planId: string;
+  features: FeatureKey[];
+  canUse: (feature: FeatureKey) => boolean;
   loading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
 }
 
 export function useUserPlan(): UseUserPlanResult {
-  const [plan, setPlan] = useState<UserPlan | null>(null);
+  const [userFeatures, setUserFeatures] = useState<UserFeatures | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuthContext();
 
   const fetchPlan = useCallback(async () => {
     if (!user) {
-      setPlan(null);
+      setUserFeatures(null);
       setLoading(false);
       return;
     }
@@ -31,8 +32,8 @@ export function useUserPlan(): UseUserPlanResult {
       setError(null);
 
       const { data, error: supabaseError } = await supabase.rpc(
-        "get_user_plan",
-        { target_user_id: user.id },
+        "get_user_features",
+        { p_user_id: user.id },
       );
 
       if (supabaseError) {
@@ -41,7 +42,7 @@ export function useUserPlan(): UseUserPlanResult {
         );
       }
 
-      setPlan(data || null);
+      setUserFeatures(data || null);
     } catch (err) {
       const message =
         err instanceof Error
@@ -58,8 +59,20 @@ export function useUserPlan(): UseUserPlanResult {
     fetchPlan();
   }, [user, fetchPlan]);
 
+  const featureSet = useMemo(() => {
+    if (!userFeatures?.features) return new Set<FeatureKey>();
+    return new Set<FeatureKey>(userFeatures.features);
+  }, [userFeatures]);
+
+  const canUse = useCallback(
+    (feature: FeatureKey): boolean => featureSet.has(feature),
+    [featureSet],
+  );
+
   return {
-    plan,
+    planId: userFeatures?.plan_id ?? "free",
+    features: userFeatures?.features ?? [],
+    canUse,
     loading,
     error,
     refetch: fetchPlan,

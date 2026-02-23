@@ -46,7 +46,6 @@ export interface Plan {
   max_vehicles: number;
   price_monthly?: number | null;
   price_yearly?: number | null;
-  features?: string[] | null;
   created_at?: string;
   updated_at?: string;
 }
