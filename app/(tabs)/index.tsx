@@ -1,20 +1,20 @@
-import { EmptyState } from "@/components/vehicles/EmptyState";
-import { FloatingActionButton } from "@/components/vehicles/FloatingActionButton";
-import { LimitReachedModal } from "@/components/vehicles/LimitReachedModal";
-import { RegisterNewVehicleCard } from "@/components/vehicles/RegisterNewVehicleCard";
-import { SearchBar } from "@/components/vehicles/SearchBar";
-import { VehicleCard } from "@/components/vehicles/VehicleCard";
-import { VehicleListSkeleton } from "@/components/vehicles/VehicleListSkeleton";
+import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
+import { HealthCard } from "@/components/dashboard/HealthCard";
+import { MaintenanceStatsCards } from "@/components/dashboard/MaintenanceStatsCards";
+import { RecentActivityList } from "@/components/dashboard/RecentActivityList";
+import { VehiclePickerModal } from "@/components/dashboard/VehiclePickerModal";
+import { VehicleSelector } from "@/components/dashboard/VehicleSelector";
 import { Colors, Fonts, Spacing } from "@/constants/theme";
-import { useUserPlan } from "@/hooks/useUserPlan";
+import { useMaintenances } from "@/hooks/useMaintenances";
+import { useVehicleHealth } from "@/hooks/useVehicleHealth";
 import { useVehicles } from "@/hooks/useVehicles";
+import { Vehicle } from "@/types/vehicle";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Alert,
-  FlatList,
   RefreshControl,
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
@@ -22,198 +22,173 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function GarageScreen() {
+export default function DashboardScreen() {
   const router = useRouter();
-  const { vehicles, loading, error, refetch } = useVehicles();
-  const { plan, loading: planLoading } = useUserPlan();
-  const [limitModalVisible, setLimitModalVisible] = useState(false);
+  const { vehicles, loading: vehiclesLoading, refetch: refetchVehicles } = useVehicles();
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
+  const [pickerVisible, setPickerVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+
+  // Derivar o veículo selecionado da lista (evita referências novas a cada render)
+  const selectedVehicle = vehicles.find((v) => v.id === selectedVehicleId) ?? null;
+
+  const {
+    health,
+    loading: healthLoading,
+    refetch: refetchHealth,
+  } = useVehicleHealth(selectedVehicleId);
+
+  const {
+    maintenances,
+    loading: maintenancesLoading,
+    refetch: refetchMaintenances,
+  } = useMaintenances(selectedVehicleId ?? "");
+
+  // Selecionar primeiro veículo automaticamente ou corrigir se o selecionado foi removido
+  useEffect(() => {
+    if (vehicles.length === 0) return;
+
+    if (!selectedVehicleId || !vehicles.some((v) => v.id === selectedVehicleId)) {
+      setSelectedVehicleId(vehicles[0].id);
+    }
+  }, [vehicles, selectedVehicleId]);
+
+  // Refs para poder chamar refetch sem dependências instáveis
+  const refetchHealthRef = useRef(refetchHealth);
+  const refetchMaintenancesRef = useRef(refetchMaintenances);
+  refetchHealthRef.current = refetchHealth;
+  refetchMaintenancesRef.current = refetchMaintenances;
+
+  // Refetch quando a tela ganha foco
+  useFocusEffect(
+    useCallback(() => {
+      refetchVehicles();
+      refetchHealthRef.current();
+      refetchMaintenancesRef.current();
+    }, [refetchVehicles])
+  );
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    await refetch();
+    await Promise.all([
+      refetchVehicles(),
+      refetchHealthRef.current(),
+      refetchMaintenancesRef.current(),
+    ]);
     setRefreshing(false);
-  }, [refetch]);
+  }, [refetchVehicles]);
 
-  // Refetch veículos quando a tela ganha foco (após criar novo veículo, por exemplo)
-  useFocusEffect(
-    useCallback(() => {
-      refetch();
-    }, [refetch]),
-  );
+  const handleSelectVehicle = useCallback((vehicle: Vehicle) => {
+    setSelectedVehicleId(vehicle.id);
+    setPickerVisible(false);
+  }, []);
 
-  const handleAddVehicle = useCallback(() => {
-    if (!plan) {
-      Alert.alert("Erro", "Não foi possível carregar seu plano");
-      return;
+  const handleViewAllActivity = useCallback(() => {
+    if (selectedVehicleId) {
+      router.push(`/vehicle/${selectedVehicleId}`);
     }
+  }, [selectedVehicleId, router]);
 
-    const isAtLimit = vehicles.length >= plan.max_vehicles;
+  const isLoading = vehiclesLoading || healthLoading;
 
-    if (isAtLimit) {
-      setLimitModalVisible(true);
-      return;
-    }
-
-    router.push("/vehicle/new");
-  }, [vehicles.length, plan, router]);
-
-  const handleVehiclePress = useCallback(
-    (vehicleId: string) => {
-      router.push(`/vehicle/${vehicleId}`);
-    },
-    [router],
-  );
-
-  const handleUpgradePlan = useCallback(() => {
-    // TODO: Navegar para tela de upgrade de planos
-    router.push("/(tabs)/explore");
-  }, [router]);
-
-  const handleRetry = useCallback(() => {
-    refetch();
-  }, [refetch]);
-
-  // Filtrar veículos por busca
-  const filteredVehicles = useMemo(() => {
-    if (!searchQuery.trim()) return vehicles;
-
-    const query = searchQuery.toLowerCase();
-    return vehicles.filter(
-      (vehicle) =>
-        vehicle.brand.toLowerCase().includes(query) ||
-        vehicle.model.toLowerCase().includes(query) ||
-        vehicle.plate.toLowerCase().includes(query),
+  // Sem veículos
+  if (!vehiclesLoading && vehicles.length === 0) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor={Colors.dark.background}
+        />
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyTitle}>Dashboard</Text>
+          <Text style={styles.emptyText}>
+            Adicione um veículo na aba Garagem para visualizar o dashboard.
+          </Text>
+        </View>
+      </SafeAreaView>
     );
-  }, [vehicles, searchQuery]);
+  }
 
   return (
-    <SafeAreaView style={styles.safeAreaContainer}>
+    <SafeAreaView style={styles.safeArea}>
       <StatusBar
         barStyle="light-content"
         backgroundColor={Colors.dark.background}
       />
-      <View style={styles.container}>
-        {/* Header with FAB inline */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Garagem</Text>
-        </View>
 
-        {/* Content */}
-        {loading || planLoading ? (
-          <VehicleListSkeleton itemCount={3} />
-        ) : error ? (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>
-              Não foi possível carregar seus veículos.
-            </Text>
-            <View
-              style={{
-                backgroundColor: Colors.dark.primary,
-                borderRadius: 10,
-                overflow: "hidden",
-                marginTop: Spacing.lg,
-              }}
-            >
-              <Text
-                style={{
-                  paddingVertical: Spacing.lg,
-                  paddingHorizontal: Spacing.lg,
-                  color: "#FFFFFF",
-                  fontFamily: Fonts.family.semibold,
-                  fontSize: Fonts.size.sm,
-                  textAlign: "center",
-                }}
-                onPress={handleRetry}
-              >
-                Tentar novamente
-              </Text>
-            </View>
-          </View>
-        ) : vehicles.length === 0 ? (
-          <EmptyState onAddVehicle={handleAddVehicle} />
-        ) : (
-          <>
-            {/* Search Bar */}
-            <SearchBar value={searchQuery} onChangeText={setSearchQuery} />
-
-            {/* Vehicle List */}
-            <FlatList
-              data={filteredVehicles}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <VehicleCard vehicle={item} onPress={handleVehiclePress} />
-              )}
-              refreshControl={
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={handleRefresh}
-                  tintColor={Colors.dark.primary}
-                />
-              }
-              ListFooterComponent={() => (
-                <RegisterNewVehicleCard onPress={handleAddVehicle} />
-              )}
-              contentContainerStyle={styles.listContent}
+      {isLoading && !refreshing ? (
+        <DashboardSkeleton />
+      ) : (
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              tintColor={Colors.dark.primary}
             />
-          </>
-        )}
+          }
+        >
+          {/* Vehicle Selector */}
+          <VehicleSelector
+            vehicle={selectedVehicle}
+            onPress={() => setPickerVisible(true)}
+          />
 
-        {/* FAB */}
-        {vehicles.length > 0 && (
-          <FloatingActionButton onPress={handleAddVehicle} />
-        )}
+          {/* Health Card */}
+          {health && <HealthCard health={health} />}
 
-        {/* Modal - Limite Atingido */}
-        <LimitReachedModal
-          visible={limitModalVisible}
-          onClose={() => setLimitModalVisible(false)}
-          planName={plan?.name || "seu plano"}
-          maxVehicles={plan?.max_vehicles || 1}
-          onUpgrade={handleUpgradePlan}
-        />
-      </View>
+          {/* Stats Cards */}
+          {health && <MaintenanceStatsCards health={health} />}
+
+          {/* Recent Activity */}
+          <RecentActivityList
+            maintenances={maintenances}
+            onViewAll={handleViewAllActivity}
+          />
+
+          <View style={{ height: Spacing["4xl"] }} />
+        </ScrollView>
+      )}
+
+      {/* Vehicle Picker Modal */}
+      <VehiclePickerModal
+        visible={pickerVisible}
+        vehicles={vehicles}
+        selectedVehicleId={selectedVehicleId}
+        onSelect={handleSelectVehicle}
+        onClose={() => setPickerVisible(false)}
+      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeAreaContainer: {
+  safeArea: {
     flex: 1,
     backgroundColor: Colors.dark.background,
   },
-  container: {
+  scrollView: {
     flex: 1,
-    backgroundColor: Colors.dark.background,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.lg,
-  },
-  title: {
-    fontFamily: Fonts.family.bold,
-    fontSize: Fonts.size["3xl"],
-    color: Colors.dark.text,
-    lineHeight: Fonts.lineHeight.tight * Fonts.size["3xl"],
-  },
-  listContent: {
-    paddingBottom: Spacing.lg,
-  },
-  errorContainer: {
+  emptyContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: Spacing.lg,
-    gap: Spacing.lg,
+    paddingHorizontal: Spacing["2xl"],
   },
-  errorText: {
+  emptyTitle: {
+    fontFamily: Fonts.family.bold,
+    fontSize: Fonts.size["2xl"],
+    color: Colors.dark.text,
+    marginBottom: Spacing.lg,
+  },
+  emptyText: {
     fontFamily: Fonts.family.regular,
     fontSize: Fonts.size.base,
     color: Colors.dark.textSecondary,
     textAlign: "center",
+    lineHeight: Fonts.lineHeight.relaxed * Fonts.size.base,
   },
 });

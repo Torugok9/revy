@@ -25,19 +25,19 @@ export default function TabLayout() {
         name="index"
         options={{
           headerShown: false,
-          title: "Garagem",
+          title: "Dashboard",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="car.fill" color={color} />
+            <IconSymbol size={28} name="chart.bar.fill" color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="dashboard"
+        name="garage"
         options={{
           headerShown: false,
-          title: "Dashboard",
+          title: "Garagem",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="chart.bar.fill" color={color} />
+            <IconSymbol size={28} name="car.fill" color={color} />
           ),
         }}
       />
