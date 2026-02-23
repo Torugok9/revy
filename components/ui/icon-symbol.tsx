@@ -21,6 +21,7 @@ const MAPPING = {
   'car.fill': 'directions-car',
   'gearshape.fill': 'settings',
   'chart.bar.fill': 'dashboard',
+  'chart.line.uptrend.xyaxis': 'show-chart',
 } as IconMapping;
 
 /**

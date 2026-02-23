@@ -3,10 +3,12 @@ import { BorderRadius, Colors, Fonts, Spacing } from "@/constants/theme";
 import { useFeaturesContext } from "@/contexts/FeaturesContext";
 import type { FeatureKey } from "@/types/plans";
 import { Ionicons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Modal,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -21,60 +23,83 @@ interface FeatureGateProps {
 }
 
 // ─── mode="card" fallback ────────────────────────────────────────────
-function CardFallback({ feature }: { feature: FeatureKey }) {
+function CardFallback({
+  feature,
+  children,
+}: {
+  feature: FeatureKey;
+  children: React.ReactNode;
+}) {
   const router = useRouter();
   const info = FEATURE_DISPLAY[feature];
 
   return (
     <View style={cardStyles.wrapper}>
-      {/* Blurred placeholder overlay */}
-      <View style={cardStyles.overlay}>
-        <View style={cardStyles.lockCircle}>
-          <Ionicons name="lock-closed" size={24} color={Colors.dark.primary} />
+      {/* Render actual content underneath */}
+      <View pointerEvents="none">{children}</View>
+
+      {/* Blur overlay */}
+      {Platform.OS === "ios" ? (
+        <BlurView intensity={80} tint="dark" style={cardStyles.blurOverlay}>
+          <View style={cardStyles.overlayContent}>
+            <Text style={cardStyles.featureName}>{info.name}</Text>
+            <Text style={cardStyles.proLabel}>Disponível no Pro</Text>
+            <Pressable
+              onPress={() =>
+                router.push(`/plans?highlight=${feature}` as any)
+              }
+              style={({ pressed }) => [
+                cardStyles.viewPlansButton,
+                pressed && cardStyles.pressed,
+              ]}
+            >
+              <Text style={cardStyles.viewPlansText}>Ver planos</Text>
+            </Pressable>
+          </View>
+        </BlurView>
+      ) : (
+        <View style={cardStyles.androidBlurOverlay}>
+          <View style={cardStyles.overlayContent}>
+            <Text style={cardStyles.featureName}>{info.name}</Text>
+            <Text style={cardStyles.proLabel}>Disponível no Pro</Text>
+            <Pressable
+              onPress={() =>
+                router.push(`/plans?highlight=${feature}` as any)
+              }
+              style={({ pressed }) => [
+                cardStyles.viewPlansButton,
+                pressed && cardStyles.pressed,
+              ]}
+            >
+              <Text style={cardStyles.viewPlansText}>Ver planos</Text>
+            </Pressable>
+          </View>
         </View>
-        <Text style={cardStyles.featureName}>{info.name}</Text>
-        <Text style={cardStyles.proLabel}>Disponível no Pro</Text>
-        <Pressable
-          onPress={() =>
-            router.push(`/plans?highlight=${feature}` as any)
-          }
-          style={({ pressed }) => [
-            cardStyles.viewPlansButton,
-            pressed && cardStyles.pressed,
-          ]}
-        >
-          <Text style={cardStyles.viewPlansText}>Ver planos</Text>
-        </Pressable>
-      </View>
+      )}
     </View>
   );
 }
 
 const cardStyles = StyleSheet.create({
   wrapper: {
-    backgroundColor: Colors.dark.surface,
     borderRadius: BorderRadius.xl,
-    borderWidth: 1,
-    borderColor: Colors.dark.borderStrong,
     overflow: "hidden",
-    minHeight: 140,
+    position: "relative",
   },
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(10, 10, 10, 0.75)",
+  blurOverlay: {
+    ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: Spacing["2xl"],
+  },
+  androidBlurOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(10, 10, 10, 0.92)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  overlayContent: {
+    alignItems: "center",
     paddingHorizontal: Spacing.lg,
-  },
-  lockCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: Colors.dark.primaryGlow,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: Spacing.md,
   },
   featureName: {
     fontFamily: Fonts.family.semibold,
@@ -311,6 +336,6 @@ export function FeatureGate({
       return <InlineFallback>{children}</InlineFallback>;
     case "card":
     default:
-      return <CardFallback feature={feature} />;
+      return <CardFallback feature={feature}>{children}</CardFallback>;
   }
 }
