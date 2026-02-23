@@ -1,8 +1,8 @@
+import { BorderRadius, Colors, Fonts, Spacing } from "@/constants/theme";
+import { Maintenance, MaintenanceType } from "@/types/vehicle";
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { Maintenance, MaintenanceType } from "@/types/vehicle";
-import { Colors, Fonts, Spacing, BorderRadius } from "@/constants/theme";
 
 interface RecentActivityListProps {
   maintenances: Maintenance[];
@@ -73,8 +73,18 @@ function formatRelativeDate(dateString: string): string {
   }
 
   const months = [
-    "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
-    "Jul", "Ago", "Set", "Out", "Nov", "Dez",
+    "Jan",
+    "Fev",
+    "Mar",
+    "Abr",
+    "Mai",
+    "Jun",
+    "Jul",
+    "Ago",
+    "Set",
+    "Out",
+    "Nov",
+    "Dez",
   ];
   return `${months[date.getMonth()]} ${String(date.getDate()).padStart(2, "0")}, ${date.getFullYear()}`;
 }
@@ -121,7 +131,7 @@ export function RecentActivityList({
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>Atividade Recente</Text>
+        <Text style={styles.title}>Manutenções Recentes</Text>
         {maintenances.length > 5 && onViewAll && (
           <Pressable
             onPress={onViewAll}
@@ -136,7 +146,7 @@ export function RecentActivityList({
       {recentItems.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>
-            Nenhuma atividade registrada ainda.
+            Nenhuma manutenção registrada ainda.
           </Text>
         </View>
       ) : (

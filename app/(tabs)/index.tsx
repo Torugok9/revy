@@ -1,11 +1,13 @@
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
 import { HealthCard } from "@/components/dashboard/HealthCard";
+import { KmStatsSection } from "@/components/dashboard/KmStatsSection";
 import { MaintenanceStatsCards } from "@/components/dashboard/MaintenanceStatsCards";
 import { RecentActivityList } from "@/components/dashboard/RecentActivityList";
 import { VehiclePickerModal } from "@/components/dashboard/VehiclePickerModal";
 import { VehicleSelector } from "@/components/dashboard/VehicleSelector";
 import { Colors, Fonts, Spacing } from "@/constants/theme";
 import { useMaintenances } from "@/hooks/useMaintenances";
+import { useOdometer } from "@/hooks/useOdometer";
 import { useVehicleHealth } from "@/hooks/useVehicleHealth";
 import { useVehicles } from "@/hooks/useVehicles";
 import { Vehicle } from "@/types/vehicle";
@@ -24,13 +26,20 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const { vehicles, loading: vehiclesLoading, refetch: refetchVehicles } = useVehicles();
-  const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
+  const {
+    vehicles,
+    loading: vehiclesLoading,
+    refetch: refetchVehicles,
+  } = useVehicles();
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(
+    null,
+  );
   const [pickerVisible, setPickerVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   // Derivar o veículo selecionado da lista (evita referências novas a cada render)
-  const selectedVehicle = vehicles.find((v) => v.id === selectedVehicleId) ?? null;
+  const selectedVehicle =
+    vehicles.find((v) => v.id === selectedVehicleId) ?? null;
 
   const {
     health,
@@ -44,11 +53,16 @@ export default function DashboardScreen() {
     refetch: refetchMaintenances,
   } = useMaintenances(selectedVehicleId ?? "");
 
+  const { refetch: refetchOdometer } = useOdometer(selectedVehicleId ?? undefined);
+
   // Selecionar primeiro veículo automaticamente ou corrigir se o selecionado foi removido
   useEffect(() => {
     if (vehicles.length === 0) return;
 
-    if (!selectedVehicleId || !vehicles.some((v) => v.id === selectedVehicleId)) {
+    if (
+      !selectedVehicleId ||
+      !vehicles.some((v) => v.id === selectedVehicleId)
+    ) {
       setSelectedVehicleId(vehicles[0].id);
     }
   }, [vehicles, selectedVehicleId]);
@@ -56,8 +70,10 @@ export default function DashboardScreen() {
   // Refs para poder chamar refetch sem dependências instáveis
   const refetchHealthRef = useRef(refetchHealth);
   const refetchMaintenancesRef = useRef(refetchMaintenances);
+  const refetchOdometerRef = useRef(refetchOdometer);
   refetchHealthRef.current = refetchHealth;
   refetchMaintenancesRef.current = refetchMaintenances;
+  refetchOdometerRef.current = refetchOdometer;
 
   // Refetch quando a tela ganha foco
   useFocusEffect(
@@ -65,7 +81,8 @@ export default function DashboardScreen() {
       refetchVehicles();
       refetchHealthRef.current();
       refetchMaintenancesRef.current();
-    }, [refetchVehicles])
+      refetchOdometerRef.current();
+    }, [refetchVehicles]),
   );
 
   const handleRefresh = useCallback(async () => {
@@ -74,6 +91,7 @@ export default function DashboardScreen() {
       refetchVehicles(),
       refetchHealthRef.current(),
       refetchMaintenancesRef.current(),
+      refetchOdometerRef.current(),
     ]);
     setRefreshing(false);
   }, [refetchVehicles]);
@@ -86,6 +104,12 @@ export default function DashboardScreen() {
   const handleViewAllActivity = useCallback(() => {
     if (selectedVehicleId) {
       router.push(`/vehicle/${selectedVehicleId}`);
+    }
+  }, [selectedVehicleId, router]);
+
+  const handleRegisterKm = useCallback(() => {
+    if (selectedVehicleId) {
+      router.push(`/odometer/new?vehicleId=${selectedVehicleId}`);
     }
   }, [selectedVehicleId, router]);
 
@@ -141,6 +165,14 @@ export default function DashboardScreen() {
 
           {/* Stats Cards */}
           {health && <MaintenanceStatsCards health={health} />}
+
+          {/* KM Stats */}
+          {selectedVehicleId && (
+            <KmStatsSection
+              vehicleId={selectedVehicleId}
+              onRegisterKm={handleRegisterKm}
+            />
+          )}
 
           {/* Recent Activity */}
           <RecentActivityList

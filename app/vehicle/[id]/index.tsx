@@ -1,14 +1,14 @@
 import { ActionMenu } from "@/components/vehicles/ActionMenu";
 import { ConfirmModal } from "@/components/vehicles/ConfirmModal";
-import { MaskedVehicleInput } from "@/components/vehicles/MaskedVehicleInput";
 import { QuickActionButton } from "@/components/vehicles/QuickActionButton";
 import { RecentMaintenanceItem } from "@/components/vehicles/RecentMaintenanceItem";
 import { UpcomingServiceCard } from "@/components/vehicles/UpcomingServiceCard";
 import { BorderRadius, Colors, Fonts, Spacing } from "@/constants/theme";
 import { useMaintenances } from "@/hooks/useMaintenances";
+import { useOdometer } from "@/hooks/useOdometer";
 import { useVehicle } from "@/hooks/useVehicle";
 import { supabase } from "@/lib/supabase";
-import { cleanKilometers } from "@/utils/formatters";
+import type { OdometerLog } from "@/types/odometer";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -16,7 +16,6 @@ import React, { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
-  Modal,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -54,10 +53,16 @@ export default function VehicleDetailScreen() {
   const [selectedMaintenanceTitle, setSelectedMaintenanceTitle] =
     useState<string>("");
   const [isDeleting, setIsDeleting] = useState(false);
-  const [updateKmModalVisible, setUpdateKmModalVisible] = useState(false);
-  const [newKm, setNewKm] = useState("");
-  const [isUpdatingKm, setIsUpdatingKm] = useState(false);
-  const [updateKmError, setUpdateKmError] = useState("");
+
+  const {
+    logs: odometerLogs,
+    loading: odometerLoading,
+    deleteLog,
+    refetch: refetchOdometer,
+  } = useOdometer(vehicleId);
+
+  const [deleteLogModalVisible, setDeleteLogModalVisible] = useState(false);
+  const [selectedLogId, setSelectedLogId] = useState<string | null>(null);
 
   const upcomingServices = useMemo(() => {
     if (!vehicle?.current_km) return [];
@@ -83,11 +88,11 @@ export default function VehicleDetailScreen() {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      await Promise.all([refetchVehicle(), refetchMaintenances()]);
+      await Promise.all([refetchVehicle(), refetchMaintenances(), refetchOdometer()]);
     } finally {
       setRefreshing(false);
     }
-  }, [refetchVehicle, refetchMaintenances]);
+  }, [refetchVehicle, refetchMaintenances, refetchOdometer]);
 
   const handleDeleteVehicle = async () => {
     if (!vehicle) return;
@@ -134,46 +139,30 @@ export default function VehicleDetailScreen() {
     }
   };
 
-  const openUpdateKmModal = () => {
-    setNewKm(vehicle?.current_km ? String(vehicle.current_km) : "");
-    setUpdateKmError("");
-    setUpdateKmModalVisible(true);
+  const recentOdometerLogs = useMemo(() => {
+    return odometerLogs.slice(0, 3);
+  }, [odometerLogs]);
+
+  const handleOdometerLogLongPress = (log: OdometerLog) => {
+    if (log.source === "maintenance") return;
+    setSelectedLogId(log.id);
+    setDeleteLogModalVisible(true);
   };
 
-  const handleUpdateKm = async () => {
-    const cleanedKm = cleanKilometers(newKm);
-    const kmValue = Number(cleanedKm);
-
-    if (!cleanedKm || isNaN(kmValue) || kmValue <= 0) {
-      setUpdateKmError("Informe uma quilometragem válida.");
-      return;
-    }
-
-    if (vehicle?.current_km && kmValue < vehicle.current_km) {
-      setUpdateKmError(
-        `A km não pode ser menor que a atual (${formatKm(vehicle.current_km)}).`,
-      );
-      return;
-    }
-
-    setIsUpdatingKm(true);
-    setUpdateKmError("");
+  const handleDeleteOdometerLog = async () => {
+    if (!selectedLogId) return;
+    setIsDeleting(true);
     try {
-      const { error } = await supabase
-        .from("vehicles")
-        .update({ current_km: kmValue })
-        .eq("id", vehicleId);
-
-      if (error) throw new Error(error.message);
-
-      setUpdateKmModalVisible(false);
-      await refetchVehicle();
+      await deleteLog(selectedLogId);
+      setDeleteLogModalVisible(false);
+      setSelectedLogId(null);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Erro ao atualizar quilometragem";
-      setUpdateKmError(message);
+        err instanceof Error ? err.message : "Erro ao excluir registro";
+      console.error("handleDeleteOdometerLog error:", err);
+      alert(message);
     } finally {
-      setIsUpdatingKm(false);
+      setIsDeleting(false);
     }
   };
 
@@ -325,9 +314,120 @@ export default function VehicleDetailScreen() {
           />
           <QuickActionButton
             icon="speedometer-outline"
-            label="Atualizar Km"
-            onPress={openUpdateKmModal}
+            label="Registrar Km"
+            onPress={() =>
+              router.push(`/odometer/new?vehicleId=${vehicleId}`)
+            }
           />
+        </View>
+
+        {/* Odometer Logs */}
+        <View style={styles.odometerContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Quilometragem</Text>
+            <Pressable
+              onPress={() =>
+                router.push(`/odometer/new?vehicleId=${vehicleId}`)
+              }
+              style={({ pressed }) => pressed && styles.linkPressed}
+            >
+              <Text style={styles.sectionLink}>Registrar</Text>
+            </Pressable>
+          </View>
+
+          {odometerLoading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="small" color={Colors.dark.primary} />
+            </View>
+          ) : odometerLogs.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>
+                Nenhum registro de quilometragem
+              </Text>
+              <Text style={styles.emptySubtext}>
+                Registre a quilometragem para acompanhar km rodados.
+              </Text>
+              <Pressable
+                onPress={() =>
+                  router.push(`/odometer/new?vehicleId=${vehicleId}`)
+                }
+                style={({ pressed }) => [
+                  styles.emptyButton,
+                  pressed && styles.emptyButtonPressed,
+                ]}
+              >
+                <Text style={styles.emptyButtonText}>Registrar km</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <View>
+              {recentOdometerLogs.map((log) => (
+                <Pressable
+                  key={log.id}
+                  onLongPress={() => handleOdometerLogLongPress(log)}
+                  style={({ pressed }) => [
+                    styles.odometerLogItem,
+                    pressed && styles.odometerLogItemPressed,
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.odometerLogIcon,
+                      {
+                        backgroundColor:
+                          log.source === "manual"
+                            ? "rgba(220, 38, 38, 0.15)"
+                            : "rgba(59, 130, 246, 0.15)",
+                      },
+                    ]}
+                  >
+                    <Ionicons
+                      name={
+                        log.source === "manual"
+                          ? "create-outline"
+                          : "construct-outline"
+                      }
+                      size={18}
+                      color={
+                        log.source === "manual"
+                          ? Colors.dark.primary
+                          : "#3B82F6"
+                      }
+                    />
+                  </View>
+                  <View style={styles.odometerLogInfo}>
+                    <Text style={styles.odometerLogKm}>
+                      {log.km.toLocaleString("pt-BR")} km
+                    </Text>
+                    <Text style={styles.odometerLogMeta}>
+                      {new Date(log.date + "T00:00:00").toLocaleDateString(
+                        "pt-BR",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        },
+                      )}
+                      {log.source === "maintenance" && " • via manutenção"}
+                    </Text>
+                    {log.notes && (
+                      <Text
+                        style={styles.odometerLogNotes}
+                        numberOfLines={1}
+                      >
+                        {log.notes}
+                      </Text>
+                    )}
+                  </View>
+                </Pressable>
+              ))}
+              {odometerLogs.length > 3 && (
+                <Text style={styles.odometerMoreText}>
+                  +{odometerLogs.length - 3} registros anteriores
+                </Text>
+              )}
+            </View>
+          )}
         </View>
 
         {/* Upcoming Services */}
@@ -440,67 +540,21 @@ export default function VehicleDetailScreen() {
         onCancel={() => setDeleteMaintenanceModalVisible(false)}
       />
 
-      {/* Modal de Atualizar KM */}
-      <Modal
-        visible={updateKmModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setUpdateKmModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Atualizar Quilometragem</Text>
-            <Text style={styles.modalMessage}>
-              {vehicle.current_km
-                ? `Km atual: ${formatKm(vehicle.current_km)}`
-                : "Nenhuma quilometragem registrada"}
-            </Text>
-
-            <MaskedVehicleInput
-              label="Nova quilometragem"
-              placeholder="Ex: 45.000"
-              value={newKm}
-              onChangeText={(val) => {
-                setNewKm(val);
-                setUpdateKmError("");
-              }}
-              maskType="kilometers"
-              error={updateKmError}
-              showValidation={false}
-            />
-
-            <View style={styles.modalButtons}>
-              <Pressable
-                onPress={() => setUpdateKmModalVisible(false)}
-                disabled={isUpdatingKm}
-                style={({ pressed }) => [
-                  styles.modalButton,
-                  styles.modalButtonCancel,
-                  pressed && !isUpdatingKm && styles.modalButtonCancelPressed,
-                ]}
-              >
-                <Text style={styles.modalButtonCancelText}>Cancelar</Text>
-              </Pressable>
-
-              <Pressable
-                onPress={handleUpdateKm}
-                disabled={isUpdatingKm}
-                style={({ pressed }) => [
-                  styles.modalButton,
-                  styles.modalButtonConfirm,
-                  pressed && !isUpdatingKm && styles.modalButtonConfirmPressed,
-                ]}
-              >
-                {isUpdatingKm ? (
-                  <ActivityIndicator color={Colors.dark.text} size="small" />
-                ) : (
-                  <Text style={styles.modalButtonConfirmText}>Salvar</Text>
-                )}
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      {/* Modal de Exclusão de Log de Odômetro */}
+      <ConfirmModal
+        visible={deleteLogModalVisible}
+        title="Excluir registro?"
+        message="Tem certeza que deseja excluir este registro de quilometragem? Essa ação não pode ser desfeita."
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        isDangerous
+        isLoading={isDeleting}
+        onConfirm={handleDeleteOdometerLog}
+        onCancel={() => {
+          setDeleteLogModalVisible(false);
+          setSelectedLogId(null);
+        }}
+      />
     </View>
   );
 }
@@ -682,63 +736,54 @@ const styles = StyleSheet.create({
     fontSize: Fonts.size.base,
     color: Colors.dark.text,
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-    justifyContent: "center",
-    alignItems: "center",
+  odometerContainer: {
+    paddingHorizontal: Spacing.lg,
+    marginBottom: Spacing["2xl"],
   },
-  modalContent: {
-    backgroundColor: Colors.dark.surfaceElevated,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing["2xl"],
-    maxWidth: 340,
-    width: "85%",
-  },
-  modalTitle: {
-    fontFamily: Fonts.family.semibold,
-    fontSize: Fonts.size.lg,
-    color: Colors.dark.text,
-    marginBottom: Spacing.sm,
-  },
-  modalMessage: {
-    fontFamily: Fonts.family.regular,
-    fontSize: Fonts.size.sm,
-    color: Colors.dark.textSecondary,
-    marginBottom: Spacing.xl,
-  },
-  modalButtons: {
+  odometerLogItem: {
     flexDirection: "row",
-    gap: Spacing.md,
-    marginTop: Spacing.xl,
+    alignItems: "center",
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 0.5,
+    borderBottomColor: Colors.dark.border,
   },
-  modalButton: {
-    flex: 1,
-    paddingVertical: Spacing.lg,
+  odometerLogItemPressed: {
+    opacity: 0.7,
+  },
+  odometerLogIcon: {
+    width: 36,
+    height: 36,
     borderRadius: BorderRadius.md,
     justifyContent: "center",
     alignItems: "center",
+    marginRight: Spacing.md,
   },
-  modalButtonCancel: {
-    backgroundColor: "transparent",
+  odometerLogInfo: {
+    flex: 1,
   },
-  modalButtonCancelPressed: {
-    backgroundColor: Colors.dark.border,
-  },
-  modalButtonCancelText: {
-    fontFamily: Fonts.family.medium,
-    fontSize: Fonts.size.base,
-    color: Colors.dark.textSecondary,
-  },
-  modalButtonConfirm: {
-    backgroundColor: Colors.dark.primary,
-  },
-  modalButtonConfirmPressed: {
-    opacity: 0.8,
-  },
-  modalButtonConfirmText: {
+  odometerLogKm: {
     fontFamily: Fonts.family.semibold,
     fontSize: Fonts.size.base,
     color: Colors.dark.text,
+  },
+  odometerLogMeta: {
+    fontFamily: Fonts.family.regular,
+    fontSize: Fonts.size.xs,
+    color: Colors.dark.textSecondary,
+    marginTop: 2,
+  },
+  odometerLogNotes: {
+    fontFamily: Fonts.family.regular,
+    fontSize: Fonts.size.xs,
+    color: Colors.dark.textMuted,
+    marginTop: 2,
+    fontStyle: "italic",
+  },
+  odometerMoreText: {
+    fontFamily: Fonts.family.medium,
+    fontSize: Fonts.size.sm,
+    color: Colors.dark.textSecondary,
+    textAlign: "center",
+    paddingVertical: Spacing.md,
   },
 });
