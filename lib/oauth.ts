@@ -1,10 +1,7 @@
-import { makeRedirectUri } from "expo-linking";
+import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
 
 import { supabase } from "./supabase";
-
-// Garante que o browser modal fecha corretamente após o redirect
-WebBrowser.maybeCompleteAuthSession();
 
 type OAuthProvider = "google" | "apple";
 
@@ -15,27 +12,37 @@ type OAuthProvider = "google" | "apple";
  * 3. Captura os tokens do redirect e seta a sessão
  */
 export async function signInWithOAuth(provider: OAuthProvider): Promise<void> {
-  const redirectUrl = makeRedirectUri();
+  // Gera a redirect URI com o scheme do app
+  const redirectUrl = Linking.createURL("auth/callback");
+
+  console.log("[OAuth] Provider:", provider);
+  console.log("[OAuth] Redirect URL:", redirectUrl);
 
   // Gera a URL de login no provider via Supabase
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
       redirectTo: redirectUrl,
-      skipBrowserRedirect: true, // Não redirecionar automaticamente — abrimos via WebBrowser
+      skipBrowserRedirect: true,
     },
   });
 
   if (error) {
+    console.error("[OAuth] Supabase error:", error);
     throw { message: error.message, code: error.code };
   }
 
   if (!data.url) {
+    console.error("[OAuth] No URL returned from Supabase");
     throw { message: "Não foi possível gerar a URL de autenticação." };
   }
 
+  console.log("[OAuth] Opening browser with URL:", data.url);
+
   // Abre o browser in-app para o usuário autenticar
   const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
+
+  console.log("[OAuth] Browser result type:", result.type);
 
   if (result.type !== "success") {
     // Usuário cancelou ou fechou o browser
@@ -43,8 +50,9 @@ export async function signInWithOAuth(provider: OAuthProvider): Promise<void> {
   }
 
   // Extrai os tokens do fragment da URL de redirect
-  // Supabase retorna: revy://...#access_token=XXX&refresh_token=YYY&...
-  const url = result.url;
+  const url = (result as WebBrowser.WebBrowserRedirectResult).url;
+  console.log("[OAuth] Redirect URL received:", url);
+
   const fragment = url.split("#")[1];
 
   if (!fragment) {
@@ -56,6 +64,7 @@ export async function signInWithOAuth(provider: OAuthProvider): Promise<void> {
   const refreshToken = params.get("refresh_token");
 
   if (!accessToken || !refreshToken) {
+    console.error("[OAuth] Missing tokens in redirect");
     throw { message: "Tokens de autenticação não encontrados." };
   }
 
@@ -66,6 +75,9 @@ export async function signInWithOAuth(provider: OAuthProvider): Promise<void> {
   });
 
   if (sessionError) {
+    console.error("[OAuth] Session error:", sessionError);
     throw { message: sessionError.message, code: sessionError.code };
   }
+
+  console.log("[OAuth] Session set successfully!");
 }

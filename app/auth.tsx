@@ -9,6 +9,10 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
+
+// Precisa ser chamado na tela que recebe o redirect do OAuth
+WebBrowser.maybeCompleteAuthSession();
 import React, { useEffect, useState } from "react";
 import {
   Dimensions,
@@ -41,7 +45,7 @@ export default function AuthScreen() {
     name: "",
   });
   const [generalError, setGeneralError] = useState<string | null>(null);
-  const { signIn, signUp, signInWithGoogle, loading } = useAuthContext();
+  const { signIn, signUp, signInWithGoogle, signInWithApple, loading } = useAuthContext();
 
   const logoTextColor = useThemeColor({}, "primary");
   const textColor = useThemeColor({}, "text");
@@ -101,6 +105,15 @@ export default function AuthScreen() {
     }
   };
 
+  const handleAppleSignIn = async () => {
+    try {
+      setGeneralError(null);
+      await signInWithApple();
+    } catch (error: any) {
+      setGeneralError(error.message || "Erro ao entrar com Apple");
+    }
+  };
+
   const renderPagination = () => (
     <View style={styles.pagination}>
       <View style={[styles.dot, { backgroundColor: tintColor, width: 20 }]} />
@@ -127,7 +140,7 @@ export default function AuthScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.socialButton, { backgroundColor: "#2A2A2A" }]}
-          onPress={() => {}}
+          onPress={handleAppleSignIn}
           disabled={loading}
         >
           <FontAwesome name="apple" size={24} color="#FFFFFF" />
