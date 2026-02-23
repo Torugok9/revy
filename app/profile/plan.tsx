@@ -54,17 +54,17 @@ function getStatusLabel(status?: string): { text: string; color: string } {
 export default function MyPlanScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { plan, planName, planIcon } = useUserInfo();
+  const { planId, planName, planIcon } = useUserInfo();
   const { vehicles, loading: vehiclesLoading } = useVehicles();
   const { features: userFeatures } = useFeaturesContext();
 
+  const maxVehicles = planId === "free" ? 1 : 10;
+
   const features = useMemo(() => {
     const vehicleLabel =
-      (plan?.max_vehicles ?? 1) === 1
+      maxVehicles === 1
         ? "Até 1 veículo"
-        : plan?.max_vehicles === 999
-          ? "Veículos ilimitados"
-          : `Até ${plan?.max_vehicles} veículos`;
+        : `Até ${maxVehicles} veículos`;
 
     const base = [{ icon: "car-outline", label: vehicleLabel }, ...BASE_FEATURES];
     const dynamic = userFeatures
@@ -72,10 +72,9 @@ export default function MyPlanScreen() {
       .filter(Boolean);
 
     return [...base, ...dynamic];
-  }, [userFeatures, plan?.max_vehicles]);
-  const status = getStatusLabel(plan?.subscription_status);
+  }, [userFeatures, maxVehicles]);
+  const status = getStatusLabel(planId === "free" ? "active" : "active");
   const vehicleCount = vehicles.length;
-  const maxVehicles = plan?.max_vehicles ?? 1;
   const usagePercent = Math.min((vehicleCount / maxVehicles) * 100, 100);
   const isAtLimit = vehicleCount >= maxVehicles;
 
@@ -113,8 +112,8 @@ export default function MyPlanScreen() {
               {status.text}
             </Text>
           </View>
-          {plan?.description ? (
-            <Text style={styles.planDescription}>{plan.description}</Text>
+          {planId !== "free" ? (
+            <Text style={styles.planDescription}>Acesso a recursos avançados</Text>
           ) : null}
         </View>
 

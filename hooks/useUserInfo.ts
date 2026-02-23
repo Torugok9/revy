@@ -4,7 +4,7 @@ import { useMemo } from "react";
 
 export function useUserInfo() {
   const { user } = useAuthContext();
-  const { plan } = useUserPlan();
+  const { planId } = useUserPlan();
 
   const userInitials = useMemo(() => {
     if (!user?.name) return "U";
@@ -26,21 +26,26 @@ export function useUserInfo() {
   }, [user?.email]);
 
   const planName = useMemo(() => {
-    return plan?.name || "Free";
-  }, [plan?.name]);
+    switch (planId) {
+      case "pro":
+        return "Pro";
+      case "premium":
+        return "Premium";
+      default:
+        return "Free";
+    }
+  }, [planId]);
 
   const planIcon = useMemo(() => {
-    switch (plan?.name?.toLowerCase()) {
-      case "free":
-        return "⚡";
+    switch (planId) {
       case "pro":
         return "✨";
       case "premium":
         return "👑";
       default:
-        return "⚙️";
+        return "⚡";
     }
-  }, [plan?.name]);
+  }, [planId]);
 
   const joinDate = useMemo(() => {
     if (!user?.createdAt) return "Data desconhecida";
@@ -54,7 +59,7 @@ export function useUserInfo() {
 
   return {
     user,
-    plan,
+    planId,
     userInitials,
     displayName,
     displayEmail,

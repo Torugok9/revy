@@ -25,7 +25,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function GarageScreen() {
   const router = useRouter();
   const { vehicles, loading, error, refetch } = useVehicles();
-  const { plan, loading: planLoading } = useUserPlan();
+  const { planId, loading: planLoading } = useUserPlan();
   const [limitModalVisible, setLimitModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -43,13 +43,10 @@ export default function GarageScreen() {
     }, [refetch]),
   );
 
-  const handleAddVehicle = useCallback(() => {
-    if (!plan) {
-      Alert.alert("Erro", "Não foi possível carregar seu plano");
-      return;
-    }
+  const maxVehicles = planId === "free" ? 1 : 10;
 
-    const isAtLimit = vehicles.length >= plan.max_vehicles;
+  const handleAddVehicle = useCallback(() => {
+    const isAtLimit = vehicles.length >= maxVehicles;
 
     if (isAtLimit) {
       setLimitModalVisible(true);
@@ -57,7 +54,7 @@ export default function GarageScreen() {
     }
 
     router.push("/vehicle/new");
-  }, [vehicles.length, plan, router]);
+  }, [vehicles.length, maxVehicles, router]);
 
   const handleVehiclePress = useCallback(
     (vehicleId: string) => {
@@ -169,8 +166,8 @@ export default function GarageScreen() {
         <LimitReachedModal
           visible={limitModalVisible}
           onClose={() => setLimitModalVisible(false)}
-          planName={plan?.name || "seu plano"}
-          maxVehicles={plan?.max_vehicles || 1}
+          planName={planId === "free" ? "Free" : "Premium"}
+          maxVehicles={maxVehicles}
           onUpgrade={handleUpgradePlan}
         />
       </View>

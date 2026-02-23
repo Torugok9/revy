@@ -64,6 +64,7 @@ function RootLayoutNav() {
         <Stack.Screen name="vehicle" options={{ headerShown: false }} />
         <Stack.Screen name="maintenance" options={{ headerShown: false }} />
         <Stack.Screen name="odometer" options={{ headerShown: false }} />
+        <Stack.Screen name="fuel" options={{ headerShown: false }} />
         <Stack.Screen name="profile" options={{ headerShown: false }} />
         <Stack.Screen
           name="modal"

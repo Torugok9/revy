@@ -57,7 +57,7 @@ const INITIAL_FORM: VehicleFormData = {
 export default function NewVehicleScreen() {
   const router = useRouter();
   const { user } = useAuthContext();
-  const { plan } = useUserPlan();
+  const { planId } = useUserPlan();
   const insets = useSafeAreaInsets();
 
   const [formData, setFormData] = useState<VehicleFormData>(INITIAL_FORM);
@@ -521,8 +521,8 @@ export default function NewVehicleScreen() {
           setShowLimitModal(false);
           router.back();
         }}
-        planName={plan?.name || "Free"}
-        maxVehicles={plan?.max_vehicles || 1}
+        planName={planId === "free" ? "Free" : "Premium"}
+        maxVehicles={planId === "free" ? 1 : 10}
       />
     </KeyboardAvoidingView>
   );

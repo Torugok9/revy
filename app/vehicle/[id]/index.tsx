@@ -1,13 +1,17 @@
+import { FeatureGate } from "@/components/FeatureGate";
+import { FuelComparison } from "@/components/FuelComparison";
 import { ActionMenu } from "@/components/vehicles/ActionMenu";
 import { ConfirmModal } from "@/components/vehicles/ConfirmModal";
 import { QuickActionButton } from "@/components/vehicles/QuickActionButton";
 import { RecentMaintenanceItem } from "@/components/vehicles/RecentMaintenanceItem";
 import { UpcomingServiceCard } from "@/components/vehicles/UpcomingServiceCard";
 import { BorderRadius, Colors, Fonts, Spacing } from "@/constants/theme";
+import { useFuel } from "@/hooks/useFuel";
 import { useMaintenances } from "@/hooks/useMaintenances";
 import { useOdometer } from "@/hooks/useOdometer";
 import { useVehicle } from "@/hooks/useVehicle";
 import { supabase } from "@/lib/supabase";
+import { FUEL_TYPE_COLORS, FUEL_TYPE_LABELS } from "@/types/fuel";
 import type { OdometerLog } from "@/types/odometer";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
@@ -61,6 +65,12 @@ export default function VehicleDetailScreen() {
     refetch: refetchOdometer,
   } = useOdometer(vehicleId);
 
+  const {
+    stats: fuelStats,
+    loading: fuelLoading,
+    refetch: refetchFuel,
+  } = useFuel(vehicleId);
+
   const [deleteLogModalVisible, setDeleteLogModalVisible] = useState(false);
   const [selectedLogId, setSelectedLogId] = useState<string | null>(null);
 
@@ -88,11 +98,11 @@ export default function VehicleDetailScreen() {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      await Promise.all([refetchVehicle(), refetchMaintenances(), refetchOdometer()]);
+      await Promise.all([refetchVehicle(), refetchMaintenances(), refetchOdometer(), refetchFuel()]);
     } finally {
       setRefreshing(false);
     }
-  }, [refetchVehicle, refetchMaintenances, refetchOdometer]);
+  }, [refetchVehicle, refetchMaintenances, refetchOdometer, refetchFuel]);
 
   const handleDeleteVehicle = async () => {
     if (!vehicle) return;
@@ -307,10 +317,11 @@ export default function VehicleDetailScreen() {
             }
           />
           <QuickActionButton
-            icon="receipt-outline"
-            label="Adicionar Despesa"
-            onPress={() => {}}
-            disabled
+            icon="water-outline"
+            label="Abastecer"
+            onPress={() =>
+              router.push(`/fuel/new?vehicleId=${vehicleId}`)
+            }
           />
           <QuickActionButton
             icon="speedometer-outline"
@@ -426,6 +437,167 @@ export default function VehicleDetailScreen() {
                   +{odometerLogs.length - 3} registros anteriores
                 </Text>
               )}
+            </View>
+          )}
+        </View>
+
+        {/* Combustível */}
+        <View style={styles.fuelContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Combustível</Text>
+            {fuelStats?.has_data && (
+              <Pressable
+                onPress={() =>
+                  router.push(`/fuel/new?vehicleId=${vehicleId}`)
+                }
+                style={({ pressed }) => pressed && styles.linkPressed}
+              >
+                <Text style={styles.sectionLink}>Registrar</Text>
+              </Pressable>
+            )}
+          </View>
+
+          {fuelLoading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="small" color={Colors.dark.primary} />
+            </View>
+          ) : !fuelStats?.has_data ? (
+            <View style={styles.emptyContainer}>
+              <Ionicons
+                name="water-outline"
+                size={32}
+                color={Colors.dark.textMuted}
+                style={{ marginBottom: Spacing.sm }}
+              />
+              <Text style={styles.emptyText}>
+                Nenhum abastecimento registrado
+              </Text>
+              <Text style={styles.emptySubtext}>
+                Registre abastecimentos para acompanhar consumo e gastos.
+              </Text>
+              <Pressable
+                onPress={() =>
+                  router.push(`/fuel/new?vehicleId=${vehicleId}`)
+                }
+                style={({ pressed }) => [
+                  styles.emptyButton,
+                  pressed && styles.emptyButtonPressed,
+                ]}
+              >
+                <Text style={styles.emptyButtonText}>
+                  Registrar abastecimento
+                </Text>
+              </Pressable>
+            </View>
+          ) : (
+            <View>
+              {/* Stats Grid 2x2 */}
+              <View style={styles.fuelStatsGrid}>
+                <View style={styles.fuelStatCard}>
+                  <Text style={styles.fuelStatLabel}>GASTO ESTE MÊS</Text>
+                  <Text style={styles.fuelStatValue}>
+                    {fuelStats.cost_this_month.toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    })}
+                  </Text>
+                </View>
+                <View style={styles.fuelStatCard}>
+                  <Text style={styles.fuelStatLabel}>MÉDIA KM/L</Text>
+                  <Text style={styles.fuelStatValue}>
+                    {fuelStats.avg_km_per_liter > 0
+                      ? `${fuelStats.avg_km_per_liter.toFixed(1)} km/l`
+                      : "Sem dados"}
+                  </Text>
+                </View>
+                <View style={styles.fuelStatCard}>
+                  <Text style={styles.fuelStatLabel}>LITROS ESTE MÊS</Text>
+                  <Text style={styles.fuelStatValue}>
+                    {fuelStats.liters_this_month.toFixed(1)} L
+                  </Text>
+                </View>
+                <View style={styles.fuelStatCard}>
+                  <Text style={styles.fuelStatLabel}>GASTO ESTE ANO</Text>
+                  <Text style={styles.fuelStatValue}>
+                    {fuelStats.cost_this_year.toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    })}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Último Abastecimento */}
+              {fuelStats.last_fillup && (
+                <View style={styles.lastFillupCard}>
+                  <View style={styles.lastFillupHeader}>
+                    <Text style={styles.lastFillupTitle}>
+                      Último Abastecimento
+                    </Text>
+                    <View
+                      style={[
+                        styles.fuelBadge,
+                        {
+                          backgroundColor:
+                            FUEL_TYPE_COLORS[fuelStats.last_fillup.fuel_type] +
+                            "20",
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.fuelBadgeText,
+                          {
+                            color:
+                              FUEL_TYPE_COLORS[
+                                fuelStats.last_fillup.fuel_type
+                              ],
+                          },
+                        ]}
+                      >
+                        {FUEL_TYPE_LABELS[fuelStats.last_fillup.fuel_type]}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={styles.lastFillupDetails}>
+                    {fuelStats.last_fillup.liters.toFixed(1)}L a R${" "}
+                    {fuelStats.last_fillup.price_per_liter.toFixed(2)}/L
+                    {fuelStats.last_fillup.station_name &&
+                      ` • ${fuelStats.last_fillup.station_name}`}
+                  </Text>
+                  <Text style={styles.lastFillupTotal}>
+                    {fuelStats.last_fillup.total_cost.toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    })}
+                  </Text>
+                </View>
+              )}
+
+              {/* Comparação de Combustível (Premium) */}
+              <FeatureGate feature="fuel_comparison">
+                <FuelComparison vehicleId={vehicleId} />
+              </FeatureGate>
+
+              {/* Ver Histórico */}
+              <Pressable
+                onPress={() =>
+                  router.push(`/fuel/history?vehicleId=${vehicleId}`)
+                }
+                style={({ pressed }) => [
+                  styles.viewHistoryButton,
+                  pressed && { opacity: 0.7 },
+                ]}
+              >
+                <Text style={styles.viewHistoryText}>
+                  Ver histórico completo
+                </Text>
+                <Ionicons
+                  name="chevron-forward"
+                  size={16}
+                  color={Colors.dark.primary}
+                />
+              </Pressable>
             </View>
           )}
         </View>
@@ -785,5 +957,86 @@ const styles = StyleSheet.create({
     color: Colors.dark.textSecondary,
     textAlign: "center",
     paddingVertical: Spacing.md,
+  },
+  fuelContainer: {
+    paddingHorizontal: Spacing.lg,
+    marginBottom: Spacing["2xl"],
+  },
+  fuelStatsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: Spacing.sm,
+    marginBottom: Spacing.lg,
+  },
+  fuelStatCard: {
+    width: "48.5%",
+    backgroundColor: Colors.dark.surfaceElevated,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    borderWidth: 0.5,
+    borderColor: Colors.dark.borderStrong,
+  },
+  fuelStatLabel: {
+    fontFamily: Fonts.family.semibold,
+    fontSize: 10,
+    color: Colors.dark.textSecondary,
+    letterSpacing: 0.5,
+    marginBottom: Spacing.sm,
+  },
+  fuelStatValue: {
+    fontFamily: Fonts.family.bold,
+    fontSize: Fonts.size.base,
+    color: Colors.dark.text,
+  },
+  lastFillupCard: {
+    backgroundColor: Colors.dark.surfaceElevated,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    borderWidth: 0.5,
+    borderColor: Colors.dark.borderStrong,
+    marginBottom: Spacing.lg,
+  },
+  lastFillupHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: Spacing.sm,
+  },
+  lastFillupTitle: {
+    fontFamily: Fonts.family.semibold,
+    fontSize: Fonts.size.sm,
+    color: Colors.dark.text,
+  },
+  fuelBadge: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.sm,
+  },
+  fuelBadgeText: {
+    fontFamily: Fonts.family.semibold,
+    fontSize: Fonts.size.xs,
+  },
+  lastFillupDetails: {
+    fontFamily: Fonts.family.regular,
+    fontSize: Fonts.size.sm,
+    color: Colors.dark.textSecondary,
+    marginBottom: Spacing.xs,
+  },
+  lastFillupTotal: {
+    fontFamily: Fonts.family.bold,
+    fontSize: Fonts.size.lg,
+    color: Colors.dark.primary,
+  },
+  viewHistoryButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: Spacing.md,
+    gap: Spacing.xs,
+  },
+  viewHistoryText: {
+    fontFamily: Fonts.family.medium,
+    fontSize: Fonts.size.sm,
+    color: Colors.dark.primary,
   },
 });

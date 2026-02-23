@@ -1,4 +1,5 @@
 import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
+import { FuelStatsSection } from "@/components/dashboard/FuelStatsSection";
 import { HealthCard } from "@/components/dashboard/HealthCard";
 import { KmStatsSection } from "@/components/dashboard/KmStatsSection";
 import { MaintenanceStatsCards } from "@/components/dashboard/MaintenanceStatsCards";
@@ -113,6 +114,12 @@ export default function DashboardScreen() {
     }
   }, [selectedVehicleId, router]);
 
+  const handleRegisterFuel = useCallback(() => {
+    if (selectedVehicleId) {
+      router.push(`/fuel/new?vehicleId=${selectedVehicleId}`);
+    }
+  }, [selectedVehicleId, router]);
+
   const isLoading = vehiclesLoading || healthLoading;
 
   // Sem veículos
@@ -171,6 +178,14 @@ export default function DashboardScreen() {
             <KmStatsSection
               vehicleId={selectedVehicleId}
               onRegisterKm={handleRegisterKm}
+            />
+          )}
+
+          {/* Fuel Stats */}
+          {selectedVehicleId && (
+            <FuelStatsSection
+              vehicleId={selectedVehicleId}
+              onRegisterFuel={handleRegisterFuel}
             />
           )}
 
