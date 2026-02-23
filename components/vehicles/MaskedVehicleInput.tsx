@@ -41,6 +41,7 @@ interface MaskedVehicleInputProps extends RNTextInputProps {
   containerStyle?: any;
   showValidation?: boolean;
   required?: boolean;
+  icon?: React.ReactNode;
 }
 
 export const MaskedVehicleInput = forwardRef<
@@ -58,6 +59,8 @@ export const MaskedVehicleInput = forwardRef<
       containerStyle,
       showValidation = true,
       required = false,
+      icon,
+      style: inputStyleOverride,
       ...otherProps
     },
     ref
@@ -166,13 +169,16 @@ export const MaskedVehicleInput = forwardRef<
 
         {/* Input com validação */}
         <View style={styles.inputWrapper}>
+          {icon && <View style={styles.iconContainer}>{icon}</View>}
           <RNTextInput
             ref={ref}
             style={[
               styles.input,
+              !!icon && styles.inputWithIcon,
               error && styles.inputError,
               isValid === true && styles.inputValid,
               isValid === false && styles.inputInvalid,
+              inputStyleOverride,
             ]}
             placeholder={placeholder}
             placeholderTextColor={Colors.dark.textMuted}
@@ -226,6 +232,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
+  iconContainer: {
+    position: "absolute",
+    left: Spacing.lg,
+    zIndex: 1,
+  },
   input: {
     flex: 1,
     fontFamily: Fonts.family.regular,
@@ -238,6 +249,9 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.lg,
     paddingRight: 40, // Espaço para o ícone de validação
+  },
+  inputWithIcon: {
+    paddingLeft: 48,
   },
   inputValid: {
     borderColor: Colors.dark.success,

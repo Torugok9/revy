@@ -1,143 +1,241 @@
 import { LimitReachedModal } from "@/components/vehicles/LimitReachedModal";
 import { MaskedVehicleInput } from "@/components/vehicles/MaskedVehicleInput";
-import { StepIndicator } from "@/components/vehicles/StepIndicator";
-import { Colors, Fonts, Spacing } from "@/constants/theme";
+import { Colors, Fonts, Spacing, BorderRadius } from "@/constants/theme";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { useMultiStepForm } from "@/hooks/useMultiStepForm";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import { supabase } from "@/lib/supabase";
 import { cleanCurrency, cleanKilometers, cleanPlate } from "@/utils/formatters";
+import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImagePicker from "expo-image-picker";
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
+  ActionSheetIOS,
   ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  TextInput as RNTextInput,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput as RNTextInput,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const STORAGE_KEY = "vehicle_form_v2";
 
 interface VehicleFormData {
-  // Step 1: Identificação
   brand: string;
   model: string;
   year: string;
   plate: string;
-
-  // Step 2: Características
-  color: string;
   currentKm: string;
+  color: string;
   chassisNumber: string;
-
-  // Step 3: Aquisição
   purchaseDate: string;
   purchaseValue: string;
   notes: string;
 }
 
-const STEPS = [
-  {
-    id: "identification",
-    label: "Identificação",
-    validate: (data: VehicleFormData) => {
-      return !!(
-        data.brand.trim() &&
-        data.model.trim() &&
-        data.year &&
-        data.plate
-      );
-    },
-    requiredFields: ["brand", "model", "year", "plate"],
-  },
-  {
-    id: "characteristics",
-    label: "Características",
-    validate: () => true, // Todos os campos são opcionais neste step
-    requiredFields: [],
-  },
-  {
-    id: "acquisition",
-    label: "Aquisição",
-    validate: () => true, // Todos os campos são opcionais neste step
-    requiredFields: [],
-  },
-];
+const INITIAL_FORM: VehicleFormData = {
+  brand: "",
+  model: "",
+  year: "",
+  plate: "",
+  currentKm: "",
+  color: "",
+  chassisNumber: "",
+  purchaseDate: "",
+  purchaseValue: "",
+  notes: "",
+};
 
 export default function NewVehicleScreen() {
   const router = useRouter();
   const { user } = useAuthContext();
   const { plan } = useUserPlan();
+  const insets = useSafeAreaInsets();
 
-  const form = useMultiStepForm<VehicleFormData>({
-    steps: STEPS,
-    initialData: {
-      brand: "",
-      model: "",
-      year: "",
-      plate: "",
-      color: "",
-      currentKm: "",
-      chassisNumber: "",
-      purchaseDate: "",
-      purchaseValue: "",
-      notes: "",
-    },
-    storageKey: "vehicle_form",
-  });
-
-  const [showLimitModal, setShowLimitModal] = React.useState(false);
+  const [formData, setFormData] = useState<VehicleFormData>(INITIAL_FORM);
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showLimitModal, setShowLimitModal] = useState(false);
 
   // Refs para navegação entre inputs
   const modelRef = useRef<RNTextInput>(null);
   const yearRef = useRef<RNTextInput>(null);
   const plateRef = useRef<RNTextInput>(null);
-  const colorRef = useRef<RNTextInput>(null);
   const kmRef = useRef<RNTextInput>(null);
+  const colorRef = useRef<RNTextInput>(null);
   const chassisRef = useRef<RNTextInput>(null);
   const dateRef = useRef<RNTextInput>(null);
   const valueRef = useRef<RNTextInput>(null);
   const notesRef = useRef<RNTextInput>(null);
 
-  // Carregar progresso ao montar o componente
+  const updateField = useCallback(
+    (field: keyof VehicleFormData, value: string) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    },
+    []
+  );
+
+  // Validação: campos obrigatórios preenchidos
+  const isFormValid =
+    formData.brand.trim().length > 0 &&
+    formData.model.trim().length > 0 &&
+    formData.year.length === 4 &&
+    formData.plate.length >= 7;
+
+  // Salvar/carregar progresso
   useEffect(() => {
-    form.loadProgress();
+    const load = async () => {
+      try {
+        const saved = await AsyncStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.formData) setFormData(parsed.formData);
+          if (parsed.photoUri) setPhotoUri(parsed.photoUri);
+        }
+      } catch {}
+    };
+    load();
   }, []);
 
-  // Salvar progresso quando os dados mudam
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      form.saveProgress();
+    const timeout = setTimeout(async () => {
+      try {
+        await AsyncStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({ formData, photoUri })
+        );
+      } catch {}
     }, 1000);
-
     return () => clearTimeout(timeout);
-  }, [form.formData, form.currentStep]);
+  }, [formData, photoUri]);
 
-  const handleSave = async () => {
-    if (!form.isCurrentStepValid || !user) {
+  // Upload de foto
+  const handlePickImage = useCallback(() => {
+    const options = ["Tirar Foto", "Escolher da Galeria", "Cancelar"];
+
+    if (Platform.OS === "ios") {
+      ActionSheetIOS.showActionSheetWithOptions(
+        { options, cancelButtonIndex: 2 },
+        async (buttonIndex) => {
+          if (buttonIndex === 0) await launchCamera();
+          else if (buttonIndex === 1) await launchGallery();
+        }
+      );
+    } else {
+      Alert.alert("Foto do Veículo", "Como deseja adicionar a foto?", [
+        { text: "Tirar Foto", onPress: launchCamera },
+        { text: "Escolher da Galeria", onPress: launchGallery },
+        { text: "Cancelar", style: "cancel" },
+      ]);
+    }
+  }, []);
+
+  const launchCamera = async () => {
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert(
+        "Permissão necessária",
+        "Precisamos de acesso à câmera para tirar fotos."
+      );
       return;
     }
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 0.8,
+    });
+    if (!result.canceled && result.assets[0]) {
+      setPhotoUri(result.assets[0].uri);
+    }
+  };
 
-    form.setIsLoading(true);
+  const launchGallery = async () => {
+    const permission =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert(
+        "Permissão necessária",
+        "Precisamos de acesso à galeria para selecionar fotos."
+      );
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 0.8,
+    });
+    if (!result.canceled && result.assets[0]) {
+      setPhotoUri(result.assets[0].uri);
+    }
+  };
+
+  // Upload para Supabase Storage
+  const uploadPhoto = async (vehicleId: string): Promise<string | null> => {
+    if (!photoUri) return null;
+
+    try {
+      const ext = photoUri.split(".").pop() || "jpg";
+      const fileName = `${vehicleId}.${ext}`;
+      const filePath = `vehicles/${fileName}`;
+
+      const response = await fetch(photoUri);
+      const blob = await response.blob();
+
+      const arrayBuffer = await new Response(blob).arrayBuffer();
+
+      const { error } = await supabase.storage
+        .from("vehicle-photos")
+        .upload(filePath, arrayBuffer, {
+          contentType: `image/${ext}`,
+          upsert: true,
+        });
+
+      if (error) {
+        console.warn("Erro ao fazer upload da foto:", error.message);
+        return null;
+      }
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("vehicle-photos").getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (err) {
+      console.warn("Erro no upload da foto:", err);
+      return null;
+    }
+  };
+
+  const handleSave = async () => {
+    if (!isFormValid || !user) return;
+
+    setIsLoading(true);
     try {
       const insertData = {
-        brand: form.formData.brand.trim(),
-        model: form.formData.model.trim(),
-        year: parseInt(form.formData.year, 10),
-        plate: cleanPlate(form.formData.plate),
-        color: form.formData.color.trim() || null,
-        current_km: form.formData.currentKm
-          ? parseInt(cleanKilometers(form.formData.currentKm), 10)
+        brand: formData.brand.trim(),
+        model: formData.model.trim(),
+        year: parseInt(formData.year, 10),
+        plate: cleanPlate(formData.plate),
+        color: formData.color.trim() || null,
+        current_km: formData.currentKm
+          ? parseInt(cleanKilometers(formData.currentKm), 10)
           : 0,
-        chassis_number: form.formData.chassisNumber.trim() || null,
-        purchase_date: form.formData.purchaseDate.trim() || null,
-        purchase_value: form.formData.purchaseValue
-          ? parseFloat(cleanCurrency(form.formData.purchaseValue))
+        chassis_number: formData.chassisNumber.trim() || null,
+        purchase_date: formData.purchaseDate.trim() || null,
+        purchase_value: formData.purchaseValue
+          ? parseFloat(cleanCurrency(formData.purchaseValue))
           : null,
-        notes: form.formData.notes.trim() || null,
+        notes: formData.notes.trim() || null,
         user_id: user.id,
       };
 
@@ -147,27 +245,32 @@ export default function NewVehicleScreen() {
         .select()
         .single();
 
-      console.log("data: ", data);
-      console.log("error: ", error);
-
       if (error) {
-        // Verificar se é erro de limite
         if (
           error.message &&
           (error.message.toLowerCase().includes("limit") ||
             error.message.toLowerCase().includes("vehicle"))
         ) {
           setShowLimitModal(true);
-          form.setIsLoading(false);
+          setIsLoading(false);
           return;
         }
-
         throw new Error(error.message || "Não foi possível salvar o veículo");
       }
 
-      // Sucesso - limpar progresso salvo e voltar
-      await form.clearProgress();
-      form.setIsLoading(false);
+      // Upload da foto se existir
+      if (data && photoUri) {
+        const photoUrl = await uploadPhoto(data.id);
+        if (photoUrl) {
+          await supabase
+            .from("vehicles")
+            .update({ photo_url: photoUrl })
+            .eq("id", data.id);
+        }
+      }
+
+      await AsyncStorage.removeItem(STORAGE_KEY);
+      setIsLoading(false);
       router.back();
     } catch (err) {
       const message =
@@ -176,15 +279,13 @@ export default function NewVehicleScreen() {
           : "Não foi possível salvar o veículo. Tente novamente.";
       console.error("handleSave error:", err);
       alert(message);
-      form.setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const handleNextStep = () => {
-    if (form.goToNextStep()) {
-      // Step avançou com sucesso
-    }
-  };
+  const renderIcon = (name: keyof typeof Ionicons.glyphMap) => (
+    <Ionicons name={name} size={20} color={Colors.dark.textSecondary} />
+  );
 
   return (
     <KeyboardAvoidingView
@@ -192,266 +293,228 @@ export default function NewVehicleScreen() {
       style={styles.container}
     >
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + Spacing.sm }]}>
         <Pressable
           onPress={() => router.back()}
-          disabled={form.isLoading}
+          disabled={isLoading}
           style={({ pressed }) => [
-            styles.headerButton,
-            pressed && styles.headerButtonPressed,
+            styles.backButton,
+            pressed && { opacity: 0.7 },
           ]}
         >
-          <Text style={styles.headerButtonText}>Cancelar</Text>
+          <Ionicons name="arrow-back" size={24} color={Colors.dark.text} />
         </Pressable>
-
-        <Text style={styles.headerTitle}>Novo veículo</Text>
-
-        <View style={{ width: 60 }} />
+        <Text style={styles.headerTitle}>Adicionar Veículo</Text>
+        <View style={{ width: 40 }} />
       </View>
 
-      {/* Step Indicator */}
-      <View style={styles.stepIndicatorContainer}>
-        <StepIndicator
-          currentStep={form.currentStep + 1}
-          totalSteps={STEPS.length}
-          stepLabel={form.currentStepInfo?.label}
-        />
-      </View>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* ===== FOTO DO VEÍCULO ===== */}
+        <Text style={styles.sectionHeader}>FOTO DO VEÍCULO</Text>
 
-      {/* Form Content */}
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Step 1: Identificação */}
-        {form.currentStep === 0 && (
-          <View style={styles.stepContainer}>
-            <Text style={styles.stepTitle}>Identificação do Veículo</Text>
-            <Text style={styles.stepDescription}>
-              Informações essenciais para identificar seu veículo
-            </Text>
-
-            <View style={styles.fieldsContainer}>
-              <MaskedVehicleInput
-                label="Marca"
-                placeholder="Ex: Toyota"
-                value={form.formData.brand}
-                onChangeText={(value) => form.updateField("brand", value)}
-                autoCapitalize="words"
-                returnKeyType="next"
-                onSubmitEditing={() => modelRef.current?.focus()}
-                error={
-                  form.stepErrors.brand
-                    ? "Informe a marca do veículo"
-                    : undefined
-                }
-                required
-                showValidation={form.formData.brand.length > 0}
-              />
-
-              <MaskedVehicleInput
-                ref={modelRef}
-                label="Modelo"
-                placeholder="Ex: Corolla"
-                value={form.formData.model}
-                onChangeText={(value) => form.updateField("model", value)}
-                autoCapitalize="words"
-                returnKeyType="next"
-                onSubmitEditing={() => yearRef.current?.focus()}
-                error={
-                  form.stepErrors.model
-                    ? "Informe o modelo do veículo"
-                    : undefined
-                }
-                required
-                showValidation={form.formData.model.length > 0}
-                containerStyle={styles.fieldSpacing}
-              />
-
-              <MaskedVehicleInput
-                ref={yearRef}
-                label="Ano"
-                placeholder="Ex: 2022"
-                value={form.formData.year}
-                onChangeText={(value) => form.updateField("year", value)}
-                maskType="year"
-                maxLength={4}
-                returnKeyType="next"
-                onSubmitEditing={() => plateRef.current?.focus()}
-                error={
-                  form.stepErrors.year ? "Informe um ano válido" : undefined
-                }
-                required
-                showValidation={form.formData.year.length > 0}
-                containerStyle={styles.fieldSpacing}
-              />
-
-              <MaskedVehicleInput
-                ref={plateRef}
-                label="Placa"
-                placeholder="Ex: ABC-1D23"
-                value={form.formData.plate}
-                onChangeText={(value) => form.updateField("plate", value)}
-                maskType="plate"
-                autoCapitalize="characters"
-                returnKeyType="done"
-                error={form.stepErrors.plate ? "Placa inválida" : undefined}
-                required
-                showValidation={form.formData.plate.length > 0}
-                containerStyle={styles.fieldSpacing}
-              />
-            </View>
-          </View>
-        )}
-
-        {/* Step 2: Características */}
-        {form.currentStep === 1 && (
-          <View style={styles.stepContainer}>
-            <Text style={styles.stepTitle}>Características do Veículo</Text>
-            <Text style={styles.stepDescription}>
-              Detalhes adicionais do seu veículo
-            </Text>
-
-            <View style={styles.fieldsContainer}>
-              <MaskedVehicleInput
-                ref={colorRef}
-                label="Cor"
-                placeholder="Ex: Prata"
-                value={form.formData.color}
-                onChangeText={(value) => form.updateField("color", value)}
-                autoCapitalize="words"
-                returnKeyType="next"
-                onSubmitEditing={() => kmRef.current?.focus()}
-              />
-
-              <MaskedVehicleInput
-                ref={kmRef}
-                label="Quilometragem atual"
-                placeholder="Ex: 45000"
-                value={form.formData.currentKm}
-                onChangeText={(value) => form.updateField("currentKm", value)}
-                maskType="kilometers"
-                returnKeyType="next"
-                onSubmitEditing={() => chassisRef.current?.focus()}
-                containerStyle={styles.fieldSpacing}
-              />
-
-              <MaskedVehicleInput
-                ref={chassisRef}
-                label="Número do chassis"
-                placeholder="Ex: 9BRBLWHEXG0..."
-                value={form.formData.chassisNumber}
-                onChangeText={(value) =>
-                  form.updateField("chassisNumber", value)
-                }
-                autoCapitalize="characters"
-                returnKeyType="done"
-                containerStyle={styles.fieldSpacing}
-              />
-            </View>
-          </View>
-        )}
-
-        {/* Step 3: Aquisição */}
-        {form.currentStep === 2 && (
-          <View style={styles.stepContainer}>
-            <Text style={styles.stepTitle}>Dados da Aquisição</Text>
-            <Text style={styles.stepDescription}>
-              Informações sobre a compra do veículo
-            </Text>
-
-            <View style={styles.fieldsContainer}>
-              <MaskedVehicleInput
-                ref={dateRef}
-                label="Data de compra"
-                placeholder="DD/MM/AAAA"
-                value={form.formData.purchaseDate}
-                onChangeText={(value) =>
-                  form.updateField("purchaseDate", value)
-                }
-                maskType="date"
-                returnKeyType="next"
-                onSubmitEditing={() => valueRef.current?.focus()}
-              />
-
-              <MaskedVehicleInput
-                ref={valueRef}
-                label="Valor de compra"
-                placeholder="Ex: 85000.00"
-                value={form.formData.purchaseValue}
-                onChangeText={(value) =>
-                  form.updateField("purchaseValue", value)
-                }
-                maskType="currency"
-                returnKeyType="next"
-                onSubmitEditing={() => notesRef.current?.focus()}
-                containerStyle={styles.fieldSpacing}
-              />
-
-              <MaskedVehicleInput
-                ref={notesRef}
-                label="Observações"
-                placeholder="Anotações gerais sobre o veículo..."
-                value={form.formData.notes}
-                onChangeText={(value) => form.updateField("notes", value)}
-                multiline
-                numberOfLines={4}
-                returnKeyType="done"
-                onSubmitEditing={() => {}}
-                style={styles.inputMultiline}
-                containerStyle={styles.fieldSpacing}
-              />
-            </View>
-          </View>
-        )}
-
-        {/* Bottom padding */}
-        <View style={{ height: Spacing.xl }} />
-      </ScrollView>
-
-      {/* Navigation Footer */}
-      <View style={styles.footer}>
-        {!form.isFirstStep && (
-          <Pressable
-            onPress={form.goToPreviousStep}
-            disabled={form.isLoading}
-            style={({ pressed }) => [
-              styles.navButton,
-              styles.navButtonSecondary,
-              pressed && styles.navButtonPressed,
-            ]}
-          >
-            <Text style={styles.navButtonTextSecondary}>← Voltar</Text>
-          </Pressable>
-        )}
-
-        <Pressable
-          onPress={form.isLastStep ? handleSave : handleNextStep}
-          disabled={!form.isCurrentStepValid || form.isLoading}
-          style={({ pressed }) => [
-            styles.navButton,
-            styles.navButtonPrimary,
-            (!form.isCurrentStepValid || form.isLoading) &&
-              styles.navButtonDisabled,
-            pressed &&
-              form.isCurrentStepValid &&
-              styles.navButtonPrimaryPressed,
-          ]}
-        >
-          {form.isLoading ? (
-            <ActivityIndicator color={Colors.dark.primary} size="small" />
+        <Pressable onPress={handlePickImage} style={styles.photoSection}>
+          {photoUri ? (
+            <Image
+              source={{ uri: photoUri }}
+              style={styles.photoPreview}
+              contentFit="cover"
+            />
           ) : (
-            <Text
-              style={[
-                styles.navButtonText,
-                (!form.isCurrentStepValid || form.isLoading) &&
-                  styles.navButtonTextDisabled,
-              ]}
-            >
-              {form.isLastStep ? "Salvar" : "Próximo →"}
-            </Text>
+            <>
+              <View style={styles.cameraIconCircle}>
+                <Ionicons
+                  name="camera-outline"
+                  size={32}
+                  color={Colors.dark.primary}
+                />
+              </View>
+              <Text style={styles.photoTitle}>Tirar ou escolher foto</Text>
+              <Text style={styles.photoSubtitle}>
+                Formatos aceitos: JPG, PNG
+              </Text>
+              <View style={styles.selectFileButton}>
+                <Text style={styles.selectFileText}>Selecionar Arquivo</Text>
+              </View>
+            </>
           )}
         </Pressable>
-      </View>
 
-      {/* Modal de Limite Atingido */}
+        {/* ===== INFORMAÇÕES BÁSICAS ===== */}
+        <Text style={styles.sectionHeader}>INFORMAÇÕES BÁSICAS</Text>
+
+        <View style={styles.fieldsContainer}>
+          <MaskedVehicleInput
+            label="Marca"
+            placeholder="Ex: Toyota, BMW, Honda"
+            value={formData.brand}
+            onChangeText={(v) => updateField("brand", v)}
+            autoCapitalize="words"
+            returnKeyType="next"
+            onSubmitEditing={() => modelRef.current?.focus()}
+            required
+            showValidation={formData.brand.length > 0}
+            icon={renderIcon("car-sport-outline")}
+          />
+
+          <MaskedVehicleInput
+            ref={modelRef}
+            label="Modelo"
+            placeholder="Ex: Corolla, M3, Civic"
+            value={formData.model}
+            onChangeText={(v) => updateField("model", v)}
+            autoCapitalize="words"
+            returnKeyType="next"
+            onSubmitEditing={() => yearRef.current?.focus()}
+            required
+            showValidation={formData.model.length > 0}
+            icon={renderIcon("document-text-outline")}
+          />
+
+          <View style={styles.rowFields}>
+            <MaskedVehicleInput
+              ref={yearRef}
+              label="Ano"
+              placeholder="2024"
+              value={formData.year}
+              onChangeText={(v) => updateField("year", v)}
+              maskType="year"
+              maxLength={4}
+              returnKeyType="next"
+              onSubmitEditing={() => plateRef.current?.focus()}
+              required
+              showValidation={formData.year.length > 0}
+              containerStyle={styles.halfField}
+              icon={renderIcon("calendar-outline")}
+            />
+            <MaskedVehicleInput
+              ref={plateRef}
+              label="Placa"
+              placeholder="ABC-1234"
+              value={formData.plate}
+              onChangeText={(v) => updateField("plate", v)}
+              maskType="plate"
+              autoCapitalize="characters"
+              returnKeyType="next"
+              onSubmitEditing={() => kmRef.current?.focus()}
+              required
+              showValidation={formData.plate.length > 0}
+              containerStyle={styles.halfField}
+              icon={renderIcon("pricetag-outline")}
+            />
+          </View>
+
+          <MaskedVehicleInput
+            ref={kmRef}
+            label="Quilometragem Atual (km)"
+            placeholder="0"
+            value={formData.currentKm}
+            onChangeText={(v) => updateField("currentKm", v)}
+            maskType="kilometers"
+            returnKeyType="next"
+            onSubmitEditing={() => colorRef.current?.focus()}
+            icon={renderIcon("speedometer-outline")}
+          />
+        </View>
+
+        {/* ===== INFORMAÇÕES ADICIONAIS ===== */}
+        <Text style={styles.sectionHeader}>INFORMAÇÕES ADICIONAIS</Text>
+
+        <View style={styles.fieldsContainer}>
+          <MaskedVehicleInput
+            ref={colorRef}
+            label="Cor"
+            placeholder="Ex: Prata"
+            value={formData.color}
+            onChangeText={(v) => updateField("color", v)}
+            autoCapitalize="words"
+            returnKeyType="next"
+            onSubmitEditing={() => chassisRef.current?.focus()}
+            icon={renderIcon("color-palette-outline")}
+          />
+
+          <MaskedVehicleInput
+            ref={chassisRef}
+            label="Número do Chassi"
+            placeholder="Ex: 9BRBLWHEXG0..."
+            value={formData.chassisNumber}
+            onChangeText={(v) => updateField("chassisNumber", v)}
+            autoCapitalize="characters"
+            returnKeyType="next"
+            onSubmitEditing={() => dateRef.current?.focus()}
+            icon={renderIcon("construct-outline")}
+          />
+
+          <MaskedVehicleInput
+            ref={dateRef}
+            label="Data de Compra"
+            placeholder="DD/MM/AAAA"
+            value={formData.purchaseDate}
+            onChangeText={(v) => updateField("purchaseDate", v)}
+            maskType="date"
+            returnKeyType="next"
+            onSubmitEditing={() => valueRef.current?.focus()}
+            icon={renderIcon("calendar-outline")}
+          />
+
+          <MaskedVehicleInput
+            ref={valueRef}
+            label="Valor de Compra"
+            placeholder="Ex: 85000.00"
+            value={formData.purchaseValue}
+            onChangeText={(v) => updateField("purchaseValue", v)}
+            maskType="currency"
+            returnKeyType="next"
+            onSubmitEditing={() => notesRef.current?.focus()}
+            icon={renderIcon("cash-outline")}
+          />
+
+          <MaskedVehicleInput
+            ref={notesRef}
+            label="Observações"
+            placeholder="Anotações gerais sobre o veículo..."
+            value={formData.notes}
+            onChangeText={(v) => updateField("notes", v)}
+            multiline
+            numberOfLines={4}
+            returnKeyType="done"
+            style={styles.inputMultiline}
+            icon={renderIcon("chatbox-outline")}
+          />
+        </View>
+
+        {/* ===== BOTÃO SALVAR ===== */}
+        <Pressable
+          onPress={handleSave}
+          disabled={!isFormValid || isLoading}
+          style={({ pressed }) => [
+            styles.saveButton,
+            (!isFormValid || isLoading) && styles.saveButtonDisabled,
+            pressed && isFormValid && { opacity: 0.9 },
+          ]}
+        >
+          {isLoading ? (
+            <ActivityIndicator color={Colors.dark.text} size="small" />
+          ) : (
+            <View style={styles.saveButtonContent}>
+              <Ionicons
+                name="save-outline"
+                size={20}
+                color={Colors.dark.text}
+              />
+              <Text style={styles.saveButtonText}>Salvar Veículo</Text>
+            </View>
+          )}
+        </Pressable>
+
+        <View style={{ height: Spacing["3xl"] }} />
+      </ScrollView>
+
+      {/* Modal de Limite */}
       <LimitReachedModal
         visible={showLimitModal}
         onClose={() => {
@@ -470,6 +533,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.dark.background,
   },
+
+  // Header
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -480,100 +545,124 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.dark.border,
   },
-  headerButton: {
-    padding: Spacing.sm,
-    minWidth: 60,
-  },
-  headerButtonPressed: {
-    opacity: 0.7,
-  },
-  headerButtonText: {
-    fontFamily: Fonts.family.medium,
-    fontSize: Fonts.size.base,
-    color: Colors.dark.textSecondary,
+  backButton: {
+    width: 40,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
   },
   headerTitle: {
     fontFamily: Fonts.family.semibold,
     fontSize: Fonts.size.lg,
     color: Colors.dark.text,
   },
-  stepIndicatorContainer: {
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.lg,
-  },
-  content: {
+
+  // ScrollView
+  scrollView: {
     flex: 1,
+  },
+  scrollContent: {
     paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.lg,
+    paddingTop: Spacing["2xl"],
   },
-  stepContainer: {
-    gap: Spacing.lg,
-  },
-  stepTitle: {
+
+  // Section headers
+  sectionHeader: {
     fontFamily: Fonts.family.semibold,
-    fontSize: Fonts.size.lg,
+    fontSize: Fonts.size.xs,
+    color: Colors.dark.textSecondary,
+    letterSpacing: 1.5,
+    marginBottom: Spacing.md,
+    marginTop: Spacing["2xl"],
+  },
+
+  // Photo section
+  photoSection: {
+    borderWidth: 1.5,
+    borderStyle: "dashed",
+    borderColor: Colors.dark.borderStrong,
+    borderRadius: BorderRadius.lg,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: Spacing["3xl"],
+    paddingHorizontal: Spacing.lg,
+    backgroundColor: Colors.dark.surface,
+    overflow: "hidden",
+  },
+  photoPreview: {
+    width: "100%",
+    height: 200,
+    borderRadius: BorderRadius.md,
+  },
+  cameraIconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: Colors.dark.primaryGlow,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: Spacing.lg,
+  },
+  photoTitle: {
+    fontFamily: Fonts.family.semibold,
+    fontSize: Fonts.size.base,
+    color: Colors.dark.text,
+    marginBottom: Spacing.xs,
+  },
+  photoSubtitle: {
+    fontFamily: Fonts.family.regular,
+    fontSize: Fonts.size.sm,
+    color: Colors.dark.textSecondary,
+    marginBottom: Spacing.xl,
+  },
+  selectFileButton: {
+    backgroundColor: Colors.dark.surfaceElevated,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing["2xl"],
+    borderRadius: BorderRadius.md,
+  },
+  selectFileText: {
+    fontFamily: Fonts.family.semibold,
+    fontSize: Fonts.size.sm,
     color: Colors.dark.text,
   },
-  stepDescription: {
-    fontFamily: Fonts.family.regular,
-    fontSize: Fonts.size.base,
-    color: Colors.dark.textSecondary,
-  },
+
+  // Fields
   fieldsContainer: {
     gap: Spacing.lg,
-    marginTop: Spacing.lg,
   },
-  fieldSpacing: {
-    marginTop: Spacing.lg,
+  rowFields: {
+    flexDirection: "row",
+    gap: Spacing.md,
+  },
+  halfField: {
+    flex: 1,
   },
   inputMultiline: {
     textAlignVertical: "top",
     minHeight: 100,
   },
-  footer: {
-    flexDirection: "row",
-    gap: Spacing.lg,
-    paddingHorizontal: Spacing.lg,
+
+  // Save button
+  saveButton: {
+    backgroundColor: Colors.dark.primary,
+    borderRadius: BorderRadius.lg,
     paddingVertical: Spacing.lg,
-    borderTopWidth: 1,
-    borderTopColor: Colors.dark.border,
-  },
-  navButton: {
-    flex: 1,
-    paddingVertical: Spacing.lg,
-    paddingHorizontal: Spacing.lg,
-    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
+    marginTop: Spacing["3xl"],
   },
-  navButtonPrimary: {
-    backgroundColor: Colors.dark.primary,
-  },
-  navButtonSecondary: {
-    backgroundColor: Colors.dark.surface,
-    borderWidth: 1,
-    borderColor: Colors.dark.border,
-  },
-  navButtonDisabled: {
+  saveButtonDisabled: {
     opacity: 0.5,
   },
-  navButtonPressed: {
-    opacity: 0.8,
+  saveButtonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.sm,
   },
-  navButtonPrimaryPressed: {
-    opacity: 0.9,
-  },
-  navButtonText: {
+  saveButtonText: {
     fontFamily: Fonts.family.semibold,
     fontSize: Fonts.size.base,
     color: Colors.dark.text,
-  },
-  navButtonTextSecondary: {
-    fontFamily: Fonts.family.semibold,
-    fontSize: Fonts.size.base,
-    color: Colors.dark.primary,
-  },
-  navButtonTextDisabled: {
-    color: Colors.dark.textSecondary,
   },
 });
