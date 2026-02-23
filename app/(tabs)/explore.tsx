@@ -3,10 +3,14 @@ import { SettingsMenuItem } from "@/components/settings/SettingsMenuItem";
 import { UserProfileCard } from "@/components/settings/UserProfileCard";
 import { Colors, Fonts, Spacing } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React from "react";
 import { Linking, ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SettingsScreen() {
+  const router = useRouter();
+
   const handleOpenLink = (url: string) => {
     Linking.openURL(url).catch(() => {
       console.error("Erro ao abrir link");
@@ -14,6 +18,7 @@ export default function SettingsScreen() {
   };
 
   return (
+    <SafeAreaView style={styles.safeAreaContainer}>
     <ScrollView
       style={styles.container}
       showsVerticalScrollIndicator={false}
@@ -38,8 +43,7 @@ export default function SettingsScreen() {
           icon="person-outline"
           label="Informações Pessoais"
           onPress={() => {
-            // TODO: Implementar navegação para edição de perfil
-            console.log("Editar informações pessoais");
+            router.push("/profile/edit");
           }}
         />
 
@@ -47,8 +51,7 @@ export default function SettingsScreen() {
           icon="card-outline"
           label="Meu Plano"
           onPress={() => {
-            // TODO: Implementar tela de plano
-            console.log("Ver plano");
+            router.push("/profile/plan");
           }}
           rightElement={
             <Ionicons
@@ -132,16 +135,20 @@ export default function SettingsScreen() {
         </Text>
       </View>
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeAreaContainer: {
+    flex: 1,
+    backgroundColor: Colors.dark.background,
+  },
   container: {
     flex: 1,
     backgroundColor: Colors.dark.background,
   },
   contentContainer: {
-    paddingTop: Spacing.xl,
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.xl,
   },

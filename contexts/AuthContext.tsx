@@ -107,6 +107,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const updateUserName = useCallback(
+    async (name: string) => {
+      if (!user) return;
+
+      await AsyncStorage.setItem(`user_name_${user.id}`, name);
+      setUser((prev) => (prev ? { ...prev, name } : null));
+    },
+    [user],
+  );
+
   const signOut = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -188,7 +198,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, error, signIn, signUp, signOut, clearError }}
+      value={{ user, loading, error, signIn, signUp, signOut, updateUserName, clearError }}
     >
       {children}
     </AuthContext.Provider>
