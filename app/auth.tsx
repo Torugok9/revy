@@ -41,7 +41,7 @@ export default function AuthScreen() {
     name: "",
   });
   const [generalError, setGeneralError] = useState<string | null>(null);
-  const { signIn, signUp, loading } = useAuthContext();
+  const { signIn, signUp, signInWithGoogle, loading } = useAuthContext();
 
   const logoTextColor = useThemeColor({}, "primary");
   const textColor = useThemeColor({}, "text");
@@ -53,7 +53,7 @@ export default function AuthScreen() {
   const cardTranslateY = useSharedValue(SCREEN_HEIGHT);
 
   useEffect(() => {
-    cardTranslateY.value = withSpring(0, { damping: 15 });
+    cardTranslateY.value = withSpring(0, { damping: 50, stiffness: 150 });
   }, [cardTranslateY]);
 
   const animatedCardStyle = useAnimatedStyle(() => ({
@@ -79,7 +79,9 @@ export default function AuthScreen() {
     try {
       setGeneralError(null);
       await signUp(formData.email, formData.password, formData.name);
-      const onboardingCompleted = await AsyncStorage.getItem("revy_onboarding_completed");
+      const onboardingCompleted = await AsyncStorage.getItem(
+        "revy_onboarding_completed",
+      );
       if (onboardingCompleted === "true") {
         router.replace("/(tabs)");
       } else {
@@ -87,6 +89,15 @@ export default function AuthScreen() {
       }
     } catch (error: any) {
       setGeneralError(error.message || "Erro ao criar conta");
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setGeneralError(null);
+      await signInWithGoogle();
+    } catch (error: any) {
+      setGeneralError(error.message || "Erro ao entrar com Google");
     }
   };
 
@@ -109,13 +120,17 @@ export default function AuthScreen() {
       <View style={styles.socialButtonsRow}>
         <TouchableOpacity
           style={[styles.socialButton, { backgroundColor: "#2A2A2A" }]}
+          onPress={handleGoogleSignIn}
+          disabled={loading}
         >
           <FontAwesome name="google" size={24} color="#EA4335" />
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.socialButton, { backgroundColor: "#2A2A2A" }]}
+          onPress={() => {}}
+          disabled={loading}
         >
-          <FontAwesome name="facebook" size={24} color="#1877F2" />
+          <FontAwesome name="apple" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
     </View>
@@ -158,14 +173,14 @@ export default function AuthScreen() {
       case "onboarding":
         return (
           <Animated.View
-            entering={FadeInDown.delay(200)}
+            entering={FadeInDown.delay(10)}
             key="onboarding-card"
             style={styles.cardContent}
           >
             <FloatingIcons />
             <View style={styles.onboardingTextContainer}>
               <Text style={[styles.smallLabel, { color: subtitleColor }]}>
-                REVvY
+                REVVY
               </Text>
               <Text style={[styles.headline, { color: textColor }]}>
                 Tome o controle de todos os seus veículos

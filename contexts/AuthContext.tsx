@@ -1,3 +1,4 @@
+import { signInWithOAuth } from "@/lib/oauth";
 import { supabase } from "@/lib/supabase";
 import { AuthContextType, AuthError, User } from "@/types/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -144,6 +145,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const signInWithGoogle = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await signInWithOAuth("google");
+      // O onAuthStateChange captura a sessão automaticamente
+    } catch (err: any) {
+      const authError: AuthError = {
+        message: err.message || "Erro ao entrar com Google. Tente novamente.",
+        code: err.code,
+      };
+      setError(authError);
+      throw authError;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const signInWithApple = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await signInWithOAuth("apple");
+      // O onAuthStateChange captura a sessão automaticamente
+    } catch (err: any) {
+      const authError: AuthError = {
+        message: err.message || "Erro ao entrar com Apple. Tente novamente.",
+        code: err.code,
+      };
+      setError(authError);
+      throw authError;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     async function initializeAuth() {
       try {
@@ -156,10 +195,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             `user_name_${session.user.id}`,
           );
 
+          let userName = storedName || "";
+          if (!userName) {
+            const metadata = session.user.user_metadata;
+            const providerName =
+              metadata?.full_name || metadata?.name || "";
+            if (providerName) {
+              await AsyncStorage.setItem(
+                `user_name_${session.user.id}`,
+                providerName,
+              );
+              userName = providerName;
+            }
+          }
+
           setUser({
             id: session.user.id,
             email: session.user.email || "",
-            name: storedName || "",
+            name: userName,
             createdAt: session.user.created_at || new Date().toISOString(),
           });
         }
@@ -180,10 +233,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           `user_name_${session.user.id}`,
         );
 
+        // Se não há nome salvo localmente, tenta extrair do provider (Google, Apple, etc.)
+        let userName = storedName || "";
+        if (!userName) {
+          const metadata = session.user.user_metadata;
+          const providerName =
+            metadata?.full_name || metadata?.name || "";
+          if (providerName) {
+            await AsyncStorage.setItem(
+              `user_name_${session.user.id}`,
+              providerName,
+            );
+            userName = providerName;
+          }
+        }
+
         setUser({
           id: session.user.id,
           email: session.user.email || "",
-          name: storedName || "",
+          name: userName,
           createdAt: session.user.created_at || new Date().toISOString(),
         });
       } else {
@@ -198,7 +266,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, error, signIn, signUp, signOut, updateUserName, clearError }}
+      value={{ user, loading, error, signIn, signUp, signInWithGoogle, signInWithApple, signOut, updateUserName, clearError }}
     >
       {children}
     </AuthContext.Provider>
