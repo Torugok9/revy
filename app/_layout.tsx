@@ -10,14 +10,16 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import * as Font from "expo-font";
+import * as Linking from "expo-linking";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
+import { Alert } from "react-native";
 import "react-native-reanimated";
 
 import { AuthProvider, useAuthContext } from "@/contexts/AuthContext";
-import { FeaturesProvider } from "@/contexts/FeaturesContext";
+import { FeaturesProvider, useFeaturesContext } from "@/contexts/FeaturesContext";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
 // Keep the splash screen visible while we fetch resources
@@ -32,6 +34,27 @@ function RootLayoutNav() {
   const segments = useSegments();
   const router = useRouter();
   const { user, loading: authLoading } = useAuthContext();
+  const { refetch } = useFeaturesContext();
+
+  // Deep link handler for Stripe checkout return
+  useEffect(() => {
+    const subscription = Linking.addEventListener("url", ({ url }) => {
+      if (url.includes("checkout/success")) {
+        // Wait for webhook processing, then refresh features
+        setTimeout(async () => {
+          await refetch();
+          Alert.alert(
+            "Bem-vindo ao Pro!",
+            "Seu pagamento foi confirmado. Aproveite todos os recursos premium!"
+          );
+          router.replace("/(tabs)");
+        }, 2000);
+      }
+      // checkout/cancel — just return, no action needed
+    });
+
+    return () => subscription.remove();
+  }, [refetch, router]);
 
   useEffect(() => {
     const isAuthGroup = segments[0] === "auth";

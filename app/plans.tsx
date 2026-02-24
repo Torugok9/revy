@@ -1,12 +1,13 @@
 import { FEATURE_DISPLAY } from "@/constants/features";
 import { BorderRadius, Colors, Fonts, Spacing } from "@/constants/theme";
 import { useFeaturesContext } from "@/contexts/FeaturesContext";
+import { useSubscription } from "@/hooks/useSubscription";
 import type { FeatureKey } from "@/types/plans";
 import { Ionicons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Pressable,
   ScrollView,
@@ -16,12 +17,10 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-// ─── Plan data (hardcoded — rarely changes) ──────────────────────────
+// ─── Plan data ──────────────────────────────────────────────────────
 interface PlanData {
   id: string;
   name: string;
-  price: string;
-  priceAnnual?: string;
   maxVehicles: string;
   features: FeatureKey[];
   isPopular?: boolean;
@@ -31,15 +30,12 @@ const PLANS: PlanData[] = [
   {
     id: "free",
     name: "Gratuito",
-    price: "Grátis",
     maxVehicles: "1 veículo",
     features: [],
   },
   {
     id: "premium",
     name: "Pro",
-    price: "R$ 12,90/mês",
-    priceAnnual: "ou R$ 89,90/ano (economize 42%)",
     maxVehicles: "Até 5 veículos",
     features: [
       "km_charts",
@@ -57,7 +53,6 @@ const PLANS: PlanData[] = [
   {
     id: "fleet",
     name: "Frota",
-    price: "Sob consulta",
     maxVehicles: "Até 15 veículos",
     features: [
       "km_charts",
@@ -97,6 +92,8 @@ const ALL_PREMIUM_FEATURES: FeatureKey[] = [
   "fleet_dashboard",
 ];
 
+type BillingPeriod = "monthly" | "yearly";
+
 export default function PlansScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -104,26 +101,73 @@ export default function PlansScreen() {
   const params = useLocalSearchParams();
   const highlightFeature = params.highlight as FeatureKey | undefined;
 
+  const { subscribe, cancelSubscription, openCustomerPortal, loading } =
+    useSubscription();
+
+  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("yearly");
+
+  const isPremium = planId === "premium";
+
   const handleSubscribe = async (targetPlanId: string) => {
     if (targetPlanId === "fleet") {
       Alert.alert(
         "Plano Frota",
-        "Entre em contato conosco para saber mais sobre o plano Frota.",
+        "Entre em contato conosco para saber mais sobre o plano Frota."
       );
       return;
     }
 
-    // Save intent for future analytics
-    await AsyncStorage.setItem(
-      "revy_upgrade_intent",
-      JSON.stringify({ plan: targetPlanId, date: new Date().toISOString() }),
-    );
+    if (targetPlanId === "free") return;
 
-    Alert.alert(
-      "Em breve!",
-      "Estamos finalizando a integração de pagamento. Você será notificado quando estiver disponível.",
-    );
+    await subscribe(billingPeriod);
   };
+
+  const getPriceDisplay = () => {
+    if (billingPeriod === "monthly") {
+      return { main: "R$ 14,90", sub: "/mês" };
+    }
+    return { main: "R$ 119,90", sub: "/ano" };
+  };
+
+  const renderBillingToggle = () => (
+    <View style={styles.billingToggleContainer}>
+      <Pressable
+        onPress={() => setBillingPeriod("monthly")}
+        style={[
+          styles.billingToggleOption,
+          billingPeriod === "monthly" && styles.billingToggleOptionActive,
+        ]}
+      >
+        <Text
+          style={[
+            styles.billingToggleText,
+            billingPeriod === "monthly" && styles.billingToggleTextActive,
+          ]}
+        >
+          Mensal
+        </Text>
+      </Pressable>
+      <Pressable
+        onPress={() => setBillingPeriod("yearly")}
+        style={[
+          styles.billingToggleOption,
+          billingPeriod === "yearly" && styles.billingToggleOptionActive,
+        ]}
+      >
+        <Text
+          style={[
+            styles.billingToggleText,
+            billingPeriod === "yearly" && styles.billingToggleTextActive,
+          ]}
+        >
+          Anual
+        </Text>
+        <View style={styles.saveBadge}>
+          <Text style={styles.saveBadgeText}>-33%</Text>
+        </View>
+      </Pressable>
+    </View>
+  );
 
   const renderPlanCard = (plan: PlanData) => {
     const isCurrent = plan.id === planId;
@@ -133,10 +177,7 @@ export default function PlansScreen() {
     return (
       <View
         key={plan.id}
-        style={[
-          styles.planCard,
-          isPopular && styles.planCardPopular,
-        ]}
+        style={[styles.planCard, isPopular && styles.planCardPopular]}
       >
         {/* Popular badge */}
         {isPopular && (
@@ -148,11 +189,46 @@ export default function PlansScreen() {
 
         {/* Plan name & price */}
         <Text style={styles.planName}>{plan.name}</Text>
-        <Text style={[styles.planPrice, isPopular && styles.planPricePopular]}>
-          {plan.price}
-        </Text>
-        {plan.priceAnnual && (
-          <Text style={styles.planPriceAnnual}>{plan.priceAnnual}</Text>
+
+        {plan.id === "free" && (
+          <Text style={styles.planPrice}>Grátis</Text>
+        )}
+
+        {plan.id === "premium" && (
+          <>
+            {/* Billing toggle */}
+            {!isPremium && renderBillingToggle()}
+
+            {isPremium ? (
+              <View style={styles.currentPlanPriceRow}>
+                <Ionicons
+                  name="checkmark-circle"
+                  size={20}
+                  color={Colors.dark.success}
+                />
+                <Text style={styles.currentPlanText}>Plano atual</Text>
+              </View>
+            ) : (
+              <View style={styles.priceRow}>
+                <Text style={[styles.planPrice, styles.planPricePopular]}>
+                  {getPriceDisplay().main}
+                </Text>
+                <Text style={styles.planPriceSuffix}>
+                  {getPriceDisplay().sub}
+                </Text>
+              </View>
+            )}
+
+            {!isPremium && billingPeriod === "yearly" && (
+              <Text style={styles.planPriceEquivalent}>
+                Equivale a R$ 9,99/mês
+              </Text>
+            )}
+          </>
+        )}
+
+        {plan.id === "fleet" && (
+          <Text style={styles.planPrice}>Sob consulta</Text>
         )}
 
         {/* Vehicle limit */}
@@ -171,7 +247,11 @@ export default function PlansScreen() {
         {/* Base features (everyone gets) */}
         {BASE_FEATURES.map((f) => (
           <View key={f} style={styles.featureRow}>
-            <Ionicons name="checkmark-circle" size={18} color={Colors.dark.success} />
+            <Ionicons
+              name="checkmark-circle"
+              size={18}
+              color={Colors.dark.success}
+            />
             <Text style={styles.featureText}>{f}</Text>
           </View>
         ))}
@@ -225,9 +305,42 @@ export default function PlansScreen() {
 
         {/* Action button */}
         <View style={styles.buttonContainer}>
-          {isCurrent ? (
+          {isCurrent && plan.id === "free" ? (
             <View style={styles.currentBadge}>
               <Text style={styles.currentBadgeText}>Plano atual</Text>
+            </View>
+          ) : isCurrent && isPremium ? (
+            <View style={styles.premiumActions}>
+              <Pressable
+                onPress={() => openCustomerPortal()}
+                disabled={loading}
+                style={({ pressed }) => [
+                  styles.outlineButton,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Ionicons
+                  name="card-outline"
+                  size={16}
+                  color={Colors.dark.text}
+                  style={{ marginRight: Spacing.sm }}
+                />
+                <Text style={styles.outlineButtonText}>
+                  Gerenciar pagamento
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() => cancelSubscription()}
+                disabled={loading}
+                style={({ pressed }) => [
+                  styles.cancelButton,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Text style={styles.cancelButtonText}>
+                  Cancelar assinatura
+                </Text>
+              </Pressable>
             </View>
           ) : plan.id === "fleet" ? (
             <Pressable
@@ -239,17 +352,23 @@ export default function PlansScreen() {
             >
               <Text style={styles.outlineButtonText}>Entrar em contato</Text>
             </Pressable>
-          ) : (
+          ) : plan.id === "premium" ? (
             <Pressable
               onPress={() => handleSubscribe(plan.id)}
+              disabled={loading}
               style={({ pressed }) => [
                 styles.primaryButton,
+                loading && styles.buttonDisabled,
                 pressed && styles.pressed,
               ]}
             >
-              <Text style={styles.primaryButtonText}>Assinar Pro</Text>
+              {loading ? (
+                <ActivityIndicator color="#FFFFFF" size="small" />
+              ) : (
+                <Text style={styles.primaryButtonText}>Assinar Pro</Text>
+              )}
             </Pressable>
-          )}
+          ) : null}
         </View>
       </View>
     );
@@ -275,8 +394,18 @@ export default function PlansScreen() {
       {/* Current plan badge */}
       <View style={styles.currentPlanRow}>
         <Text style={styles.currentPlanLabel}>Seu plano: </Text>
-        <View style={styles.currentPlanBadge}>
-          <Text style={styles.currentPlanBadgeText}>
+        <View
+          style={[
+            styles.currentPlanBadge,
+            isPremium && styles.currentPlanBadgePremium,
+          ]}
+        >
+          <Text
+            style={[
+              styles.currentPlanBadgeText,
+              isPremium && styles.currentPlanBadgeTextPremium,
+            ]}
+          >
             {planId === "free"
               ? "Gratuito"
               : planId === "premium"
@@ -344,10 +473,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.dark.primary,
   },
+  currentPlanBadgePremium: {
+    backgroundColor: "rgba(34, 197, 94, 0.12)",
+    borderColor: Colors.dark.success,
+  },
   currentPlanBadgeText: {
     fontFamily: Fonts.family.semibold,
     fontSize: Fonts.size.xs,
     color: Colors.dark.primary,
+  },
+  currentPlanBadgeTextPremium: {
+    color: Colors.dark.success,
   },
   scrollView: {
     flex: 1,
@@ -355,6 +491,77 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: Spacing.lg,
     gap: Spacing.lg,
+  },
+  // ─── Billing toggle ────────
+  billingToggleContainer: {
+    flexDirection: "row",
+    backgroundColor: Colors.dark.background,
+    borderRadius: BorderRadius.lg,
+    padding: 3,
+    marginBottom: Spacing.lg,
+    gap: 3,
+  },
+  billingToggleOption: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.md,
+    gap: Spacing.sm,
+  },
+  billingToggleOptionActive: {
+    backgroundColor: Colors.dark.surface,
+    borderWidth: 1,
+    borderColor: Colors.dark.primary,
+  },
+  billingToggleText: {
+    fontFamily: Fonts.family.medium,
+    fontSize: Fonts.size.sm,
+    color: Colors.dark.textMuted,
+  },
+  billingToggleTextActive: {
+    color: Colors.dark.text,
+  },
+  saveBadge: {
+    backgroundColor: Colors.dark.success,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.sm,
+  },
+  saveBadgeText: {
+    fontFamily: Fonts.family.bold,
+    fontSize: 10,
+    color: "#FFFFFF",
+  },
+  // ─── Price ────────
+  priceRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    marginBottom: Spacing.xs,
+  },
+  planPriceSuffix: {
+    fontFamily: Fonts.family.regular,
+    fontSize: Fonts.size.base,
+    color: Colors.dark.textSecondary,
+    marginLeft: 2,
+  },
+  planPriceEquivalent: {
+    fontFamily: Fonts.family.regular,
+    fontSize: Fonts.size.sm,
+    color: Colors.dark.textSecondary,
+    marginBottom: Spacing.md,
+  },
+  currentPlanPriceRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
+  currentPlanText: {
+    fontFamily: Fonts.family.semibold,
+    fontSize: Fonts.size.base,
+    color: Colors.dark.success,
   },
   // ─── Plan Card ────────
   planCard: {
@@ -405,12 +612,6 @@ const styles = StyleSheet.create({
   planPricePopular: {
     color: Colors.dark.primary,
   },
-  planPriceAnnual: {
-    fontFamily: Fonts.family.regular,
-    fontSize: Fonts.size.sm,
-    color: Colors.dark.textSecondary,
-    marginBottom: Spacing.md,
-  },
   vehicleLimitRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -449,6 +650,7 @@ const styles = StyleSheet.create({
     color: Colors.dark.textMuted,
     textDecorationLine: "line-through",
   },
+  // ─── Buttons ────────
   buttonContainer: {
     marginTop: Spacing.xl,
   },
@@ -457,6 +659,11 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.lg,
     borderRadius: BorderRadius.lg,
     alignItems: "center",
+    justifyContent: "center",
+    minHeight: 52,
+  },
+  buttonDisabled: {
+    opacity: 0.7,
   },
   pressed: {
     opacity: 0.8,
@@ -467,11 +674,13 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   outlineButton: {
+    flexDirection: "row",
     borderWidth: 1,
     borderColor: Colors.dark.borderStrong,
     paddingVertical: Spacing.lg,
     borderRadius: BorderRadius.lg,
     alignItems: "center",
+    justifyContent: "center",
   },
   outlineButtonText: {
     fontFamily: Fonts.family.semibold,
@@ -489,5 +698,18 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.family.semibold,
     fontSize: Fonts.size.base,
     color: Colors.dark.success,
+  },
+  premiumActions: {
+    gap: Spacing.md,
+  },
+  cancelButton: {
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    alignItems: "center",
+  },
+  cancelButtonText: {
+    fontFamily: Fonts.family.medium,
+    fontSize: Fonts.size.sm,
+    color: Colors.dark.danger,
   },
 });

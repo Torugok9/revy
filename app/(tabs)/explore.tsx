@@ -3,16 +3,20 @@ import { SettingsMenuItem } from "@/components/settings/SettingsMenuItem";
 import { UserProfileCard } from "@/components/settings/UserProfileCard";
 import { BorderRadius, Colors, Fonts, Spacing } from "@/constants/theme";
 import { useFeaturesContext } from "@/contexts/FeaturesContext";
+import { useSubscription } from "@/hooks/useSubscription";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { planId } = useFeaturesContext();
+  const { cancelSubscription, openCustomerPortal, loading: subscriptionLoading } =
+    useSubscription();
 
+  const isPremium = planId === "premium";
   const planLabel = planId === "free" ? "Gratuito" : planId === "premium" ? "Pro" : "Frota";
 
   const handleOpenLink = (url: string) => {
@@ -50,11 +54,25 @@ export default function SettingsScreen() {
           ]}
         >
           <View style={styles.planCardLeft}>
-            <View style={styles.planBadge}>
-              <Text style={styles.planBadgeText}>{planLabel}</Text>
+            <View
+              style={[
+                styles.planBadge,
+                isPremium && styles.planBadgePremium,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.planBadgeText,
+                  isPremium && styles.planBadgeTextPremium,
+                ]}
+              >
+                {planLabel}
+              </Text>
             </View>
             <Text style={styles.planCardHint}>
-              {planId === "free" ? "Faça upgrade para desbloquear recursos" : "Gerenciar assinatura"}
+              {isPremium
+                ? "Você tem acesso a todos os recursos Pro"
+                : "Faça upgrade para desbloquear recursos"}
             </Text>
           </View>
           <Ionicons
@@ -63,6 +81,50 @@ export default function SettingsScreen() {
             color={Colors.dark.textSecondary}
           />
         </Pressable>
+
+        {/* Premium management buttons */}
+        {isPremium && (
+          <View style={styles.premiumManagement}>
+            <Pressable
+              onPress={() => openCustomerPortal()}
+              disabled={subscriptionLoading}
+              style={({ pressed }) => [
+                styles.managementButton,
+                pressed && { opacity: 0.7 },
+              ]}
+            >
+              {subscriptionLoading ? (
+                <ActivityIndicator
+                  size="small"
+                  color={Colors.dark.primary}
+                />
+              ) : (
+                <>
+                  <Ionicons
+                    name="card-outline"
+                    size={18}
+                    color={Colors.dark.primary}
+                  />
+                  <Text style={styles.managementButtonText}>
+                    Gerenciar assinatura
+                  </Text>
+                </>
+              )}
+            </Pressable>
+            <Pressable
+              onPress={() => cancelSubscription()}
+              disabled={subscriptionLoading}
+              style={({ pressed }) => [
+                styles.cancelLink,
+                pressed && { opacity: 0.7 },
+              ]}
+            >
+              <Text style={styles.cancelLinkText}>
+                Cancelar assinatura
+              </Text>
+            </Pressable>
+          </View>
+        )}
       </View>
 
       {/* Account Section */}
@@ -250,14 +312,51 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.dark.primary,
   },
+  planBadgePremium: {
+    backgroundColor: "rgba(34, 197, 94, 0.12)",
+    borderColor: Colors.dark.success,
+  },
   planBadgeText: {
     fontFamily: Fonts.family.semibold,
     fontSize: Fonts.size.xs,
     color: Colors.dark.primary,
   },
+  planBadgeTextPremium: {
+    color: Colors.dark.success,
+  },
   planCardHint: {
     fontFamily: Fonts.family.regular,
     fontSize: Fonts.size.sm,
     color: Colors.dark.textSecondary,
+  },
+  premiumManagement: {
+    marginTop: Spacing.md,
+    gap: Spacing.sm,
+  },
+  managementButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: Spacing.sm,
+    backgroundColor: Colors.dark.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.dark.border,
+    minHeight: 48,
+  },
+  managementButtonText: {
+    fontFamily: Fonts.family.medium,
+    fontSize: Fonts.size.sm,
+    color: Colors.dark.primary,
+  },
+  cancelLink: {
+    alignItems: "center",
+    padding: Spacing.md,
+  },
+  cancelLinkText: {
+    fontFamily: Fonts.family.regular,
+    fontSize: Fonts.size.sm,
+    color: Colors.dark.danger,
   },
 });
