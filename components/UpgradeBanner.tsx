@@ -1,7 +1,7 @@
 import { BorderRadius, Colors, Fonts, Spacing } from "@/constants/theme";
+import { useSubscription } from "@/hooks/useSubscription";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -53,7 +53,7 @@ function getBannerMessage(props: UpgradeBannerProps): {
 }
 
 export function UpgradeBanner(props: UpgradeBannerProps) {
-  const router = useRouter();
+  const { presentPaywall } = useSubscription();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -95,11 +95,8 @@ export function UpgradeBanner(props: UpgradeBannerProps) {
           <Text style={styles.subtitle}>{msg.subtitle}</Text>
         </View>
         <Pressable
-          onPress={() => router.push("/plans" as any)}
-          style={({ pressed }) => [
-            styles.ctaButton,
-            pressed && styles.pressed,
-          ]}
+          onPress={presentPaywall}
+          style={({ pressed }) => [styles.ctaButton, pressed && styles.pressed]}
         >
           <Text style={styles.ctaText}>Conhecer Pro</Text>
         </Pressable>

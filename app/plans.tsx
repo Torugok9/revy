@@ -1,11 +1,12 @@
 import { FEATURE_DISPLAY } from "@/constants/features";
 import { BorderRadius, Colors, Fonts, Spacing } from "@/constants/theme";
 import { useFeaturesContext } from "@/contexts/FeaturesContext";
+import { useRevenueCat } from "@/contexts/RevenueCatContext";
 import { useSubscription } from "@/hooks/useSubscription";
 import type { FeatureKey } from "@/types/plans";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -98,21 +99,44 @@ export default function PlansScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { planId } = useFeaturesContext();
+  const { currentOffering } = useRevenueCat();
   const params = useLocalSearchParams();
   const highlightFeature = params.highlight as FeatureKey | undefined;
 
-  const { subscribe, cancelSubscription, openCustomerPortal, loading } =
-    useSubscription();
+  const {
+    subscribe,
+    presentPaywall,
+    manageSubscription,
+    restorePurchases,
+    loading,
+  } = useSubscription();
 
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("yearly");
 
   const isPremium = planId === "premium";
 
+  // Preços dinâmicos do RevenueCat (com fallback para valores estáticos)
+  const prices = useMemo(() => {
+    const monthly = currentOffering?.monthly?.product;
+    const annual = currentOffering?.annual?.product;
+
+    return {
+      monthly: {
+        main: monthly?.priceString ?? "R$ 14,90",
+        sub: "/mês",
+      },
+      yearly: {
+        main: annual?.priceString ?? "R$ 119,90",
+        sub: "/ano",
+      },
+    };
+  }, [currentOffering]);
+
   const handleSubscribe = async (targetPlanId: string) => {
     if (targetPlanId === "fleet") {
       Alert.alert(
         "Plano Frota",
-        "Entre em contato conosco para saber mais sobre o plano Frota."
+        "Entre em contato conosco para saber mais sobre o plano Frota.",
       );
       return;
     }
@@ -123,10 +147,7 @@ export default function PlansScreen() {
   };
 
   const getPriceDisplay = () => {
-    if (billingPeriod === "monthly") {
-      return { main: "R$ 14,90", sub: "/mês" };
-    }
-    return { main: "R$ 119,90", sub: "/ano" };
+    return billingPeriod === "monthly" ? prices.monthly : prices.yearly;
   };
 
   const renderBillingToggle = () => (
@@ -190,9 +211,7 @@ export default function PlansScreen() {
         {/* Plan name & price */}
         <Text style={styles.planName}>{plan.name}</Text>
 
-        {plan.id === "free" && (
-          <Text style={styles.planPrice}>Grátis</Text>
-        )}
+        {plan.id === "free" && <Text style={styles.planPrice}>Grátis</Text>}
 
         {plan.id === "premium" && (
           <>
@@ -284,10 +303,7 @@ export default function PlansScreen() {
                 />
               )}
               <Text
-                style={[
-                  styles.featureText,
-                  !has && styles.featureTextLocked,
-                ]}
+                style={[styles.featureText, !has && styles.featureTextLocked]}
               >
                 {info.name}
               </Text>
@@ -312,7 +328,7 @@ export default function PlansScreen() {
           ) : isCurrent && isPremium ? (
             <View style={styles.premiumActions}>
               <Pressable
-                onPress={() => openCustomerPortal()}
+                onPress={() => manageSubscription()}
                 disabled={loading}
                 style={({ pressed }) => [
                   styles.outlineButton,
@@ -320,25 +336,13 @@ export default function PlansScreen() {
                 ]}
               >
                 <Ionicons
-                  name="card-outline"
+                  name="settings-outline"
                   size={16}
                   color={Colors.dark.text}
                   style={{ marginRight: Spacing.sm }}
                 />
                 <Text style={styles.outlineButtonText}>
-                  Gerenciar pagamento
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={() => cancelSubscription()}
-                disabled={loading}
-                style={({ pressed }) => [
-                  styles.cancelButton,
-                  pressed && styles.pressed,
-                ]}
-              >
-                <Text style={styles.cancelButtonText}>
-                  Cancelar assinatura
+                  Gerenciar assinatura
                 </Text>
               </Pressable>
             </View>
@@ -353,21 +357,40 @@ export default function PlansScreen() {
               <Text style={styles.outlineButtonText}>Entrar em contato</Text>
             </Pressable>
           ) : plan.id === "premium" ? (
-            <Pressable
-              onPress={() => handleSubscribe(plan.id)}
-              disabled={loading}
-              style={({ pressed }) => [
-                styles.primaryButton,
-                loading && styles.buttonDisabled,
-                pressed && styles.pressed,
-              ]}
-            >
-              {loading ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
-              ) : (
-                <Text style={styles.primaryButtonText}>Assinar Pro</Text>
-              )}
-            </Pressable>
+            <View style={styles.premiumSubscribeActions}>
+              <Pressable
+                onPress={() => handleSubscribe(plan.id)}
+                disabled={loading}
+                style={({ pressed }) => [
+                  styles.primaryButton,
+                  loading && styles.buttonDisabled,
+                  pressed && styles.pressed,
+                ]}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : (
+                  <Text style={styles.primaryButtonText}>Assinar Pro</Text>
+                )}
+              </Pressable>
+              <Pressable
+                onPress={presentPaywall}
+                style={({ pressed }) => [
+                  styles.paywallButton,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Ionicons
+                  name="pricetags-outline"
+                  size={16}
+                  color={Colors.dark.primary}
+                  style={{ marginRight: Spacing.sm }}
+                />
+                <Text style={styles.paywallButtonText}>
+                  Ver todas as ofertas
+                </Text>
+              </Pressable>
+            </View>
           ) : null}
         </View>
       </View>
@@ -421,6 +444,19 @@ export default function PlansScreen() {
         showsVerticalScrollIndicator={false}
       >
         {PLANS.map(renderPlanCard)}
+
+        {/* Restaurar Compras */}
+        <Pressable
+          onPress={() => restorePurchases()}
+          disabled={loading}
+          style={({ pressed }) => [
+            styles.restoreButton,
+            pressed && { opacity: 0.7 },
+          ]}
+        >
+          <Text style={styles.restoreButtonText}>Restaurar compras</Text>
+        </Pressable>
+
         <View style={{ height: Spacing["4xl"] }} />
       </ScrollView>
     </View>
@@ -702,14 +738,31 @@ const styles = StyleSheet.create({
   premiumActions: {
     gap: Spacing.md,
   },
-  cancelButton: {
+  premiumSubscribeActions: {
+    gap: Spacing.md,
+  },
+  paywallButton: {
+    flexDirection: "row",
+    borderWidth: 1,
+    borderColor: Colors.dark.primary,
     paddingVertical: Spacing.md,
     borderRadius: BorderRadius.lg,
     alignItems: "center",
+    justifyContent: "center",
   },
-  cancelButtonText: {
+  paywallButtonText: {
     fontFamily: Fonts.family.medium,
     fontSize: Fonts.size.sm,
-    color: Colors.dark.danger,
+    color: Colors.dark.primary,
+  },
+  restoreButton: {
+    alignItems: "center",
+    paddingVertical: Spacing.lg,
+  },
+  restoreButtonText: {
+    fontFamily: Fonts.family.medium,
+    fontSize: Fonts.size.sm,
+    color: Colors.dark.textSecondary,
+    textDecorationLine: "underline",
   },
 });

@@ -1,5 +1,6 @@
 import { BorderRadius, Colors, Fonts, Spacing } from "@/constants/theme";
 import { useFeaturesContext } from "@/contexts/FeaturesContext";
+import { useSubscription } from "@/hooks/useSubscription";
 import { useUserInfo } from "@/hooks/useUserInfo";
 import { useVehicles } from "@/hooks/useVehicles";
 import type { FeatureKey } from "@/types/plans";
@@ -57,6 +58,7 @@ export default function MyPlanScreen() {
   const { planId, planName, planIcon } = useUserInfo();
   const { vehicles, loading: vehiclesLoading } = useVehicles();
   const { features: userFeatures } = useFeaturesContext();
+  const { presentPaywall, presentCustomerCenter } = useSubscription();
 
   const maxVehicles = planId === "free" ? 1 : 10;
 
@@ -185,7 +187,7 @@ export default function MyPlanScreen() {
           </View>
         </View>
 
-        {/* Upgrade CTA */}
+        {/* Upgrade CTA ou Gerenciar assinatura */}
         {planName.toLowerCase() === "free" ? (
           <View style={styles.upgradeSection}>
             <Text style={styles.upgradeTitle}>Quer mais recursos?</Text>
@@ -198,15 +200,28 @@ export default function MyPlanScreen() {
                 styles.upgradeButton,
                 pressed && styles.upgradeButtonPressed,
               ]}
-              onPress={() => {
-                // TODO: Implementar fluxo de upgrade
-              }}
+              onPress={presentPaywall}
             >
               <Ionicons name="rocket-outline" size={18} color="#FFFFFF" />
               <Text style={styles.upgradeButtonText}>Fazer upgrade</Text>
             </Pressable>
           </View>
-        ) : null}
+        ) : (
+          <Pressable
+            style={({ pressed }) => [
+              styles.manageButton,
+              pressed && styles.upgradeButtonPressed,
+            ]}
+            onPress={presentCustomerCenter}
+          >
+            <Ionicons
+              name="settings-outline"
+              size={18}
+              color={Colors.dark.primary}
+            />
+            <Text style={styles.manageButtonText}>Gerenciar assinatura</Text>
+          </Pressable>
+        )}
 
         <View style={{ height: Spacing["4xl"] }} />
       </ScrollView>
@@ -417,5 +432,22 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.family.semibold,
     fontSize: Fonts.size.base,
     color: "#FFFFFF",
+  },
+  manageButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.dark.surface,
+    borderRadius: BorderRadius.xl,
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing["2xl"],
+    gap: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.dark.border,
+  },
+  manageButtonText: {
+    fontFamily: Fonts.family.medium,
+    fontSize: Fonts.size.base,
+    color: Colors.dark.primary,
   },
 });

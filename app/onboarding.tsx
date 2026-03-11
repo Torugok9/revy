@@ -1,4 +1,5 @@
 import { BorderRadius, Colors, Fonts, Spacing } from "@/constants/theme";
+import { useSubscription } from "@/hooks/useSubscription";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
@@ -19,6 +20,7 @@ const PRO_BENEFITS: { emoji: string; text: string }[] = [
 export default function OnboardingScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { presentPaywallIfNeeded } = useSubscription();
 
   const completeOnboarding = useCallback(async () => {
     await AsyncStorage.setItem(ONBOARDING_KEY, "true");
@@ -26,8 +28,9 @@ export default function OnboardingScreen() {
 
   const handleViewPlans = useCallback(async () => {
     await completeOnboarding();
-    router.replace("/plans" as any);
-  }, [completeOnboarding, router]);
+    await presentPaywallIfNeeded();
+    router.replace("/(tabs)");
+  }, [completeOnboarding, presentPaywallIfNeeded, router]);
 
   const handleStartFree = useCallback(async () => {
     await completeOnboarding();
@@ -38,13 +41,16 @@ export default function OnboardingScreen() {
     <View
       style={[
         styles.container,
-        { paddingTop: insets.top + Spacing["3xl"], paddingBottom: insets.bottom + Spacing["2xl"] },
+        {
+          paddingTop: insets.top + Spacing["3xl"],
+          paddingBottom: insets.bottom + Spacing["2xl"],
+        },
       ]}
     >
       {/* Title section */}
       <View style={styles.titleSection}>
         <Text style={styles.welcomeEmoji}>🚗</Text>
-        <Text style={styles.title}>Bem-vindo ao Revy!</Text>
+        <Text style={styles.title}>Bem-vindo ao Revvy!</Text>
         <Text style={styles.subtitle}>
           Você está no plano Gratuito. Veja o que o Pro oferece:
         </Text>

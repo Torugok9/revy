@@ -1,213 +1,241 @@
-import { useFeaturesContext } from "@/contexts/FeaturesContext";
-import { supabase } from "@/lib/supabase";
-import { FunctionsHttpError } from "@supabase/supabase-js";
-import * as WebBrowser from "expo-web-browser";
+import { ENTITLEMENT_ID, useRevenueCat } from "@/contexts/RevenueCatContext";
 import { useCallback, useState } from "react";
-import { Alert } from "react-native";
-
-async function extractFunctionError(
-  fnError: Error,
-  fallback: string,
-): Promise<string> {
-  if (fnError instanceof FunctionsHttpError) {
-    try {
-      const body = await fnError.context.json();
-      return body?.error || body?.detail || body?.message || fallback;
-    } catch {
-      // response body não é JSON
-    }
-  }
-  return fnError.message || fallback;
-}
+import { Alert, Linking } from "react-native";
+import RevenueCatUI, { PAYWALL_RESULT } from "react-native-purchases-ui";
 
 interface UseSubscriptionResult {
+  /** Comprar assinatura pelo período escolhido */
   subscribe: (billingPeriod: "monthly" | "yearly") => Promise<void>;
-  cancelSubscription: () => Promise<void>;
-  openCustomerPortal: () => Promise<void>;
+  /** Apresentar o paywall do RevenueCat (retorna true se comprou/restaurou) */
+  presentPaywall: () => Promise<boolean>;
+  /** Apresentar paywall somente se o usuário não tiver o Revvy Pro */
+  presentPaywallIfNeeded: () => Promise<boolean>;
+  /** Abrir o Customer Center do RevenueCat */
+  presentCustomerCenter: () => Promise<void>;
+  /** Gerenciar assinatura (abre Customer Center ou Paywall) */
+  manageSubscription: () => Promise<void>;
+  /** Restaurar compras anteriores */
+  restorePurchases: () => Promise<void>;
+  /** Se está processando uma operação */
   loading: boolean;
+  /** Mensagem de erro, se houver */
   error: string | null;
+}
+
+function showSdkUnavailableAlert() {
+  Alert.alert(
+    "Indisponível no Expo Go",
+    "As compras in-app requerem um development build. Execute 'expo run:ios' ou 'expo run:android' para testar.",
+  );
 }
 
 export function useSubscription(): UseSubscriptionResult {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { refetch } = useFeaturesContext();
+  const {
+    currentOffering,
+    purchasePackage,
+    restorePurchases: rcRestorePurchases,
+    refreshCustomerInfo,
+    isProUser,
+    sdkAvailable,
+  } = useRevenueCat();
 
+  // Comprar assinatura diretamente por período
   const subscribe = useCallback(
     async (billingPeriod: "monthly" | "yearly") => {
+      if (!sdkAvailable) {
+        showSdkUnavailableAlert();
+        return;
+      }
+
       setLoading(true);
       setError(null);
 
       try {
-        // Pegar token da sessão atual para enviar no body
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (!session?.access_token) {
-          throw new Error("Sessão expirada. Faça login novamente.");
-        }
-
-        const { data, error: fnError } = await supabase.functions.invoke(
-          "create-checkout",
-          {
-            body: {
-              billing_period: billingPeriod,
-              access_token: session.access_token,
-            },
-          },
-        );
-
-        if (fnError) {
-          const msg = await extractFunctionError(
-            fnError,
-            "Erro ao criar sessão de pagamento",
+        if (!currentOffering) {
+          Alert.alert(
+            "Indisponível",
+            "Não foi possível carregar os planos. Tente novamente mais tarde.",
           );
-          throw new Error(msg);
+          return;
         }
 
-        if (!data?.url) {
-          throw new Error("URL de pagamento não recebida");
+        const pkg =
+          billingPeriod === "monthly"
+            ? currentOffering.monthly
+            : currentOffering.annual;
+
+        if (!pkg) {
+          Alert.alert(
+            "Indisponível",
+            "Este plano não está disponível no momento.",
+          );
+          return;
         }
 
-        // Abrir Stripe Checkout no browser in-app
-        await WebBrowser.openBrowserAsync(data.url);
+        const success = await purchasePackage(pkg);
 
-        // Após retorno do browser, aguardar webhook processar e recarregar features
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        await refetch();
-      } catch (err) {
+        if (success) {
+          Alert.alert(
+            "Assinatura ativada!",
+            "Bem-vindo ao Revvy Pro! Aproveite todos os recursos premium.",
+          );
+        }
+      } catch (err: any) {
         const message =
-          err instanceof Error ? err.message : "Erro ao processar pagamento";
+          err?.message || "Erro ao processar assinatura";
         setError(message);
         Alert.alert("Erro", message);
       } finally {
         setLoading(false);
       }
     },
-    [refetch],
+    [sdkAvailable, currentOffering, purchasePackage],
   );
 
-  const cancelSubscription = useCallback(async () => {
-    return new Promise<void>((resolve) => {
-      Alert.alert(
-        "Cancelar assinatura",
-        "Sua assinatura será cancelada ao final do período atual. Você continuará tendo acesso até a data de expiração.",
-        [
-          {
-            text: "Manter assinatura",
-            style: "cancel",
-            onPress: () => resolve(),
+  // Apresentar paywall nativo do RevenueCat
+  const presentPaywall = useCallback(async (): Promise<boolean> => {
+    if (!sdkAvailable) {
+      showSdkUnavailableAlert();
+      return false;
+    }
+
+    try {
+      const result = await RevenueCatUI.presentPaywall({
+        displayCloseButton: true,
+      });
+
+      switch (result) {
+        case PAYWALL_RESULT.PURCHASED:
+        case PAYWALL_RESULT.RESTORED:
+          await refreshCustomerInfo();
+          return true;
+        case PAYWALL_RESULT.CANCELLED:
+        case PAYWALL_RESULT.NOT_PRESENTED:
+        case PAYWALL_RESULT.ERROR:
+        default:
+          return false;
+      }
+    } catch (err: any) {
+      console.error("[Paywall] Erro ao apresentar paywall:", err);
+      return false;
+    }
+  }, [sdkAvailable, refreshCustomerInfo]);
+
+  // Apresentar paywall somente se o usuário não tiver o entitlement
+  const presentPaywallIfNeeded = useCallback(async (): Promise<boolean> => {
+    if (!sdkAvailable) {
+      showSdkUnavailableAlert();
+      return false;
+    }
+
+    try {
+      const result = await RevenueCatUI.presentPaywallIfNeeded({
+        requiredEntitlementIdentifier: ENTITLEMENT_ID,
+        displayCloseButton: true,
+      });
+
+      if (result === PAYWALL_RESULT.NOT_PRESENTED) {
+        return true;
+      }
+
+      if (
+        result === PAYWALL_RESULT.PURCHASED ||
+        result === PAYWALL_RESULT.RESTORED
+      ) {
+        await refreshCustomerInfo();
+        return true;
+      }
+
+      return false;
+    } catch (err: any) {
+      console.error("[Paywall] Erro ao apresentar paywall:", err);
+      return false;
+    }
+  }, [sdkAvailable, refreshCustomerInfo]);
+
+  // Apresentar Customer Center do RevenueCat
+  const presentCustomerCenter = useCallback(async () => {
+    if (!sdkAvailable) {
+      showSdkUnavailableAlert();
+      return;
+    }
+
+    try {
+      await RevenueCatUI.presentCustomerCenter({
+        callbacks: {
+          onRestoreCompleted: async () => {
+            await refreshCustomerInfo();
           },
-          {
-            text: "Confirmar cancelamento",
-            style: "destructive",
-            onPress: async () => {
-              setLoading(true);
-              setError(null);
-
-              try {
-                const {
-                  data: { session },
-                } = await supabase.auth.getSession();
-
-                if (!session?.access_token) {
-                  throw new Error("Sessão expirada. Faça login novamente.");
-                }
-
-                const { data, error: fnError } =
-                  await supabase.functions.invoke("manage-subscription", {
-                    body: {
-                      action: "cancel",
-                      access_token: session.access_token,
-                    },
-                  });
-
-                if (fnError) {
-                  const msg = await extractFunctionError(
-                    fnError,
-                    "Erro ao cancelar assinatura",
-                  );
-                  throw new Error(msg);
-                }
-
-                const expiresDate = data?.expires_at
-                  ? new Date(data.expires_at).toLocaleDateString("pt-BR")
-                  : "";
-
-                Alert.alert(
-                  "Assinatura cancelada",
-                  `Você continuará tendo acesso ao Pro até ${expiresDate}.`,
-                );
-
-                await refetch();
-              } catch (err) {
-                const message =
-                  err instanceof Error
-                    ? err.message
-                    : "Erro ao cancelar assinatura";
-                setError(message);
-                Alert.alert("Erro", message);
-              } finally {
-                setLoading(false);
-                resolve();
-              }
-            },
+          onRestoreFailed: ({ error: restoreError }) => {
+            console.error("[CustomerCenter] Restore falhou:", restoreError);
           },
-        ],
-      );
-    });
-  }, [refetch]);
+        },
+      });
+    } catch (err: any) {
+      console.error("[CustomerCenter] Erro:", err);
+      try {
+        await Linking.openURL("https://apps.apple.com/account/subscriptions");
+      } catch {
+        Alert.alert(
+          "Gerenciar assinatura",
+          "Acesse Ajustes > Apple ID > Assinaturas para gerenciar seu plano.",
+        );
+      }
+    }
+  }, [sdkAvailable, refreshCustomerInfo]);
 
-  const openCustomerPortal = useCallback(async () => {
+  // Gerenciar assinatura (Customer Center para Pro, paywall para Free)
+  const manageSubscription = useCallback(async () => {
+    if (isProUser) {
+      await presentCustomerCenter();
+    } else {
+      await presentPaywall();
+    }
+  }, [isProUser, presentCustomerCenter, presentPaywall]);
+
+  // Restaurar compras
+  const restorePurchases = useCallback(async () => {
+    if (!sdkAvailable) {
+      showSdkUnavailableAlert();
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const restored = await rcRestorePurchases();
 
-      if (!session?.access_token) {
-        throw new Error("Sessão expirada. Faça login novamente.");
+      if (restored) {
+        Alert.alert(
+          "Compras restauradas!",
+          "Seu plano Revvy Pro foi recuperado com sucesso.",
+        );
+      } else {
+        Alert.alert(
+          "Nenhuma assinatura",
+          "Não encontramos assinaturas ativas vinculadas à sua conta.",
+        );
       }
-
-      const { data, error: fnError } = await supabase.functions.invoke(
-        "manage-subscription",
-        {
-          body: {
-            action: "portal",
-            access_token: session.access_token,
-          },
-        },
-      );
-
-      if (fnError) {
-        const msg = await extractFunctionError(fnError, "Erro ao abrir portal");
-        throw new Error(msg);
-      }
-
-      if (!data?.url) {
-        throw new Error("URL do portal não recebida");
-      }
-
-      await WebBrowser.openBrowserAsync(data.url);
-    } catch (err) {
+    } catch (err: any) {
       const message =
-        err instanceof Error
-          ? err.message
-          : "Erro ao abrir portal de pagamento";
+        err?.message || "Erro ao restaurar compras";
       setError(message);
       Alert.alert("Erro", message);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [sdkAvailable, rcRestorePurchases]);
 
   return {
     subscribe,
-    cancelSubscription,
-    openCustomerPortal,
+    presentPaywall,
+    presentPaywallIfNeeded,
+    presentCustomerCenter,
+    manageSubscription,
+    restorePurchases,
     loading,
     error,
   };
