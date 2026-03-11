@@ -8,7 +8,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -25,12 +24,6 @@ export default function SettingsScreen() {
   const isPremium = planId === "premium";
   const planLabel =
     planId === "free" ? "Gratuito" : planId === "premium" ? "Pro" : "Frota";
-
-  const handleOpenLink = (url: string) => {
-    Linking.openURL(url).catch(() => {
-      console.error("Erro ao abrir link");
-    });
-  };
 
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
@@ -154,7 +147,7 @@ export default function SettingsScreen() {
             icon="information-circle-outline"
             label="Sobre o App"
             onPress={() => {
-              console.log("Sobre o app");
+              router.push("/about" as any);
             }}
             rightElement={<Text style={styles.versionText}>v1.0.0</Text>}
           />

@@ -19,6 +19,7 @@ export interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signInWithApple: () => Promise<void>;
   signOut: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
   updateUserName: (name: string) => Promise<void>;
   clearError: () => void;
 }

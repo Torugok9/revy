@@ -145,6 +145,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const deleteAccount = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const currentUser = user;
+      if (!currentUser) {
+        throw { message: "Nenhum usuário logado.", code: "no_user" };
+      }
+
+      // 1. Excluir todos os dados do usuário nas tabelas (cascade)
+      const { error: vehiclesError } = await supabase
+        .from("vehicles")
+        .delete()
+        .eq("user_id", currentUser.id);
+
+      if (vehiclesError) {
+        console.error("Erro ao excluir veículos:", vehiclesError);
+      }
+
+      // 2. Chamar RPC para excluir a conta de autenticação no servidor
+      const { error: rpcError } = await supabase.rpc("delete_user_account");
+
+      if (rpcError) {
+        console.error("Erro ao excluir conta via RPC:", rpcError);
+        // Se o RPC falhar, ainda assim fazemos signOut
+      }
+
+      // 3. Limpar dados locais
+      await AsyncStorage.removeItem(`user_name_${currentUser.id}`);
+
+      // 4. Fazer logout
+      await supabase.auth.signOut();
+      setUser(null);
+    } catch (err: any) {
+      const authError: AuthError = {
+        message:
+          err.message || "Erro ao excluir conta. Tente novamente.",
+        code: err.code,
+      };
+      setError(authError);
+      throw authError;
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
   const signInWithGoogle = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -266,7 +313,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, error, signIn, signUp, signInWithGoogle, signInWithApple, signOut, updateUserName, clearError }}
+      value={{ user, loading, error, signIn, signUp, signInWithGoogle, signInWithApple, signOut, deleteAccount, updateUserName, clearError }}
     >
       {children}
     </AuthContext.Provider>

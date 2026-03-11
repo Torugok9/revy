@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Revvy - Como Excluir Minha Conta | How to Delete My Account</title>
+    <style>
+      :root {
+        --primary: #1a1a2e;
+        --accent: #6c63ff;
+        --accent-light: #e8e6ff;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-500: #6b7280;
+        --gray-700: #374151;
+        --gray-900: #111827;
+        --danger: #ef4444;
+        --danger-light: #fef2f2;
+        --warning: #f59e0b;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        color: var(--gray-700);
+        background: var(--gray-50);
+        line-height: 1.7;
+      }
+
+      .header {
+        background: var(--primary);
+        color: white;
+        padding: 2rem 1rem;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 1.75rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .header p {
+        opacity: 0.7;
+        font-size: 0.9rem;
+      }
+
+      .lang-toggle {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+
+      .lang-btn {
+        padding: 0.4rem 1.2rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        background: transparent;
+        color: white;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+      }
+
+      .lang-btn.active {
+        background: var(--accent);
+        border-color: var(--accent);
+      }
+
+      .lang-btn:hover {
+        opacity: 0.85;
+      }
+
+      .container {
+        max-width: 780px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem 4rem;
+      }
+
+      h2 {
+        color: var(--primary);
+        font-size: 1.3rem;
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--accent-light);
+      }
+
+      h3 {
+        color: var(--gray-900);
+        font-size: 1.05rem;
+        margin-top: 1.25rem;
+        margin-bottom: 0.5rem;
+      }
+
+      p {
+        margin-bottom: 0.75rem;
+      }
+
+      ol {
+        margin: 0.5rem 0 1rem 1.5rem;
+      }
+
+      li {
+        margin-bottom: 0.5rem;
+      }
+
+      .warning-box {
+        background: var(--danger-light);
+        border-left: 4px solid var(--danger);
+        padding: 1rem 1.25rem;
+        border-radius: 0 8px 8px 0;
+        margin: 1.5rem 0;
+      }
+
+      .warning-box p {
+        margin-bottom: 0.25rem;
+      }
+
+      .info-box {
+        background: var(--accent-light);
+        border-left: 4px solid var(--accent);
+        padding: 1rem 1.25rem;
+        border-radius: 0 8px 8px 0;
+        margin: 1rem 0;
+      }
+
+      .info-box p {
+        margin-bottom: 0.25rem;
+      }
+
+      .step-card {
+        background: white;
+        border: 1px solid var(--gray-200);
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+
+      .step-number {
+        background: var(--primary);
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+      }
+
+      .step-content h3 {
+        margin-top: 0;
+        font-size: 1rem;
+      }
+
+      .step-content p {
+        font-size: 0.9rem;
+        color: var(--gray-500);
+        margin-bottom: 0;
+      }
+
+      .contact-box {
+        background: var(--gray-100);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+      }
+
+      .contact-box p {
+        margin-bottom: 0.3rem;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        color: var(--accent);
+        text-decoration: none;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+      }
+
+      .back-link:hover {
+        opacity: 0.8;
+      }
+
+      .footer {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: var(--gray-500);
+        font-size: 0.8rem;
+        border-top: 1px solid var(--gray-200);
+      }
+
+      .content-section {
+        display: none;
+      }
+      .content-section.active {
+        display: block;
+      }
+
+      @media (max-width: 600px) {
+        .container {
+          padding: 1.25rem 1rem 3rem;
+        }
+        .header h1 {
+          font-size: 1.4rem;
+        }
+        h2 {
+          font-size: 1.15rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Revvy</h1>
+      <p id="header-subtitle">Como Excluir Minha Conta</p>
+      <div class="lang-toggle">
+        <button class="lang-btn active" onclick="switchLang('pt')" id="btn-pt">
+          Portugues
+        </button>
+        <button class="lang-btn" onclick="switchLang('en')" id="btn-en">
+          English
+        </button>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- ══════════════════════════ PORTUGUES ══════════════════════════ -->
+      <div class="content-section active" id="content-pt">
+        <a href="./index.html" class="back-link">&larr; Voltar</a>
+
+        <div class="warning-box">
+          <p><strong>Acao irreversivel</strong></p>
+          <p>
+            Ao excluir sua conta, todos os seus dados serao apagados
+            permanentemente. Esta acao nao pode ser desfeita.
+          </p>
+        </div>
+
+        <h2>Passo a Passo pelo Aplicativo</h2>
+        <p>
+          Voce pode excluir sua conta diretamente pelo aplicativo Revvy
+          seguindo os passos abaixo:
+        </p>
+
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3>Abra as Configuracoes</h3>
+            <p>
+              No menu inferior do app, toque no icone de engrenagem
+              (Configuracoes).
+            </p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3>Toque em "Sobre o App"</h3>
+            <p>
+              Na secao "Aplicativo", toque em "Sobre o App" para abrir a
+              tela de informacoes do aplicativo.
+            </p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3>Role ate "Zona de Perigo"</h3>
+            <p>
+              Na parte inferior da tela "Sobre o App", voce encontrara a
+              secao "Zona de Perigo" com o botao "Excluir Conta".
+            </p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">4</div>
+          <div class="step-content">
+            <h3>Toque em "Excluir Conta"</h3>
+            <p>
+              Um modal de confirmacao sera exibido com os detalhes da sua
+              conta.
+            </p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">5</div>
+          <div class="step-content">
+            <h3>Confirme digitando "EXCLUIR"</h3>
+            <p>
+              Para garantir que esta acao e intencional, voce deve digitar a
+              palavra "EXCLUIR" no campo de confirmacao e tocar no botao
+              "Excluir Conta".
+            </p>
+          </div>
+        </div>
+
+        <h2>O que Acontece com seus Dados</h2>
+        <p>Ao confirmar a exclusao da conta, os seguintes dados serao removidos:</p>
+        <ol>
+          <li>Dados de perfil (nome, email)</li>
+          <li>Todos os veiculos cadastrados</li>
+          <li>Historico de abastecimentos</li>
+          <li>Registros de manutencao</li>
+          <li>Historico de quilometragem</li>
+          <li>Fotos de veiculos e notas fiscais</li>
+        </ol>
+
+        <div class="info-box">
+          <p><strong>Sobre assinaturas:</strong></p>
+          <p>
+            A exclusao da conta no Revvy nao cancela automaticamente sua
+            assinatura na App Store ou Google Play. Se voce possui um plano
+            Pro ativo, cancele a assinatura antes de excluir sua conta para
+            evitar cobracas futuras.
+          </p>
+        </div>
+
+        <h2>Prazo para Exclusao</h2>
+        <p>
+          A exclusao dos dados e realizada imediatamente apos a confirmacao.
+          Dados residuais em backups do sistema serao removidos em ate 30
+          dias.
+        </p>
+
+        <h2>Solicitar Exclusao por Email</h2>
+        <p>
+          Se voce nao consegue acessar o aplicativo ou prefere solicitar a
+          exclusao por outro canal, envie um email para o endereco abaixo
+          com o assunto "Exclusao de Conta" e informe o email cadastrado na
+          sua conta Revvy.
+        </p>
+
+        <div class="contact-box">
+          <p><strong>BeecodeIT</strong></p>
+          <p>CNPJ: 50.025.597/0001-05</p>
+          <p>
+            Email:
+            <a href="mailto:contato@beecodeit.com">contato@beecodeit.com</a>
+          </p>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════ ENGLISH ══════════════════════════ -->
+      <div class="content-section" id="content-en">
+        <a href="./index.html" class="back-link">&larr; Back</a>
+
+        <div class="warning-box">
+          <p><strong>Irreversible Action</strong></p>
+          <p>
+            Deleting your account will permanently erase all your data. This
+            action cannot be undone.
+          </p>
+        </div>
+
+        <h2>Step-by-Step in the App</h2>
+        <p>
+          You can delete your account directly through the Revvy app by
+          following the steps below:
+        </p>
+
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3>Open Settings</h3>
+            <p>
+              In the bottom menu of the app, tap the gear icon (Settings).
+            </p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3>Tap "About the App"</h3>
+            <p>
+              In the "App" section, tap "About the App" to open the
+              app information screen.
+            </p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3>Scroll to "Danger Zone"</h3>
+            <p>
+              At the bottom of the "About the App" screen, you will find
+              the "Danger Zone" section with the "Delete Account" button.
+            </p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">4</div>
+          <div class="step-content">
+            <h3>Tap "Delete Account"</h3>
+            <p>
+              A confirmation modal will appear showing your account details.
+            </p>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">5</div>
+          <div class="step-content">
+            <h3>Confirm by typing "EXCLUIR"</h3>
+            <p>
+              To ensure this action is intentional, you must type the word
+              "EXCLUIR" (Portuguese for "delete") in the confirmation field
+              and tap the "Delete Account" button.
+            </p>
+          </div>
+        </div>
+
+        <h2>What Happens to Your Data</h2>
+        <p>Upon confirming account deletion, the following data will be removed:</p>
+        <ol>
+          <li>Profile data (name, email)</li>
+          <li>All registered vehicles</li>
+          <li>Fuel log history</li>
+          <li>Maintenance records</li>
+          <li>Mileage history</li>
+          <li>Vehicle and receipt photos</li>
+        </ol>
+
+        <div class="info-box">
+          <p><strong>About subscriptions:</strong></p>
+          <p>
+            Deleting your Revvy account does not automatically cancel your
+            subscription on the App Store or Google Play. If you have an
+            active Pro plan, please cancel the subscription before deleting
+            your account to avoid future charges.
+          </p>
+        </div>
+
+        <h2>Deletion Timeline</h2>
+        <p>
+          Data deletion is performed immediately after confirmation.
+          Residual data in system backups will be removed within 30 days.
+        </p>
+
+        <h2>Request Deletion via Email</h2>
+        <p>
+          If you cannot access the app or prefer to request deletion through
+          another channel, send an email to the address below with the
+          subject "Account Deletion" and include the email registered with
+          your Revvy account.
+        </p>
+
+        <div class="contact-box">
+          <p><strong>BeecodeIT</strong></p>
+          <p>CNPJ: 50.025.597/0001-05</p>
+          <p>
+            Email:
+            <a href="mailto:contato@beecodeit.com">contato@beecodeit.com</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>
+        &copy; 2026 BeecodeIT. Todos os direitos reservados. | All rights
+        reserved.
+      </p>
+    </div>
+
+    <script>
+      function switchLang(lang) {
+        document
+          .getElementById("content-pt")
+          .classList.toggle("active", lang === "pt");
+        document
+          .getElementById("content-en")
+          .classList.toggle("active", lang === "en");
+        document
+          .getElementById("btn-pt")
+          .classList.toggle("active", lang === "pt");
+        document
+          .getElementById("btn-en")
+          .classList.toggle("active", lang === "en");
+        document.getElementById("header-subtitle").textContent =
+          lang === "pt"
+            ? "Como Excluir Minha Conta"
+            : "How to Delete My Account";
+        document.documentElement.lang = lang === "pt" ? "pt-BR" : "en";
+      }
+    </script>
+  </body>
+</html>
