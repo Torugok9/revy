@@ -1,543 +1,992 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Revvy - Politica de Privacidade | Privacy Policy</title>
-  <style>
-    :root {
-      --primary: #1a1a2e;
-      --accent: #6C63FF;
-      --accent-light: #E8E6FF;
-      --gray-50: #F9FAFB;
-      --gray-100: #F3F4F6;
-      --gray-200: #E5E7EB;
-      --gray-500: #6B7280;
-      --gray-700: #374151;
-      --gray-900: #111827;
-      --success: #10B981;
-      --warning: #F59E0B;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Revvy - Politica de Privacidade | Privacy Policy</title>
+    <style>
+      :root {
+        --primary: #1a1a2e;
+        --accent: #6c63ff;
+        --accent-light: #e8e6ff;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-500: #6b7280;
+        --gray-700: #374151;
+        --gray-900: #111827;
+        --success: #10b981;
+        --warning: #f59e0b;
+      }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      color: var(--gray-700);
-      background: var(--gray-50);
-      line-height: 1.7;
-    }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        color: var(--gray-700);
+        background: var(--gray-50);
+        line-height: 1.7;
+      }
 
-    .header {
-      background: var(--primary);
-      color: white;
-      padding: 2rem 1rem;
-      text-align: center;
-    }
+      .header {
+        background: var(--primary);
+        color: white;
+        padding: 2rem 1rem;
+        text-align: center;
+      }
 
-    .header h1 {
-      font-size: 1.75rem;
-      margin-bottom: 0.25rem;
-    }
+      .header h1 {
+        font-size: 1.75rem;
+        margin-bottom: 0.25rem;
+      }
 
-    .header p {
-      opacity: 0.7;
-      font-size: 0.9rem;
-    }
+      .header p {
+        opacity: 0.7;
+        font-size: 0.9rem;
+      }
 
-    .lang-toggle {
-      display: flex;
-      justify-content: center;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
+      .lang-toggle {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
 
-    .lang-btn {
-      padding: 0.4rem 1.2rem;
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 20px;
-      background: transparent;
-      color: white;
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: all 0.2s;
-    }
+      .lang-btn {
+        padding: 0.4rem 1.2rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        background: transparent;
+        color: white;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+      }
 
-    .lang-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-    }
+      .lang-btn.active {
+        background: var(--accent);
+        border-color: var(--accent);
+      }
 
-    .lang-btn:hover { opacity: 0.85; }
+      .lang-btn:hover {
+        opacity: 0.85;
+      }
 
-    .container {
-      max-width: 780px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem 4rem;
-    }
+      .container {
+        max-width: 780px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem 4rem;
+      }
 
-    .effective-date {
-      text-align: center;
-      color: var(--gray-500);
-      font-size: 0.85rem;
-      margin-bottom: 2rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid var(--gray-200);
-    }
+      .effective-date {
+        text-align: center;
+        color: var(--gray-500);
+        font-size: 0.85rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--gray-200);
+      }
 
-    h2 {
-      color: var(--primary);
-      font-size: 1.3rem;
-      margin-top: 2rem;
-      margin-bottom: 0.75rem;
-      padding-bottom: 0.4rem;
-      border-bottom: 2px solid var(--accent-light);
-    }
+      h2 {
+        color: var(--primary);
+        font-size: 1.3rem;
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--accent-light);
+      }
 
-    h3 {
-      color: var(--gray-900);
-      font-size: 1.05rem;
-      margin-top: 1.25rem;
-      margin-bottom: 0.5rem;
-    }
+      h3 {
+        color: var(--gray-900);
+        font-size: 1.05rem;
+        margin-top: 1.25rem;
+        margin-bottom: 0.5rem;
+      }
 
-    p { margin-bottom: 0.75rem; }
+      p {
+        margin-bottom: 0.75rem;
+      }
 
-    ul, ol {
-      margin: 0.5rem 0 1rem 1.5rem;
-    }
+      ul,
+      ol {
+        margin: 0.5rem 0 1rem 1.5rem;
+      }
 
-    li { margin-bottom: 0.35rem; }
+      li {
+        margin-bottom: 0.35rem;
+      }
 
-    .highlight-box {
-      background: var(--accent-light);
-      border-left: 4px solid var(--accent);
-      padding: 1rem 1.25rem;
-      border-radius: 0 8px 8px 0;
-      margin: 1rem 0;
-    }
+      .highlight-box {
+        background: var(--accent-light);
+        border-left: 4px solid var(--accent);
+        padding: 1rem 1.25rem;
+        border-radius: 0 8px 8px 0;
+        margin: 1rem 0;
+      }
 
-    .highlight-box p { margin-bottom: 0.25rem; }
+      .highlight-box p {
+        margin-bottom: 0.25rem;
+      }
 
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 1rem 0;
-      font-size: 0.9rem;
-    }
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.9rem;
+      }
 
-    .data-table th {
-      background: var(--primary);
-      color: white;
-      padding: 0.65rem 0.75rem;
-      text-align: left;
-      font-weight: 600;
-    }
+      .data-table th {
+        background: var(--primary);
+        color: white;
+        padding: 0.65rem 0.75rem;
+        text-align: left;
+        font-weight: 600;
+      }
 
-    .data-table td {
-      padding: 0.6rem 0.75rem;
-      border-bottom: 1px solid var(--gray-200);
-    }
+      .data-table td {
+        padding: 0.6rem 0.75rem;
+        border-bottom: 1px solid var(--gray-200);
+      }
 
-    .data-table tr:nth-child(even) { background: var(--gray-100); }
+      .data-table tr:nth-child(even) {
+        background: var(--gray-100);
+      }
 
-    .contact-box {
-      background: var(--gray-100);
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin-top: 1.5rem;
-    }
+      .contact-box {
+        background: var(--gray-100);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+      }
 
-    .contact-box p { margin-bottom: 0.3rem; }
+      .contact-box p {
+        margin-bottom: 0.3rem;
+      }
 
-    .footer {
-      text-align: center;
-      padding: 2rem 1rem;
-      color: var(--gray-500);
-      font-size: 0.8rem;
-      border-top: 1px solid var(--gray-200);
-    }
+      .footer {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: var(--gray-500);
+        font-size: 0.8rem;
+        border-top: 1px solid var(--gray-200);
+      }
 
-    .content-section { display: none; }
-    .content-section.active { display: block; }
+      .content-section {
+        display: none;
+      }
+      .content-section.active {
+        display: block;
+      }
 
-    @media (max-width: 600px) {
-      .container { padding: 1.25rem 1rem 3rem; }
-      .header h1 { font-size: 1.4rem; }
-      h2 { font-size: 1.15rem; }
-      .data-table { font-size: 0.8rem; }
-      .data-table th, .data-table td { padding: 0.5rem; }
-    }
-  </style>
-</head>
-<body>
-
-<div class="header">
-  <h1>Revvy</h1>
-  <p id="header-subtitle">Politica de Privacidade</p>
-  <div class="lang-toggle">
-    <button class="lang-btn active" onclick="switchLang('pt')" id="btn-pt">Portugues</button>
-    <button class="lang-btn" onclick="switchLang('en')" id="btn-en">English</button>
-  </div>
-</div>
-
-<div class="container">
-
-  <!-- ══════════════════════════ PORTUGUES ══════════════════════════ -->
-  <div class="content-section active" id="content-pt">
-
-    <p class="effective-date">Data de vigencia: 11 de marco de 2026</p>
-
-    <p>A <strong>BeecodeIT</strong> (CNPJ: 50.025.597/0001-05), doravante denominada "nos", e a empresa responsavel pelo aplicativo <strong>Revvy</strong>. Esta Politica de Privacidade descreve como coletamos, usamos, armazenamos e protegemos seus dados pessoais em conformidade com a Lei Geral de Protecao de Dados (LGPD - Lei n. 13.709/2018).</p>
-
-    <h2>1. Dados que Coletamos</h2>
-
-    <h3>1.1 Dados de Cadastro e Autenticacao</h3>
-    <table class="data-table">
-      <thead>
-        <tr><th>Dado</th><th>Finalidade</th><th>Base Legal (LGPD)</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Email</td><td>Identificacao e login na conta</td><td>Execucao de contrato</td></tr>
-        <tr><td>Senha</td><td>Autenticacao segura (armazenada com hash)</td><td>Execucao de contrato</td></tr>
-        <tr><td>Nome</td><td>Personalizacao do perfil</td><td>Execucao de contrato</td></tr>
-        <tr><td>Dados OAuth (Google/Apple)</td><td>Login social simplificado</td><td>Consentimento</td></tr>
-      </tbody>
-    </table>
-
-    <h3>1.2 Dados de Veiculos</h3>
-    <table class="data-table">
-      <thead>
-        <tr><th>Dado</th><th>Finalidade</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Marca, modelo, ano, cor</td><td>Identificacao do veiculo</td></tr>
-        <tr><td>Placa</td><td>Identificacao unica do veiculo</td></tr>
-        <tr><td>Quilometragem atual</td><td>Controle de uso e manutencoes</td></tr>
-        <tr><td>Numero do chassi (opcional)</td><td>Identificacao veicular detalhada</td></tr>
-        <tr><td>Data e valor de compra (opcional)</td><td>Historico financeiro do veiculo</td></tr>
-        <tr><td>Foto do veiculo (opcional)</td><td>Personalizacao visual</td></tr>
-        <tr><td>Observacoes (opcional)</td><td>Anotacoes pessoais do usuario</td></tr>
-      </tbody>
-    </table>
-
-    <h3>1.3 Registros de Abastecimento</h3>
-    <table class="data-table">
-      <thead>
-        <tr><th>Dado</th><th>Finalidade</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Data, tipo de combustivel</td><td>Historico de abastecimentos</td></tr>
-        <tr><td>Litros, preco por litro, custo total</td><td>Analise de gastos com combustivel</td></tr>
-        <tr><td>Quilometragem no abastecimento</td><td>Calculo de consumo medio</td></tr>
-        <tr><td>Tanque cheio (sim/nao)</td><td>Precisao no calculo de consumo</td></tr>
-        <tr><td>Nome do posto (opcional)</td><td>Referencia pessoal do usuario</td></tr>
-      </tbody>
-    </table>
-
-    <h3>1.4 Registros de Manutencao</h3>
-    <table class="data-table">
-      <thead>
-        <tr><th>Dado</th><th>Finalidade</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Tipo, titulo, descricao</td><td>Historico de servicos realizados</td></tr>
-        <tr><td>Data, quilometragem, custo</td><td>Controle de manutencoes e gastos</td></tr>
-        <tr><td>Nome da oficina (opcional)</td><td>Referencia pessoal</td></tr>
-        <tr><td>Proxima manutencao (km/data)</td><td>Lembretes de manutencao</td></tr>
-        <tr><td>Foto da nota fiscal (opcional)</td><td>Comprovante do servico (recurso Pro)</td></tr>
-      </tbody>
-    </table>
-
-    <h3>1.5 Historico de Quilometragem</h3>
-    <p>Registros de odometro com data, leitura em km e origem do registro (manual ou de manutencao).</p>
-
-    <h3>1.6 Dados de Assinatura</h3>
-    <p>Informacoes sobre seu plano (gratuito ou Pro) e status da assinatura sao gerenciados pelo <strong>RevenueCat</strong> em conjunto com a App Store (Apple) ou Google Play. Nos <strong>nao</strong> coletamos ou armazenamos dados de cartao de credito ou informacoes bancarias.</p>
-
-    <div class="highlight-box">
-      <p><strong>O que NAO coletamos:</strong></p>
-      <p>Localizacao GPS, contatos, calendario, dados de saude, historico de navegacao, identificadores unicos do dispositivo, dados de analytics/telemetria ou informacoes de crash reporting.</p>
+      @media (max-width: 600px) {
+        .container {
+          padding: 1.25rem 1rem 3rem;
+        }
+        .header h1 {
+          font-size: 1.4rem;
+        }
+        h2 {
+          font-size: 1.15rem;
+        }
+        .data-table {
+          font-size: 0.8rem;
+        }
+        .data-table th,
+        .data-table td {
+          padding: 0.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Revvy</h1>
+      <p id="header-subtitle">Politica de Privacidade</p>
+      <div class="lang-toggle">
+        <button class="lang-btn active" onclick="switchLang('pt')" id="btn-pt">
+          Portugues
+        </button>
+        <button class="lang-btn" onclick="switchLang('en')" id="btn-en">
+          English
+        </button>
+      </div>
     </div>
 
-    <h2>2. Como Usamos seus Dados</h2>
-    <ul>
-      <li>Fornecer e manter as funcionalidades do aplicativo</li>
-      <li>Calcular estatisticas de consumo, custos e quilometragem</li>
-      <li>Gerar graficos, relatorios e comparacoes de combustivel</li>
-      <li>Gerenciar sua assinatura e liberar recursos Pro</li>
-      <li>Enviar lembretes de manutencao (quando disponivel e autorizado)</li>
-      <li>Melhorar nossos servicos com base no uso agregado</li>
-    </ul>
+    <div class="container">
+      <!-- ══════════════════════════ PORTUGUES ══════════════════════════ -->
+      <div class="content-section active" id="content-pt">
+        <p class="effective-date">Data de vigencia: 11 de marco de 2026</p>
 
-    <h2>3. Armazenamento e Seguranca</h2>
-    <p>Seus dados sao armazenados no <strong>Supabase</strong>, com servidores localizados no Brasil. Utilizamos as seguintes medidas de seguranca:</p>
-    <ul>
-      <li>Criptografia em transito (HTTPS/TLS) para todas as comunicacoes</li>
-      <li>Senhas armazenadas com hash criptografico (nunca em texto puro)</li>
-      <li>Autenticacao baseada em tokens JWT com renovacao automatica</li>
-      <li>Politicas de acesso por linha (Row Level Security) no banco de dados, garantindo que cada usuario acesse apenas seus proprios dados</li>
-      <li>Armazenamento seguro de arquivos (fotos) com URLs assinadas</li>
-    </ul>
+        <p>
+          A <strong>BeecodeIT</strong> (CNPJ: 50.025.597/0001-05), doravante
+          denominada "nos", e a empresa responsavel pelo aplicativo
+          <strong>Revvy</strong>. Esta Politica de Privacidade descreve como
+          coletamos, usamos, armazenamos e protegemos seus dados pessoais em
+          conformidade com a Lei Geral de Protecao de Dados (LGPD - Lei n.
+          13.709/2018).
+        </p>
 
-    <h2>4. Compartilhamento com Terceiros</h2>
-    <p>Compartilhamos dados apenas com os seguintes servicos, estritamente necessarios para o funcionamento do app:</p>
-    <table class="data-table">
-      <thead>
-        <tr><th>Servico</th><th>Dados Compartilhados</th><th>Finalidade</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Supabase</td><td>Todos os dados do app</td><td>Backend, banco de dados e armazenamento de arquivos</td></tr>
-        <tr><td>RevenueCat</td><td>ID do usuario, status da assinatura, plataforma</td><td>Gerenciamento de assinaturas e compras in-app</td></tr>
-        <tr><td>Apple (App Store)</td><td>Dados de compra via App Store</td><td>Processamento de pagamentos iOS</td></tr>
-        <tr><td>Google (Play Store)</td><td>Dados de compra via Google Play</td><td>Processamento de pagamentos Android</td></tr>
-      </tbody>
-    </table>
-    <p><strong>Nao vendemos, alugamos ou compartilhamos seus dados pessoais com terceiros para fins de marketing ou publicidade.</strong></p>
+        <h2>1. Dados que Coletamos</h2>
 
-    <h2>5. Dados Armazenados no Dispositivo</h2>
-    <p>Alguns dados sao armazenados localmente no seu dispositivo para melhorar a experiencia:</p>
-    <ul>
-      <li>Nome de exibicao do usuario</li>
-      <li>Rascunhos de formularios em andamento</li>
-      <li>Estado de conclusao do onboarding</li>
-      <li>Preferencias de interface (banners descartados)</li>
-    </ul>
-    <p>Estes dados podem ser removidos limpando os dados do aplicativo nas configuracoes do seu dispositivo.</p>
+        <h3>1.1 Dados de Cadastro e Autenticacao</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Dado</th>
+              <th>Finalidade</th>
+              <th>Base Legal (LGPD)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Email</td>
+              <td>Identificacao e login na conta</td>
+              <td>Execucao de contrato</td>
+            </tr>
+            <tr>
+              <td>Senha</td>
+              <td>Autenticacao segura (armazenada com hash)</td>
+              <td>Execucao de contrato</td>
+            </tr>
+            <tr>
+              <td>Nome</td>
+              <td>Personalizacao do perfil</td>
+              <td>Execucao de contrato</td>
+            </tr>
+            <tr>
+              <td>Dados OAuth (Google/Apple)</td>
+              <td>Login social simplificado</td>
+              <td>Consentimento</td>
+            </tr>
+          </tbody>
+        </table>
 
-    <h2>6. Permissoes do Aplicativo</h2>
-    <table class="data-table">
-      <thead>
-        <tr><th>Permissao</th><th>Finalidade</th><th>Obrigatoria?</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Camera</td><td>Fotografar veiculos e notas fiscais</td><td>Nao - solicitada apenas quando necessario</td></tr>
-        <tr><td>Galeria de fotos</td><td>Selecionar fotos existentes</td><td>Nao - solicitada apenas quando necessario</td></tr>
-        <tr><td>Internet</td><td>Sincronizacao de dados com o servidor</td><td>Sim - essencial para o funcionamento</td></tr>
-      </tbody>
-    </table>
+        <h3>1.2 Dados de Veiculos</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Dado</th>
+              <th>Finalidade</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Marca, modelo, ano, cor</td>
+              <td>Identificacao do veiculo</td>
+            </tr>
+            <tr>
+              <td>Placa</td>
+              <td>Identificacao unica do veiculo</td>
+            </tr>
+            <tr>
+              <td>Quilometragem atual</td>
+              <td>Controle de uso e manutencoes</td>
+            </tr>
+            <tr>
+              <td>Numero do chassi (opcional)</td>
+              <td>Identificacao veicular detalhada</td>
+            </tr>
+            <tr>
+              <td>Data e valor de compra (opcional)</td>
+              <td>Historico financeiro do veiculo</td>
+            </tr>
+            <tr>
+              <td>Foto do veiculo (opcional)</td>
+              <td>Personalizacao visual</td>
+            </tr>
+            <tr>
+              <td>Observacoes (opcional)</td>
+              <td>Anotacoes pessoais do usuario</td>
+            </tr>
+          </tbody>
+        </table>
 
-    <h2>7. Seus Direitos (LGPD)</h2>
-    <p>De acordo com a LGPD, voce tem os seguintes direitos:</p>
-    <ul>
-      <li><strong>Acesso:</strong> solicitar uma copia de todos os seus dados pessoais</li>
-      <li><strong>Correcao:</strong> corrigir dados incompletos, inexatos ou desatualizados</li>
-      <li><strong>Exclusao:</strong> solicitar a eliminacao dos seus dados pessoais</li>
-      <li><strong>Portabilidade:</strong> receber seus dados em formato estruturado</li>
-      <li><strong>Revogacao do consentimento:</strong> retirar seu consentimento a qualquer momento</li>
-      <li><strong>Informacao:</strong> saber com quem seus dados foram compartilhados</li>
-      <li><strong>Oposicao:</strong> opor-se ao tratamento quando baseado em outras bases legais</li>
-    </ul>
-    <p>Para exercer qualquer destes direitos, entre em contato conosco pelos canais abaixo.</p>
+        <h3>1.3 Registros de Abastecimento</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Dado</th>
+              <th>Finalidade</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Data, tipo de combustivel</td>
+              <td>Historico de abastecimentos</td>
+            </tr>
+            <tr>
+              <td>Litros, preco por litro, custo total</td>
+              <td>Analise de gastos com combustivel</td>
+            </tr>
+            <tr>
+              <td>Quilometragem no abastecimento</td>
+              <td>Calculo de consumo medio</td>
+            </tr>
+            <tr>
+              <td>Tanque cheio (sim/nao)</td>
+              <td>Precisao no calculo de consumo</td>
+            </tr>
+            <tr>
+              <td>Nome do posto (opcional)</td>
+              <td>Referencia pessoal do usuario</td>
+            </tr>
+          </tbody>
+        </table>
 
-    <h2>8. Retencao de Dados</h2>
-    <p>Mantemos seus dados enquanto sua conta estiver ativa. Ao excluir sua conta, todos os dados pessoais serao removidos dos nossos servidores em ate 30 dias. Dados anonimizados e agregados podem ser retidos para fins estatisticos.</p>
+        <h3>1.4 Registros de Manutencao</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Dado</th>
+              <th>Finalidade</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Tipo, titulo, descricao</td>
+              <td>Historico de servicos realizados</td>
+            </tr>
+            <tr>
+              <td>Data, quilometragem, custo</td>
+              <td>Controle de manutencoes e gastos</td>
+            </tr>
+            <tr>
+              <td>Nome da oficina (opcional)</td>
+              <td>Referencia pessoal</td>
+            </tr>
+            <tr>
+              <td>Proxima manutencao (km/data)</td>
+              <td>Lembretes de manutencao</td>
+            </tr>
+            <tr>
+              <td>Foto da nota fiscal (opcional)</td>
+              <td>Comprovante do servico (recurso Pro)</td>
+            </tr>
+          </tbody>
+        </table>
 
-    <h2>9. Menores de Idade</h2>
-    <p>O Revvy nao se destina a menores de 18 anos. Nao coletamos intencionalmente dados de menores. Se tomarmos conhecimento de que dados de um menor foram coletados, os excluiremos imediatamente.</p>
+        <h3>1.5 Historico de Quilometragem</h3>
+        <p>
+          Registros de odometro com data, leitura em km e origem do registro
+          (manual ou de manutencao).
+        </p>
 
-    <h2>10. Notificacoes Push</h2>
-    <p>Futuramente, o Revvy podera enviar notificacoes push para lembretes de manutencao. Esta funcionalidade sera sempre opcional e dependente da sua autorizacao explicita. Voce podera desativar as notificacoes a qualquer momento nas configuracoes do seu dispositivo.</p>
+        <h3>1.6 Dados de Assinatura</h3>
+        <p>
+          Informacoes sobre seu plano (gratuito ou Pro) e status da assinatura
+          sao gerenciados pelo <strong>RevenueCat</strong> em conjunto com a App
+          Store (Apple) ou Google Play. Nos <strong>nao</strong> coletamos ou
+          armazenamos dados de cartao de credito ou informacoes bancarias.
+        </p>
 
-    <h2>11. Alteracoes nesta Politica</h2>
-    <p>Podemos atualizar esta Politica de Privacidade periodicamente. Notificaremos sobre mudancas significativas atraves do aplicativo. A data de vigencia no topo deste documento indica quando a ultima atualizacao foi realizada.</p>
+        <div class="highlight-box">
+          <p><strong>O que NAO coletamos:</strong></p>
+          <p>
+            Localizacao GPS, contatos, calendario, dados de saude, historico de
+            navegacao, identificadores unicos do dispositivo, dados de
+            analytics/telemetria ou informacoes de crash reporting.
+          </p>
+        </div>
 
-    <h2>12. Contato</h2>
-    <div class="contact-box">
-      <p><strong>BeecodeIT</strong></p>
-      <p>CNPJ: 50.025.597/0001-05</p>
-      <p>Email: <a href="mailto:contato@beecodeit.com">contato@beecodeit.com</a></p>
-      <p>Encarregado de Dados (DPO): <a href="mailto:privacidade@beecodeit.com">privacidade@beecodeit.com</a></p>
+        <h2>2. Como Usamos seus Dados</h2>
+        <ul>
+          <li>Fornecer e manter as funcionalidades do aplicativo</li>
+          <li>Calcular estatisticas de consumo, custos e quilometragem</li>
+          <li>Gerar graficos, relatorios e comparacoes de combustivel</li>
+          <li>Gerenciar sua assinatura e liberar recursos Pro</li>
+          <li>
+            Enviar lembretes de manutencao (quando disponivel e autorizado)
+          </li>
+          <li>Melhorar nossos servicos com base no uso agregado</li>
+        </ul>
+
+        <h2>3. Armazenamento e Seguranca</h2>
+        <p>
+          Seus dados sao armazenados no <strong>Supabase</strong>, com
+          servidores localizados no Brasil. Utilizamos as seguintes medidas de
+          seguranca:
+        </p>
+        <ul>
+          <li>
+            Criptografia em transito (HTTPS/TLS) para todas as comunicacoes
+          </li>
+          <li>
+            Senhas armazenadas com hash criptografico (nunca em texto puro)
+          </li>
+          <li>Autenticacao baseada em tokens JWT com renovacao automatica</li>
+          <li>
+            Politicas de acesso por linha (Row Level Security) no banco de
+            dados, garantindo que cada usuario acesse apenas seus proprios dados
+          </li>
+          <li>Armazenamento seguro de arquivos (fotos) com URLs assinadas</li>
+        </ul>
+
+        <h2>4. Compartilhamento com Terceiros</h2>
+        <p>
+          Compartilhamos dados apenas com os seguintes servicos, estritamente
+          necessarios para o funcionamento do app:
+        </p>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Servico</th>
+              <th>Dados Compartilhados</th>
+              <th>Finalidade</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Supabase</td>
+              <td>Todos os dados do app</td>
+              <td>Backend, banco de dados e armazenamento de arquivos</td>
+            </tr>
+            <tr>
+              <td>RevenueCat</td>
+              <td>ID do usuario, status da assinatura, plataforma</td>
+              <td>Gerenciamento de assinaturas e compras in-app</td>
+            </tr>
+            <tr>
+              <td>Apple (App Store)</td>
+              <td>Dados de compra via App Store</td>
+              <td>Processamento de pagamentos iOS</td>
+            </tr>
+            <tr>
+              <td>Google (Play Store)</td>
+              <td>Dados de compra via Google Play</td>
+              <td>Processamento de pagamentos Android</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          <strong
+            >Nao vendemos, alugamos ou compartilhamos seus dados pessoais com
+            terceiros para fins de marketing ou publicidade.</strong
+          >
+        </p>
+
+        <h2>5. Dados Armazenados no Dispositivo</h2>
+        <p>
+          Alguns dados sao armazenados localmente no seu dispositivo para
+          melhorar a experiencia:
+        </p>
+        <ul>
+          <li>Nome de exibicao do usuario</li>
+          <li>Rascunhos de formularios em andamento</li>
+          <li>Estado de conclusao do onboarding</li>
+          <li>Preferencias de interface (banners descartados)</li>
+        </ul>
+        <p>
+          Estes dados podem ser removidos limpando os dados do aplicativo nas
+          configuracoes do seu dispositivo.
+        </p>
+
+        <h2>6. Permissoes do Aplicativo</h2>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Permissao</th>
+              <th>Finalidade</th>
+              <th>Obrigatoria?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Camera</td>
+              <td>Fotografar veiculos e notas fiscais</td>
+              <td>Nao - solicitada apenas quando necessario</td>
+            </tr>
+            <tr>
+              <td>Galeria de fotos</td>
+              <td>Selecionar fotos existentes</td>
+              <td>Nao - solicitada apenas quando necessario</td>
+            </tr>
+            <tr>
+              <td>Internet</td>
+              <td>Sincronizacao de dados com o servidor</td>
+              <td>Sim - essencial para o funcionamento</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>7. Seus Direitos (LGPD)</h2>
+        <p>De acordo com a LGPD, voce tem os seguintes direitos:</p>
+        <ul>
+          <li>
+            <strong>Acesso:</strong> solicitar uma copia de todos os seus dados
+            pessoais
+          </li>
+          <li>
+            <strong>Correcao:</strong> corrigir dados incompletos, inexatos ou
+            desatualizados
+          </li>
+          <li>
+            <strong>Exclusao:</strong> solicitar a eliminacao dos seus dados
+            pessoais
+          </li>
+          <li>
+            <strong>Portabilidade:</strong> receber seus dados em formato
+            estruturado
+          </li>
+          <li>
+            <strong>Revogacao do consentimento:</strong> retirar seu
+            consentimento a qualquer momento
+          </li>
+          <li>
+            <strong>Informacao:</strong> saber com quem seus dados foram
+            compartilhados
+          </li>
+          <li>
+            <strong>Oposicao:</strong> opor-se ao tratamento quando baseado em
+            outras bases legais
+          </li>
+        </ul>
+        <p>
+          Para exercer qualquer destes direitos, entre em contato conosco pelos
+          canais abaixo.
+        </p>
+
+        <h2>8. Retencao de Dados</h2>
+        <p>
+          Mantemos seus dados enquanto sua conta estiver ativa. Ao excluir sua
+          conta, todos os dados pessoais serao removidos dos nossos servidores
+          em ate 30 dias. Dados anonimizados e agregados podem ser retidos para
+          fins estatisticos.
+        </p>
+
+        <h2>9. Menores de Idade</h2>
+        <p>
+          O Revvy nao se destina a menores de 18 anos. Nao coletamos
+          intencionalmente dados de menores. Se tomarmos conhecimento de que
+          dados de um menor foram coletados, os excluiremos imediatamente.
+        </p>
+
+        <h2>10. Notificacoes Push</h2>
+        <p>
+          Futuramente, o Revvy podera enviar notificacoes push para lembretes de
+          manutencao. Esta funcionalidade sera sempre opcional e dependente da
+          sua autorizacao explicita. Voce podera desativar as notificacoes a
+          qualquer momento nas configuracoes do seu dispositivo.
+        </p>
+
+        <h2>11. Alteracoes nesta Politica</h2>
+        <p>
+          Podemos atualizar esta Politica de Privacidade periodicamente.
+          Notificaremos sobre mudancas significativas atraves do aplicativo. A
+          data de vigencia no topo deste documento indica quando a ultima
+          atualizacao foi realizada.
+        </p>
+
+        <h2>12. Contato</h2>
+        <div class="contact-box">
+          <p><strong>BeecodeIT</strong></p>
+          <p>CNPJ: 50.025.597/0001-05</p>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════ ENGLISH ══════════════════════════ -->
+      <div class="content-section" id="content-en">
+        <p class="effective-date">Effective date: March 11, 2026</p>
+
+        <p>
+          <strong>BeecodeIT</strong> (CNPJ: 50.025.597/0001-05), hereinafter
+          referred to as "we", is the company responsible for the
+          <strong>Revvy</strong> application. This Privacy Policy describes how
+          we collect, use, store, and protect your personal data in compliance
+          with the Brazilian General Data Protection Law (LGPD - Law No.
+          13,709/2018) and other applicable regulations.
+        </p>
+
+        <h2>1. Data We Collect</h2>
+
+        <h3>1.1 Registration and Authentication Data</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Purpose</th>
+              <th>Legal Basis (LGPD)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Email</td>
+              <td>Account identification and login</td>
+              <td>Contract performance</td>
+            </tr>
+            <tr>
+              <td>Password</td>
+              <td>Secure authentication (stored as hash)</td>
+              <td>Contract performance</td>
+            </tr>
+            <tr>
+              <td>Name</td>
+              <td>Profile personalization</td>
+              <td>Contract performance</td>
+            </tr>
+            <tr>
+              <td>OAuth data (Google/Apple)</td>
+              <td>Simplified social login</td>
+              <td>Consent</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>1.2 Vehicle Data</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Brand, model, year, color</td>
+              <td>Vehicle identification</td>
+            </tr>
+            <tr>
+              <td>License plate</td>
+              <td>Unique vehicle identification</td>
+            </tr>
+            <tr>
+              <td>Current mileage</td>
+              <td>Usage and maintenance tracking</td>
+            </tr>
+            <tr>
+              <td>Chassis number (optional)</td>
+              <td>Detailed vehicle identification</td>
+            </tr>
+            <tr>
+              <td>Purchase date and value (optional)</td>
+              <td>Vehicle financial history</td>
+            </tr>
+            <tr>
+              <td>Vehicle photo (optional)</td>
+              <td>Visual customization</td>
+            </tr>
+            <tr>
+              <td>Notes (optional)</td>
+              <td>Personal user annotations</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>1.3 Fuel Records</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Date, fuel type</td>
+              <td>Refueling history</td>
+            </tr>
+            <tr>
+              <td>Liters, price per liter, total cost</td>
+              <td>Fuel expense analysis</td>
+            </tr>
+            <tr>
+              <td>Mileage at fill-up</td>
+              <td>Average consumption calculation</td>
+            </tr>
+            <tr>
+              <td>Full tank (yes/no)</td>
+              <td>Consumption calculation accuracy</td>
+            </tr>
+            <tr>
+              <td>Station name (optional)</td>
+              <td>Personal reference</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>1.4 Maintenance Records</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Type, title, description</td>
+              <td>Service history log</td>
+            </tr>
+            <tr>
+              <td>Date, mileage, cost</td>
+              <td>Maintenance and expense tracking</td>
+            </tr>
+            <tr>
+              <td>Workshop name (optional)</td>
+              <td>Personal reference</td>
+            </tr>
+            <tr>
+              <td>Next maintenance (km/date)</td>
+              <td>Maintenance reminders</td>
+            </tr>
+            <tr>
+              <td>Receipt photo (optional)</td>
+              <td>Service proof (Pro feature)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>1.5 Mileage History</h3>
+        <p>
+          Odometer records including date, km reading, and record source (manual
+          or from maintenance).
+        </p>
+
+        <h3>1.6 Subscription Data</h3>
+        <p>
+          Information about your plan (free or Pro) and subscription status is
+          managed by <strong>RevenueCat</strong> in conjunction with the App
+          Store (Apple) or Google Play. We <strong>do not</strong> collect or
+          store credit card numbers or banking information.
+        </p>
+
+        <div class="highlight-box">
+          <p><strong>What we do NOT collect:</strong></p>
+          <p>
+            GPS location, contacts, calendar, health data, browsing history,
+            unique device identifiers, analytics/telemetry data, or crash
+            reporting information.
+          </p>
+        </div>
+
+        <h2>2. How We Use Your Data</h2>
+        <ul>
+          <li>Provide and maintain application features</li>
+          <li>Calculate consumption statistics, costs, and mileage</li>
+          <li>Generate charts, reports, and fuel comparisons</li>
+          <li>Manage your subscription and unlock Pro features</li>
+          <li>Send maintenance reminders (when available and authorized)</li>
+          <li>Improve our services based on aggregated usage</li>
+        </ul>
+
+        <h2>3. Storage and Security</h2>
+        <p>
+          Your data is stored on <strong>Supabase</strong>, with servers located
+          in Brazil. We employ the following security measures:
+        </p>
+        <ul>
+          <li>Encryption in transit (HTTPS/TLS) for all communications</li>
+          <li>
+            Passwords stored with cryptographic hashing (never in plain text)
+          </li>
+          <li>JWT token-based authentication with automatic renewal</li>
+          <li>
+            Row Level Security (RLS) policies in the database, ensuring each
+            user only accesses their own data
+          </li>
+          <li>Secure file storage (photos) with signed URLs</li>
+        </ul>
+
+        <h2>4. Third-Party Sharing</h2>
+        <p>
+          We share data only with the following services, strictly necessary for
+          the app to function:
+        </p>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Service</th>
+              <th>Data Shared</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Supabase</td>
+              <td>All app data</td>
+              <td>Backend, database, and file storage</td>
+            </tr>
+            <tr>
+              <td>RevenueCat</td>
+              <td>User ID, subscription status, platform</td>
+              <td>Subscription and in-app purchase management</td>
+            </tr>
+            <tr>
+              <td>Apple (App Store)</td>
+              <td>App Store purchase data</td>
+              <td>iOS payment processing</td>
+            </tr>
+            <tr>
+              <td>Google (Play Store)</td>
+              <td>Google Play purchase data</td>
+              <td>Android payment processing</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          <strong
+            >We do not sell, rent, or share your personal data with third
+            parties for marketing or advertising purposes.</strong
+          >
+        </p>
+
+        <h2>5. Data Stored on Your Device</h2>
+        <p>
+          Some data is stored locally on your device to improve the experience:
+        </p>
+        <ul>
+          <li>User display name</li>
+          <li>Draft forms in progress</li>
+          <li>Onboarding completion state</li>
+          <li>Interface preferences (dismissed banners)</li>
+        </ul>
+        <p>
+          This data can be removed by clearing the app data in your device
+          settings.
+        </p>
+
+        <h2>6. App Permissions</h2>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Permission</th>
+              <th>Purpose</th>
+              <th>Required?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Camera</td>
+              <td>Photograph vehicles and receipts</td>
+              <td>No - requested only when needed</td>
+            </tr>
+            <tr>
+              <td>Photo library</td>
+              <td>Select existing photos</td>
+              <td>No - requested only when needed</td>
+            </tr>
+            <tr>
+              <td>Internet</td>
+              <td>Data synchronization with server</td>
+              <td>Yes - essential for operation</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>7. Your Rights (LGPD)</h2>
+        <p>Under the LGPD, you have the following rights:</p>
+        <ul>
+          <li>
+            <strong>Access:</strong> request a copy of all your personal data
+          </li>
+          <li>
+            <strong>Correction:</strong> correct incomplete, inaccurate, or
+            outdated data
+          </li>
+          <li>
+            <strong>Deletion:</strong> request the elimination of your personal
+            data
+          </li>
+          <li>
+            <strong>Portability:</strong> receive your data in a structured
+            format
+          </li>
+          <li>
+            <strong>Consent revocation:</strong> withdraw your consent at any
+            time
+          </li>
+          <li>
+            <strong>Information:</strong> know with whom your data has been
+            shared
+          </li>
+          <li>
+            <strong>Opposition:</strong> object to processing based on other
+            legal bases
+          </li>
+        </ul>
+        <p>
+          To exercise any of these rights, contact us through the channels
+          below.
+        </p>
+
+        <h2>8. Data Retention</h2>
+        <p>
+          We retain your data as long as your account is active. Upon account
+          deletion, all personal data will be removed from our servers within 30
+          days. Anonymized and aggregated data may be retained for statistical
+          purposes.
+        </p>
+
+        <h2>9. Children's Privacy</h2>
+        <p>
+          Revvy is not intended for individuals under 18 years of age. We do not
+          knowingly collect data from minors. If we become aware that data from
+          a minor has been collected, we will delete it immediately.
+        </p>
+
+        <h2>10. Push Notifications</h2>
+        <p>
+          In the future, Revvy may send push notifications for maintenance
+          reminders. This feature will always be optional and dependent on your
+          explicit authorization. You can disable notifications at any time in
+          your device settings.
+        </p>
+
+        <h2>11. Changes to This Policy</h2>
+        <p>
+          We may update this Privacy Policy periodically. We will notify you of
+          significant changes through the application. The effective date at the
+          top of this document indicates when the last update was made.
+        </p>
+
+        <h2>12. Contact</h2>
+        <div class="contact-box">
+          <p><strong>BeecodeIT</strong></p>
+          <p>CNPJ: 50.025.597/0001-05</p>
+          <p>
+            Email:
+            <a href="mailto:contato@beecodeit.com">contato@beecodeit.com</a>
+          </p>
+          <p>
+            Data Protection Officer (DPO):
+            <a href="mailto:privacidade@beecodeit.com"
+              >privacidade@beecodeit.com</a
+            >
+          </p>
+        </div>
+      </div>
     </div>
 
-  </div>
-
-  <!-- ══════════════════════════ ENGLISH ══════════════════════════ -->
-  <div class="content-section" id="content-en">
-
-    <p class="effective-date">Effective date: March 11, 2026</p>
-
-    <p><strong>BeecodeIT</strong> (CNPJ: 50.025.597/0001-05), hereinafter referred to as "we", is the company responsible for the <strong>Revvy</strong> application. This Privacy Policy describes how we collect, use, store, and protect your personal data in compliance with the Brazilian General Data Protection Law (LGPD - Law No. 13,709/2018) and other applicable regulations.</p>
-
-    <h2>1. Data We Collect</h2>
-
-    <h3>1.1 Registration and Authentication Data</h3>
-    <table class="data-table">
-      <thead>
-        <tr><th>Data</th><th>Purpose</th><th>Legal Basis (LGPD)</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Email</td><td>Account identification and login</td><td>Contract performance</td></tr>
-        <tr><td>Password</td><td>Secure authentication (stored as hash)</td><td>Contract performance</td></tr>
-        <tr><td>Name</td><td>Profile personalization</td><td>Contract performance</td></tr>
-        <tr><td>OAuth data (Google/Apple)</td><td>Simplified social login</td><td>Consent</td></tr>
-      </tbody>
-    </table>
-
-    <h3>1.2 Vehicle Data</h3>
-    <table class="data-table">
-      <thead>
-        <tr><th>Data</th><th>Purpose</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Brand, model, year, color</td><td>Vehicle identification</td></tr>
-        <tr><td>License plate</td><td>Unique vehicle identification</td></tr>
-        <tr><td>Current mileage</td><td>Usage and maintenance tracking</td></tr>
-        <tr><td>Chassis number (optional)</td><td>Detailed vehicle identification</td></tr>
-        <tr><td>Purchase date and value (optional)</td><td>Vehicle financial history</td></tr>
-        <tr><td>Vehicle photo (optional)</td><td>Visual customization</td></tr>
-        <tr><td>Notes (optional)</td><td>Personal user annotations</td></tr>
-      </tbody>
-    </table>
-
-    <h3>1.3 Fuel Records</h3>
-    <table class="data-table">
-      <thead>
-        <tr><th>Data</th><th>Purpose</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Date, fuel type</td><td>Refueling history</td></tr>
-        <tr><td>Liters, price per liter, total cost</td><td>Fuel expense analysis</td></tr>
-        <tr><td>Mileage at fill-up</td><td>Average consumption calculation</td></tr>
-        <tr><td>Full tank (yes/no)</td><td>Consumption calculation accuracy</td></tr>
-        <tr><td>Station name (optional)</td><td>Personal reference</td></tr>
-      </tbody>
-    </table>
-
-    <h3>1.4 Maintenance Records</h3>
-    <table class="data-table">
-      <thead>
-        <tr><th>Data</th><th>Purpose</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Type, title, description</td><td>Service history log</td></tr>
-        <tr><td>Date, mileage, cost</td><td>Maintenance and expense tracking</td></tr>
-        <tr><td>Workshop name (optional)</td><td>Personal reference</td></tr>
-        <tr><td>Next maintenance (km/date)</td><td>Maintenance reminders</td></tr>
-        <tr><td>Receipt photo (optional)</td><td>Service proof (Pro feature)</td></tr>
-      </tbody>
-    </table>
-
-    <h3>1.5 Mileage History</h3>
-    <p>Odometer records including date, km reading, and record source (manual or from maintenance).</p>
-
-    <h3>1.6 Subscription Data</h3>
-    <p>Information about your plan (free or Pro) and subscription status is managed by <strong>RevenueCat</strong> in conjunction with the App Store (Apple) or Google Play. We <strong>do not</strong> collect or store credit card numbers or banking information.</p>
-
-    <div class="highlight-box">
-      <p><strong>What we do NOT collect:</strong></p>
-      <p>GPS location, contacts, calendar, health data, browsing history, unique device identifiers, analytics/telemetry data, or crash reporting information.</p>
+    <div class="footer">
+      <p>
+        &copy; 2026 BeecodeIT. Todos os direitos reservados. | All rights
+        reserved.
+      </p>
     </div>
 
-    <h2>2. How We Use Your Data</h2>
-    <ul>
-      <li>Provide and maintain application features</li>
-      <li>Calculate consumption statistics, costs, and mileage</li>
-      <li>Generate charts, reports, and fuel comparisons</li>
-      <li>Manage your subscription and unlock Pro features</li>
-      <li>Send maintenance reminders (when available and authorized)</li>
-      <li>Improve our services based on aggregated usage</li>
-    </ul>
-
-    <h2>3. Storage and Security</h2>
-    <p>Your data is stored on <strong>Supabase</strong>, with servers located in Brazil. We employ the following security measures:</p>
-    <ul>
-      <li>Encryption in transit (HTTPS/TLS) for all communications</li>
-      <li>Passwords stored with cryptographic hashing (never in plain text)</li>
-      <li>JWT token-based authentication with automatic renewal</li>
-      <li>Row Level Security (RLS) policies in the database, ensuring each user only accesses their own data</li>
-      <li>Secure file storage (photos) with signed URLs</li>
-    </ul>
-
-    <h2>4. Third-Party Sharing</h2>
-    <p>We share data only with the following services, strictly necessary for the app to function:</p>
-    <table class="data-table">
-      <thead>
-        <tr><th>Service</th><th>Data Shared</th><th>Purpose</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Supabase</td><td>All app data</td><td>Backend, database, and file storage</td></tr>
-        <tr><td>RevenueCat</td><td>User ID, subscription status, platform</td><td>Subscription and in-app purchase management</td></tr>
-        <tr><td>Apple (App Store)</td><td>App Store purchase data</td><td>iOS payment processing</td></tr>
-        <tr><td>Google (Play Store)</td><td>Google Play purchase data</td><td>Android payment processing</td></tr>
-      </tbody>
-    </table>
-    <p><strong>We do not sell, rent, or share your personal data with third parties for marketing or advertising purposes.</strong></p>
-
-    <h2>5. Data Stored on Your Device</h2>
-    <p>Some data is stored locally on your device to improve the experience:</p>
-    <ul>
-      <li>User display name</li>
-      <li>Draft forms in progress</li>
-      <li>Onboarding completion state</li>
-      <li>Interface preferences (dismissed banners)</li>
-    </ul>
-    <p>This data can be removed by clearing the app data in your device settings.</p>
-
-    <h2>6. App Permissions</h2>
-    <table class="data-table">
-      <thead>
-        <tr><th>Permission</th><th>Purpose</th><th>Required?</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Camera</td><td>Photograph vehicles and receipts</td><td>No - requested only when needed</td></tr>
-        <tr><td>Photo library</td><td>Select existing photos</td><td>No - requested only when needed</td></tr>
-        <tr><td>Internet</td><td>Data synchronization with server</td><td>Yes - essential for operation</td></tr>
-      </tbody>
-    </table>
-
-    <h2>7. Your Rights (LGPD)</h2>
-    <p>Under the LGPD, you have the following rights:</p>
-    <ul>
-      <li><strong>Access:</strong> request a copy of all your personal data</li>
-      <li><strong>Correction:</strong> correct incomplete, inaccurate, or outdated data</li>
-      <li><strong>Deletion:</strong> request the elimination of your personal data</li>
-      <li><strong>Portability:</strong> receive your data in a structured format</li>
-      <li><strong>Consent revocation:</strong> withdraw your consent at any time</li>
-      <li><strong>Information:</strong> know with whom your data has been shared</li>
-      <li><strong>Opposition:</strong> object to processing based on other legal bases</li>
-    </ul>
-    <p>To exercise any of these rights, contact us through the channels below.</p>
-
-    <h2>8. Data Retention</h2>
-    <p>We retain your data as long as your account is active. Upon account deletion, all personal data will be removed from our servers within 30 days. Anonymized and aggregated data may be retained for statistical purposes.</p>
-
-    <h2>9. Children's Privacy</h2>
-    <p>Revvy is not intended for individuals under 18 years of age. We do not knowingly collect data from minors. If we become aware that data from a minor has been collected, we will delete it immediately.</p>
-
-    <h2>10. Push Notifications</h2>
-    <p>In the future, Revvy may send push notifications for maintenance reminders. This feature will always be optional and dependent on your explicit authorization. You can disable notifications at any time in your device settings.</p>
-
-    <h2>11. Changes to This Policy</h2>
-    <p>We may update this Privacy Policy periodically. We will notify you of significant changes through the application. The effective date at the top of this document indicates when the last update was made.</p>
-
-    <h2>12. Contact</h2>
-    <div class="contact-box">
-      <p><strong>BeecodeIT</strong></p>
-      <p>CNPJ: 50.025.597/0001-05</p>
-      <p>Email: <a href="mailto:contato@beecodeit.com">contato@beecodeit.com</a></p>
-      <p>Data Protection Officer (DPO): <a href="mailto:privacidade@beecodeit.com">privacidade@beecodeit.com</a></p>
-    </div>
-
-  </div>
-
-</div>
-
-<div class="footer">
-  <p>&copy; 2026 BeecodeIT. Todos os direitos reservados. | All rights reserved.</p>
-</div>
-
-<script>
-  function switchLang(lang) {
-    document.getElementById('content-pt').classList.toggle('active', lang === 'pt');
-    document.getElementById('content-en').classList.toggle('active', lang === 'en');
-    document.getElementById('btn-pt').classList.toggle('active', lang === 'pt');
-    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-    document.getElementById('header-subtitle').textContent =
-      lang === 'pt' ? 'Politica de Privacidade' : 'Privacy Policy';
-    document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en';
-  }
-</script>
-
-</body>
+    <script>
+      function switchLang(lang) {
+        document
+          .getElementById("content-pt")
+          .classList.toggle("active", lang === "pt");
+        document
+          .getElementById("content-en")
+          .classList.toggle("active", lang === "en");
+        document
+          .getElementById("btn-pt")
+          .classList.toggle("active", lang === "pt");
+        document
+          .getElementById("btn-en")
+          .classList.toggle("active", lang === "en");
+        document.getElementById("header-subtitle").textContent =
+          lang === "pt" ? "Politica de Privacidade" : "Privacy Policy";
+        document.documentElement.lang = lang === "pt" ? "pt-BR" : "en";
+      }
+    </script>
+  </body>
 </html>

@@ -1,508 +1,828 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Revvy - Termos de Uso | Terms of Use</title>
-  <style>
-    :root {
-      --primary: #1a1a2e;
-      --accent: #6C63FF;
-      --accent-light: #E8E6FF;
-      --gray-50: #F9FAFB;
-      --gray-100: #F3F4F6;
-      --gray-200: #E5E7EB;
-      --gray-500: #6B7280;
-      --gray-700: #374151;
-      --gray-900: #111827;
-      --success: #10B981;
-      --warning: #F59E0B;
-      --danger: #EF4444;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Revvy - Termos de Uso | Terms of Use</title>
+    <style>
+      :root {
+        --primary: #1a1a2e;
+        --accent: #6c63ff;
+        --accent-light: #e8e6ff;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-500: #6b7280;
+        --gray-700: #374151;
+        --gray-900: #111827;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+      }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      color: var(--gray-700);
-      background: var(--gray-50);
-      line-height: 1.7;
-    }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        color: var(--gray-700);
+        background: var(--gray-50);
+        line-height: 1.7;
+      }
 
-    .header {
-      background: var(--primary);
-      color: white;
-      padding: 2rem 1rem;
-      text-align: center;
-    }
+      .header {
+        background: var(--primary);
+        color: white;
+        padding: 2rem 1rem;
+        text-align: center;
+      }
 
-    .header h1 {
-      font-size: 1.75rem;
-      margin-bottom: 0.25rem;
-    }
+      .header h1 {
+        font-size: 1.75rem;
+        margin-bottom: 0.25rem;
+      }
 
-    .header p {
-      opacity: 0.7;
-      font-size: 0.9rem;
-    }
+      .header p {
+        opacity: 0.7;
+        font-size: 0.9rem;
+      }
 
-    .lang-toggle {
-      display: flex;
-      justify-content: center;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
+      .lang-toggle {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
 
-    .lang-btn {
-      padding: 0.4rem 1.2rem;
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 20px;
-      background: transparent;
-      color: white;
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: all 0.2s;
-    }
+      .lang-btn {
+        padding: 0.4rem 1.2rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        background: transparent;
+        color: white;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+      }
 
-    .lang-btn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-    }
+      .lang-btn.active {
+        background: var(--accent);
+        border-color: var(--accent);
+      }
 
-    .lang-btn:hover { opacity: 0.85; }
+      .lang-btn:hover {
+        opacity: 0.85;
+      }
 
-    .container {
-      max-width: 780px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem 4rem;
-    }
+      .container {
+        max-width: 780px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem 4rem;
+      }
 
-    .effective-date {
-      text-align: center;
-      color: var(--gray-500);
-      font-size: 0.85rem;
-      margin-bottom: 2rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid var(--gray-200);
-    }
+      .effective-date {
+        text-align: center;
+        color: var(--gray-500);
+        font-size: 0.85rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--gray-200);
+      }
 
-    h2 {
-      color: var(--primary);
-      font-size: 1.3rem;
-      margin-top: 2rem;
-      margin-bottom: 0.75rem;
-      padding-bottom: 0.4rem;
-      border-bottom: 2px solid var(--accent-light);
-    }
+      h2 {
+        color: var(--primary);
+        font-size: 1.3rem;
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--accent-light);
+      }
 
-    h3 {
-      color: var(--gray-900);
-      font-size: 1.05rem;
-      margin-top: 1.25rem;
-      margin-bottom: 0.5rem;
-    }
+      h3 {
+        color: var(--gray-900);
+        font-size: 1.05rem;
+        margin-top: 1.25rem;
+        margin-bottom: 0.5rem;
+      }
 
-    p { margin-bottom: 0.75rem; }
+      p {
+        margin-bottom: 0.75rem;
+      }
 
-    ul, ol {
-      margin: 0.5rem 0 1rem 1.5rem;
-    }
+      ul,
+      ol {
+        margin: 0.5rem 0 1rem 1.5rem;
+      }
 
-    li { margin-bottom: 0.35rem; }
+      li {
+        margin-bottom: 0.35rem;
+      }
 
-    .highlight-box {
-      background: var(--accent-light);
-      border-left: 4px solid var(--accent);
-      padding: 1rem 1.25rem;
-      border-radius: 0 8px 8px 0;
-      margin: 1rem 0;
-    }
+      .highlight-box {
+        background: var(--accent-light);
+        border-left: 4px solid var(--accent);
+        padding: 1rem 1.25rem;
+        border-radius: 0 8px 8px 0;
+        margin: 1rem 0;
+      }
 
-    .highlight-box p { margin-bottom: 0.25rem; }
+      .highlight-box p {
+        margin-bottom: 0.25rem;
+      }
 
-    .warning-box {
-      background: #FEF3C7;
-      border-left: 4px solid var(--warning);
-      padding: 1rem 1.25rem;
-      border-radius: 0 8px 8px 0;
-      margin: 1rem 0;
-    }
+      .warning-box {
+        background: #fef3c7;
+        border-left: 4px solid var(--warning);
+        padding: 1rem 1.25rem;
+        border-radius: 0 8px 8px 0;
+        margin: 1rem 0;
+      }
 
-    .warning-box p { margin-bottom: 0.25rem; }
+      .warning-box p {
+        margin-bottom: 0.25rem;
+      }
 
-    .plan-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 1rem 0;
-      font-size: 0.9rem;
-    }
+      .plan-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.9rem;
+      }
 
-    .plan-table th {
-      background: var(--primary);
-      color: white;
-      padding: 0.65rem 0.75rem;
-      text-align: left;
-      font-weight: 600;
-    }
+      .plan-table th {
+        background: var(--primary);
+        color: white;
+        padding: 0.65rem 0.75rem;
+        text-align: left;
+        font-weight: 600;
+      }
 
-    .plan-table td {
-      padding: 0.6rem 0.75rem;
-      border-bottom: 1px solid var(--gray-200);
-    }
+      .plan-table td {
+        padding: 0.6rem 0.75rem;
+        border-bottom: 1px solid var(--gray-200);
+      }
 
-    .plan-table tr:nth-child(even) { background: var(--gray-100); }
+      .plan-table tr:nth-child(even) {
+        background: var(--gray-100);
+      }
 
-    .contact-box {
-      background: var(--gray-100);
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin-top: 1.5rem;
-    }
+      .contact-box {
+        background: var(--gray-100);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+      }
 
-    .contact-box p { margin-bottom: 0.3rem; }
+      .contact-box p {
+        margin-bottom: 0.3rem;
+      }
 
-    .footer {
-      text-align: center;
-      padding: 2rem 1rem;
-      color: var(--gray-500);
-      font-size: 0.8rem;
-      border-top: 1px solid var(--gray-200);
-    }
+      .footer {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: var(--gray-500);
+        font-size: 0.8rem;
+        border-top: 1px solid var(--gray-200);
+      }
 
-    .content-section { display: none; }
-    .content-section.active { display: block; }
+      .content-section {
+        display: none;
+      }
+      .content-section.active {
+        display: block;
+      }
 
-    @media (max-width: 600px) {
-      .container { padding: 1.25rem 1rem 3rem; }
-      .header h1 { font-size: 1.4rem; }
-      h2 { font-size: 1.15rem; }
-    }
-  </style>
-</head>
-<body>
-
-<div class="header">
-  <h1>Revvy</h1>
-  <p id="header-subtitle">Termos de Uso</p>
-  <div class="lang-toggle">
-    <button class="lang-btn active" onclick="switchLang('pt')" id="btn-pt">Portugues</button>
-    <button class="lang-btn" onclick="switchLang('en')" id="btn-en">English</button>
-  </div>
-</div>
-
-<div class="container">
-
-  <!-- ══════════════════════════ PORTUGUES ══════════════════════════ -->
-  <div class="content-section active" id="content-pt">
-
-    <p class="effective-date">Data de vigencia: 11 de marco de 2026</p>
-
-    <p>Bem-vindo ao <strong>Revvy</strong>! Estes Termos de Uso regulam a utilizacao do aplicativo Revvy, desenvolvido e mantido pela <strong>BeecodeIT</strong> (CNPJ: 50.025.597/0001-05). Ao utilizar o aplicativo, voce concorda com estes termos.</p>
-
-    <h2>1. Aceitacao dos Termos</h2>
-    <p>Ao criar uma conta ou utilizar o Revvy, voce declara ter lido, compreendido e concordado com estes Termos de Uso e com nossa <a href="./privacy.html">Politica de Privacidade</a>. Se voce nao concordar com qualquer parte destes termos, nao devera utilizar o aplicativo.</p>
-
-    <h2>2. Descricao do Servico</h2>
-    <p>O Revvy e um aplicativo de gestao veicular que permite:</p>
-    <ul>
-      <li>Registrar e gerenciar veiculos</li>
-      <li>Controlar abastecimentos e consumo de combustivel</li>
-      <li>Registrar manutencoes e reparos</li>
-      <li>Acompanhar quilometragem e custos</li>
-      <li>Gerar graficos e relatorios (recursos Pro)</li>
-      <li>Comparar eficiencia entre combustiveis (recursos Pro)</li>
-      <li>Exportar dados em PDF (recursos Pro)</li>
-    </ul>
-
-    <h2>3. Planos e Assinatura</h2>
-
-    <h3>3.1 Plano Gratuito</h3>
-    <p>O plano gratuito permite o cadastro de 1 (um) veiculo com acesso as funcionalidades basicas: registro de manutencoes, controle de quilometragem e registro de abastecimentos.</p>
-
-    <h3>3.2 Plano Pro</h3>
-    <p>O plano Pro oferece acesso a funcionalidades avancadas e suporte para ate 5 veiculos.</p>
-
-    <table class="plan-table">
-      <thead>
-        <tr><th>Periodo</th><th>Valor</th><th>Detalhes</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Mensal</td><td>R$ 14,90/mes</td><td>Cobrado mensalmente, cancele quando quiser</td></tr>
-        <tr><td>Anual</td><td>R$ 119,90/ano</td><td>Equivalente a R$ 9,99/mes (economia de 33%)</td></tr>
-      </tbody>
-    </table>
-
-    <h3>3.3 Pagamento e Renovacao</h3>
-    <ul>
-      <li>Os pagamentos sao processados pela <strong>App Store</strong> (iOS) ou <strong>Google Play</strong> (Android)</li>
-      <li>A assinatura e renovada automaticamente ao final de cada periodo, salvo cancelamento previo</li>
-      <li>O cancelamento pode ser feito a qualquer momento nas configuracoes da sua loja de aplicativos</li>
-      <li>O cancelamento entra em vigor ao final do periodo ja pago</li>
-      <li>Nao ha reembolsos parciais por periodos nao utilizados, exceto conforme exigido por lei ou pelas politicas da App Store/Google Play</li>
-    </ul>
-
-    <div class="highlight-box">
-      <p><strong>Importante:</strong> A BeecodeIT nao processa pagamentos diretamente. Todas as transacoes financeiras sao realizadas atraves da App Store ou Google Play, sujeitas aos termos e politicas dessas plataformas.</p>
+      @media (max-width: 600px) {
+        .container {
+          padding: 1.25rem 1rem 3rem;
+        }
+        .header h1 {
+          font-size: 1.4rem;
+        }
+        h2 {
+          font-size: 1.15rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Revvy</h1>
+      <p id="header-subtitle">Termos de Uso</p>
+      <div class="lang-toggle">
+        <button class="lang-btn active" onclick="switchLang('pt')" id="btn-pt">
+          Portugues
+        </button>
+        <button class="lang-btn" onclick="switchLang('en')" id="btn-en">
+          English
+        </button>
+      </div>
     </div>
 
-    <h2>4. Cadastro e Conta</h2>
+    <div class="container">
+      <!-- ══════════════════════════ PORTUGUES ══════════════════════════ -->
+      <div class="content-section active" id="content-pt">
+        <p class="effective-date">Data de vigencia: 11 de marco de 2026</p>
 
-    <h3>4.1 Requisitos</h3>
-    <ul>
-      <li>Voce deve ter pelo menos 18 anos para utilizar o Revvy</li>
-      <li>As informacoes fornecidas no cadastro devem ser verdadeiras e atualizadas</li>
-      <li>Cada pessoa deve manter apenas uma conta</li>
-    </ul>
+        <p>
+          Bem-vindo ao <strong>Revvy</strong>! Estes Termos de Uso regulam a
+          utilizacao do aplicativo Revvy, desenvolvido e mantido pela
+          <strong>BeecodeIT</strong> (CNPJ: 50.025.597/0001-05). Ao utilizar o
+          aplicativo, voce concorda com estes termos.
+        </p>
 
-    <h3>4.2 Seguranca da Conta</h3>
-    <ul>
-      <li>Voce e responsavel por manter a confidencialidade de suas credenciais de acesso</li>
-      <li>Notifique-nos imediatamente em caso de uso nao autorizado da sua conta</li>
-      <li>A BeecodeIT nao se responsabiliza por acessos nao autorizados decorrentes da sua negligencia na protecao das credenciais</li>
-    </ul>
+        <h2>1. Aceitacao dos Termos</h2>
+        <p>
+          Ao criar uma conta ou utilizar o Revvy, voce declara ter lido,
+          compreendido e concordado com estes Termos de Uso e com nossa
+          <a href="./privacy.html">Politica de Privacidade</a>. Se voce nao
+          concordar com qualquer parte destes termos, nao devera utilizar o
+          aplicativo.
+        </p>
 
-    <h2>5. Uso Aceitavel</h2>
-    <p>Ao utilizar o Revvy, voce concorda em:</p>
-    <ul>
-      <li>Utilizar o aplicativo apenas para fins legitimos de gestao veicular</li>
-      <li>Nao tentar acessar dados de outros usuarios</li>
-      <li>Nao realizar engenharia reversa, descompilar ou modificar o aplicativo</li>
-      <li>Nao utilizar o aplicativo para qualquer finalidade ilegal ou nao autorizada</li>
-      <li>Nao tentar sobrecarregar ou interferir nos servidores ou infraestrutura do servico</li>
-      <li>Nao utilizar bots, scrapers ou ferramentas automatizadas para acessar o servico</li>
-    </ul>
+        <h2>2. Descricao do Servico</h2>
+        <p>O Revvy e um aplicativo de gestao veicular que permite:</p>
+        <ul>
+          <li>Registrar e gerenciar veiculos</li>
+          <li>Controlar abastecimentos e consumo de combustivel</li>
+          <li>Registrar manutencoes e reparos</li>
+          <li>Acompanhar quilometragem e custos</li>
+          <li>Gerar graficos e relatorios (recursos Pro)</li>
+          <li>Comparar eficiencia entre combustiveis (recursos Pro)</li>
+          <li>Exportar dados em PDF (recursos Pro)</li>
+        </ul>
 
-    <h2>6. Propriedade Intelectual</h2>
-    <p>O Revvy, incluindo seu design, codigo-fonte, logotipos, textos, graficos e demais elementos visuais, e protegido por leis de propriedade intelectual e pertence a BeecodeIT. Voce recebe uma licenca limitada, nao exclusiva e nao transferivel para uso pessoal do aplicativo.</p>
+        <h2>3. Planos e Assinatura</h2>
 
-    <h2>7. Conteudo do Usuario</h2>
-    <p>Os dados que voce insere no Revvy (informacoes de veiculos, manutencoes, abastecimentos, fotos) permanecem de sua propriedade. Ao utilizar o servico, voce nos concede uma licenca limitada para armazenar, processar e exibir esses dados exclusivamente para fornecer as funcionalidades do aplicativo.</p>
+        <h3>3.1 Plano Gratuito</h3>
+        <p>
+          O plano gratuito permite o cadastro de 1 (um) veiculo com acesso as
+          funcionalidades basicas: registro de manutencoes, controle de
+          quilometragem e registro de abastecimentos.
+        </p>
 
-    <h2>8. Disponibilidade do Servico</h2>
-    <ul>
-      <li>Nos esforcaremos para manter o Revvy disponivel 24 horas por dia, 7 dias por semana</li>
-      <li>O servico pode ficar temporariamente indisponivel para manutencao, atualizacoes ou por razoes fora do nosso controle</li>
-      <li>Nao garantimos que o servico sera ininterrupto ou livre de erros</li>
-      <li>Reservamo-nos o direito de modificar, suspender ou descontinuar funcionalidades com aviso previo razoavel</li>
-    </ul>
+        <h3>3.2 Plano Pro</h3>
+        <p>
+          O plano Pro oferece acesso a funcionalidades avancadas e suporte para
+          ate 5 veiculos.
+        </p>
 
-    <h2>9. Limitacao de Responsabilidade</h2>
+        <table class="plan-table">
+          <thead>
+            <tr>
+              <th>Periodo</th>
+              <th>Valor</th>
+              <th>Detalhes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Mensal</td>
+              <td>R$ 14,90/mes</td>
+              <td>Cobrado mensalmente, cancele quando quiser</td>
+            </tr>
+            <tr>
+              <td>Anual</td>
+              <td>R$ 119,90/ano</td>
+              <td>Equivalente a R$ 9,99/mes (economia de 33%)</td>
+            </tr>
+          </tbody>
+        </table>
 
-    <div class="warning-box">
-      <p><strong>Aviso importante:</strong> O Revvy e uma ferramenta de <strong>auxilio</strong> na gestao veicular. As informacoes e calculos fornecidos pelo aplicativo sao baseados nos dados inseridos pelo usuario e devem ser utilizados apenas como referencia.</p>
+        <h3>3.3 Pagamento e Renovacao</h3>
+        <ul>
+          <li>
+            Os pagamentos sao processados pela <strong>App Store</strong> (iOS)
+            ou <strong>Google Play</strong> (Android)
+          </li>
+          <li>
+            A assinatura e renovada automaticamente ao final de cada periodo,
+            salvo cancelamento previo
+          </li>
+          <li>
+            O cancelamento pode ser feito a qualquer momento nas configuracoes
+            da sua loja de aplicativos
+          </li>
+          <li>O cancelamento entra em vigor ao final do periodo ja pago</li>
+          <li>
+            Nao ha reembolsos parciais por periodos nao utilizados, exceto
+            conforme exigido por lei ou pelas politicas da App Store/Google Play
+          </li>
+        </ul>
+
+        <div class="highlight-box">
+          <p>
+            <strong>Importante:</strong> A BeecodeIT nao processa pagamentos
+            diretamente. Todas as transacoes financeiras sao realizadas atraves
+            da App Store ou Google Play, sujeitas aos termos e politicas dessas
+            plataformas.
+          </p>
+        </div>
+
+        <h2>4. Cadastro e Conta</h2>
+
+        <h3>4.1 Requisitos</h3>
+        <ul>
+          <li>Voce deve ter pelo menos 18 anos para utilizar o Revvy</li>
+          <li>
+            As informacoes fornecidas no cadastro devem ser verdadeiras e
+            atualizadas
+          </li>
+          <li>Cada pessoa deve manter apenas uma conta</li>
+        </ul>
+
+        <h3>4.2 Seguranca da Conta</h3>
+        <ul>
+          <li>
+            Voce e responsavel por manter a confidencialidade de suas
+            credenciais de acesso
+          </li>
+          <li>
+            Notifique-nos imediatamente em caso de uso nao autorizado da sua
+            conta
+          </li>
+          <li>
+            A BeecodeIT nao se responsabiliza por acessos nao autorizados
+            decorrentes da sua negligencia na protecao das credenciais
+          </li>
+        </ul>
+
+        <h2>5. Uso Aceitavel</h2>
+        <p>Ao utilizar o Revvy, voce concorda em:</p>
+        <ul>
+          <li>
+            Utilizar o aplicativo apenas para fins legitimos de gestao veicular
+          </li>
+          <li>Nao tentar acessar dados de outros usuarios</li>
+          <li>
+            Nao realizar engenharia reversa, descompilar ou modificar o
+            aplicativo
+          </li>
+          <li>
+            Nao utilizar o aplicativo para qualquer finalidade ilegal ou nao
+            autorizada
+          </li>
+          <li>
+            Nao tentar sobrecarregar ou interferir nos servidores ou
+            infraestrutura do servico
+          </li>
+          <li>
+            Nao utilizar bots, scrapers ou ferramentas automatizadas para
+            acessar o servico
+          </li>
+        </ul>
+
+        <h2>6. Propriedade Intelectual</h2>
+        <p>
+          O Revvy, incluindo seu design, codigo-fonte, logotipos, textos,
+          graficos e demais elementos visuais, e protegido por leis de
+          propriedade intelectual e pertence a BeecodeIT. Voce recebe uma
+          licenca limitada, nao exclusiva e nao transferivel para uso pessoal do
+          aplicativo.
+        </p>
+
+        <h2>7. Conteudo do Usuario</h2>
+        <p>
+          Os dados que voce insere no Revvy (informacoes de veiculos,
+          manutencoes, abastecimentos, fotos) permanecem de sua propriedade. Ao
+          utilizar o servico, voce nos concede uma licenca limitada para
+          armazenar, processar e exibir esses dados exclusivamente para fornecer
+          as funcionalidades do aplicativo.
+        </p>
+
+        <h2>8. Disponibilidade do Servico</h2>
+        <ul>
+          <li>
+            Nos esforcaremos para manter o Revvy disponivel 24 horas por dia, 7
+            dias por semana
+          </li>
+          <li>
+            O servico pode ficar temporariamente indisponivel para manutencao,
+            atualizacoes ou por razoes fora do nosso controle
+          </li>
+          <li>
+            Nao garantimos que o servico sera ininterrupto ou livre de erros
+          </li>
+          <li>
+            Reservamo-nos o direito de modificar, suspender ou descontinuar
+            funcionalidades com aviso previo razoavel
+          </li>
+        </ul>
+
+        <h2>9. Limitacao de Responsabilidade</h2>
+
+        <div class="warning-box">
+          <p>
+            <strong>Aviso importante:</strong> O Revvy e uma ferramenta de
+            <strong>auxilio</strong> na gestao veicular. As informacoes e
+            calculos fornecidos pelo aplicativo sao baseados nos dados inseridos
+            pelo usuario e devem ser utilizados apenas como referencia.
+          </p>
+        </div>
+
+        <ul>
+          <li>
+            A BeecodeIT nao se responsabiliza por decisoes tomadas com base nas
+            informacoes do aplicativo
+          </li>
+          <li>
+            Calculos de consumo, custos e lembretes de manutencao sao
+            estimativas e nao substituem orientacao profissional
+          </li>
+          <li>
+            A BeecodeIT nao se responsabiliza por perdas de dados decorrentes de
+            falhas tecnicas, desde que medidas razoaveis de seguranca tenham
+            sido adotadas
+          </li>
+          <li>
+            Em nenhuma hipotese a responsabilidade total da BeecodeIT excedera o
+            valor pago pelo usuario nos ultimos 12 meses
+          </li>
+        </ul>
+
+        <h2>10. Exclusao de Conta</h2>
+        <p>
+          Voce pode solicitar a exclusao da sua conta a qualquer momento. Ao
+          excluir sua conta:
+        </p>
+        <ul>
+          <li>Todos os seus dados pessoais serao removidos em ate 30 dias</li>
+          <li>
+            Dados de veiculos, manutencoes, abastecimentos e fotos serao
+            excluidos permanentemente
+          </li>
+          <li>
+            Assinaturas ativas devem ser canceladas separadamente na App Store
+            ou Google Play
+          </li>
+          <li>Esta acao e irreversivel</li>
+        </ul>
+
+        <h2>11. Suspensao e Encerramento</h2>
+        <p>
+          A BeecodeIT reserva-se o direito de suspender ou encerrar sua conta,
+          sem aviso previo, caso:
+        </p>
+        <ul>
+          <li>Haja violacao destes Termos de Uso</li>
+          <li>Seja detectada atividade fraudulenta ou abusiva</li>
+          <li>Seja necessario por razoes legais ou regulatorias</li>
+        </ul>
+
+        <h2>12. Alteracoes nos Termos</h2>
+        <p>
+          Podemos atualizar estes Termos de Uso periodicamente. Alteracoes
+          significativas serao comunicadas atraves do aplicativo com pelo menos
+          15 dias de antecedencia. O uso continuado do Revvy apos as alteracoes
+          constitui aceitacao dos novos termos.
+        </p>
+
+        <h2>13. Legislacao Aplicavel e Foro</h2>
+        <p>
+          Estes termos sao regidos pelas leis da Republica Federativa do Brasil.
+          Qualquer disputa sera submetida ao foro da comarca da sede da
+          BeecodeIT, com renuncia a qualquer outro, por mais privilegiado que
+          seja.
+        </p>
+
+        <h2>14. Disposicoes Gerais</h2>
+        <ul>
+          <li>
+            Se qualquer disposicao destes termos for considerada invalida, as
+            demais permanecem em pleno vigor
+          </li>
+          <li>
+            A falha em exercer qualquer direito nao constitui renuncia ao mesmo
+          </li>
+          <li>
+            Estes termos constituem o acordo integral entre voce e a BeecodeIT
+            em relacao ao uso do Revvy
+          </li>
+        </ul>
+
+        <h2>15. Contato</h2>
+        <div class="contact-box">
+          <p><strong>BeecodeIT</strong></p>
+          <p>CNPJ: 50.025.597/0001-05</p>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════ ENGLISH ══════════════════════════ -->
+      <div class="content-section" id="content-en">
+        <p class="effective-date">Effective date: March 11, 2026</p>
+
+        <p>
+          Welcome to <strong>Revvy</strong>! These Terms of Use govern the use
+          of the Revvy application, developed and maintained by
+          <strong>BeecodeIT</strong> (CNPJ: 50.025.597/0001-05). By using the
+          application, you agree to these terms.
+        </p>
+
+        <h2>1. Acceptance of Terms</h2>
+        <p>
+          By creating an account or using Revvy, you declare that you have read,
+          understood, and agreed to these Terms of Use and our
+          <a href="./privacy.html">Privacy Policy</a>. If you do not agree with
+          any part of these terms, you should not use the application.
+        </p>
+
+        <h2>2. Service Description</h2>
+        <p>Revvy is a vehicle management application that allows you to:</p>
+        <ul>
+          <li>Register and manage vehicles</li>
+          <li>Track fuel consumption and refueling</li>
+          <li>Record maintenance and repairs</li>
+          <li>Monitor mileage and costs</li>
+          <li>Generate charts and reports (Pro features)</li>
+          <li>Compare fuel efficiency (Pro features)</li>
+          <li>Export data as PDF (Pro features)</li>
+        </ul>
+
+        <h2>3. Plans and Subscription</h2>
+
+        <h3>3.1 Free Plan</h3>
+        <p>
+          The free plan allows registration of 1 (one) vehicle with access to
+          basic features: maintenance logging, mileage tracking, and fuel
+          recording.
+        </p>
+
+        <h3>3.2 Pro Plan</h3>
+        <p>
+          The Pro plan provides access to advanced features and support for up
+          to 5 vehicles.
+        </p>
+
+        <table class="plan-table">
+          <thead>
+            <tr>
+              <th>Period</th>
+              <th>Price</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Monthly</td>
+              <td>R$ 14.90/month</td>
+              <td>Billed monthly, cancel anytime</td>
+            </tr>
+            <tr>
+              <td>Annual</td>
+              <td>R$ 119.90/year</td>
+              <td>Equivalent to R$ 9.99/month (33% savings)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>3.3 Payment and Renewal</h3>
+        <ul>
+          <li>
+            Payments are processed by the <strong>App Store</strong> (iOS) or
+            <strong>Google Play</strong> (Android)
+          </li>
+          <li>
+            Subscriptions automatically renew at the end of each period unless
+            previously canceled
+          </li>
+          <li>
+            Cancellation can be done at any time through your app store settings
+          </li>
+          <li>
+            Cancellation takes effect at the end of the already paid period
+          </li>
+          <li>
+            No partial refunds for unused periods, except as required by law or
+            App Store/Google Play policies
+          </li>
+        </ul>
+
+        <div class="highlight-box">
+          <p>
+            <strong>Important:</strong> BeecodeIT does not process payments
+            directly. All financial transactions are conducted through the App
+            Store or Google Play, subject to the terms and policies of those
+            platforms.
+          </p>
+        </div>
+
+        <h2>4. Registration and Account</h2>
+
+        <h3>4.1 Requirements</h3>
+        <ul>
+          <li>You must be at least 18 years old to use Revvy</li>
+          <li>
+            Information provided during registration must be truthful and up to
+            date
+          </li>
+          <li>Each person should maintain only one account</li>
+        </ul>
+
+        <h3>4.2 Account Security</h3>
+        <ul>
+          <li>
+            You are responsible for maintaining the confidentiality of your
+            access credentials
+          </li>
+          <li>
+            Notify us immediately in case of unauthorized use of your account
+          </li>
+          <li>
+            BeecodeIT is not responsible for unauthorized access resulting from
+            your negligence in protecting credentials
+          </li>
+        </ul>
+
+        <h2>5. Acceptable Use</h2>
+        <p>By using Revvy, you agree to:</p>
+        <ul>
+          <li>
+            Use the application only for legitimate vehicle management purposes
+          </li>
+          <li>Not attempt to access other users' data</li>
+          <li>Not reverse engineer, decompile, or modify the application</li>
+          <li>
+            Not use the application for any illegal or unauthorized purpose
+          </li>
+          <li>
+            Not attempt to overload or interfere with the service's servers or
+            infrastructure
+          </li>
+          <li>
+            Not use bots, scrapers, or automated tools to access the service
+          </li>
+        </ul>
+
+        <h2>6. Intellectual Property</h2>
+        <p>
+          Revvy, including its design, source code, logos, text, graphics, and
+          other visual elements, is protected by intellectual property laws and
+          belongs to BeecodeIT. You receive a limited, non-exclusive,
+          non-transferable license for personal use of the application.
+        </p>
+
+        <h2>7. User Content</h2>
+        <p>
+          The data you enter into Revvy (vehicle information, maintenance, fuel
+          records, photos) remains your property. By using the service, you
+          grant us a limited license to store, process, and display this data
+          exclusively to provide the application's features.
+        </p>
+
+        <h2>8. Service Availability</h2>
+        <ul>
+          <li>
+            We will strive to keep Revvy available 24 hours a day, 7 days a week
+          </li>
+          <li>
+            The service may be temporarily unavailable for maintenance, updates,
+            or reasons beyond our control
+          </li>
+          <li>
+            We do not guarantee the service will be uninterrupted or error-free
+          </li>
+          <li>
+            We reserve the right to modify, suspend, or discontinue features
+            with reasonable prior notice
+          </li>
+        </ul>
+
+        <h2>9. Limitation of Liability</h2>
+
+        <div class="warning-box">
+          <p>
+            <strong>Important notice:</strong> Revvy is a vehicle management
+            <strong>assistance</strong> tool. The information and calculations
+            provided by the application are based on user-entered data and
+            should be used as reference only.
+          </p>
+        </div>
+
+        <ul>
+          <li>
+            BeecodeIT is not responsible for decisions made based on information
+            from the application
+          </li>
+          <li>
+            Consumption calculations, costs, and maintenance reminders are
+            estimates and do not replace professional guidance
+          </li>
+          <li>
+            BeecodeIT is not responsible for data loss resulting from technical
+            failures, provided reasonable security measures have been adopted
+          </li>
+          <li>
+            In no event shall BeecodeIT's total liability exceed the amount paid
+            by the user in the last 12 months
+          </li>
+        </ul>
+
+        <h2>10. Account Deletion</h2>
+        <p>
+          You may request account deletion at any time. Upon deleting your
+          account:
+        </p>
+        <ul>
+          <li>All your personal data will be removed within 30 days</li>
+          <li>
+            Vehicle, maintenance, fuel, and photo data will be permanently
+            deleted
+          </li>
+          <li>
+            Active subscriptions must be canceled separately through the App
+            Store or Google Play
+          </li>
+          <li>This action is irreversible</li>
+        </ul>
+
+        <h2>11. Suspension and Termination</h2>
+        <p>
+          BeecodeIT reserves the right to suspend or terminate your account,
+          without prior notice, if:
+        </p>
+        <ul>
+          <li>There is a violation of these Terms of Use</li>
+          <li>Fraudulent or abusive activity is detected</li>
+          <li>It is necessary for legal or regulatory reasons</li>
+        </ul>
+
+        <h2>12. Changes to Terms</h2>
+        <p>
+          We may update these Terms of Use periodically. Significant changes
+          will be communicated through the application with at least 15 days
+          advance notice. Continued use of Revvy after changes constitutes
+          acceptance of the new terms.
+        </p>
+
+        <h2>13. Applicable Law and Jurisdiction</h2>
+        <p>
+          These terms are governed by the laws of the Federative Republic of
+          Brazil. Any dispute shall be submitted to the jurisdiction of
+          BeecodeIT's headquarters, waiving any other, however privileged it may
+          be.
+        </p>
+
+        <h2>14. General Provisions</h2>
+        <ul>
+          <li>
+            If any provision of these terms is found invalid, the remaining
+            provisions remain in full force
+          </li>
+          <li>
+            Failure to exercise any right does not constitute a waiver thereof
+          </li>
+          <li>
+            These terms constitute the entire agreement between you and
+            BeecodeIT regarding the use of Revvy
+          </li>
+        </ul>
+
+        <h2>15. Contact</h2>
+        <div class="contact-box">
+          <p><strong>BeecodeIT</strong></p>
+          <p>CNPJ: 50.025.597/0001-05</p>
+          <p>
+            Email:
+            <a href="mailto:contato@beecodeit.com">contato@beecodeit.com</a>
+          </p>
+          <p>
+            Support:
+            <a href="mailto:suporte@beecodeit.com">suporte@beecodeit.com</a>
+          </p>
+        </div>
+      </div>
     </div>
 
-    <ul>
-      <li>A BeecodeIT nao se responsabiliza por decisoes tomadas com base nas informacoes do aplicativo</li>
-      <li>Calculos de consumo, custos e lembretes de manutencao sao estimativas e nao substituem orientacao profissional</li>
-      <li>A BeecodeIT nao se responsabiliza por perdas de dados decorrentes de falhas tecnicas, desde que medidas razoaveis de seguranca tenham sido adotadas</li>
-      <li>Em nenhuma hipotese a responsabilidade total da BeecodeIT excedera o valor pago pelo usuario nos ultimos 12 meses</li>
-    </ul>
-
-    <h2>10. Exclusao de Conta</h2>
-    <p>Voce pode solicitar a exclusao da sua conta a qualquer momento. Ao excluir sua conta:</p>
-    <ul>
-      <li>Todos os seus dados pessoais serao removidos em ate 30 dias</li>
-      <li>Dados de veiculos, manutencoes, abastecimentos e fotos serao excluidos permanentemente</li>
-      <li>Assinaturas ativas devem ser canceladas separadamente na App Store ou Google Play</li>
-      <li>Esta acao e irreversivel</li>
-    </ul>
-
-    <h2>11. Suspensao e Encerramento</h2>
-    <p>A BeecodeIT reserva-se o direito de suspender ou encerrar sua conta, sem aviso previo, caso:</p>
-    <ul>
-      <li>Haja violacao destes Termos de Uso</li>
-      <li>Seja detectada atividade fraudulenta ou abusiva</li>
-      <li>Seja necessario por razoes legais ou regulatorias</li>
-    </ul>
-
-    <h2>12. Alteracoes nos Termos</h2>
-    <p>Podemos atualizar estes Termos de Uso periodicamente. Alteracoes significativas serao comunicadas atraves do aplicativo com pelo menos 15 dias de antecedencia. O uso continuado do Revvy apos as alteracoes constitui aceitacao dos novos termos.</p>
-
-    <h2>13. Legislacao Aplicavel e Foro</h2>
-    <p>Estes termos sao regidos pelas leis da Republica Federativa do Brasil. Qualquer disputa sera submetida ao foro da comarca da sede da BeecodeIT, com renuncia a qualquer outro, por mais privilegiado que seja.</p>
-
-    <h2>14. Disposicoes Gerais</h2>
-    <ul>
-      <li>Se qualquer disposicao destes termos for considerada invalida, as demais permanecem em pleno vigor</li>
-      <li>A falha em exercer qualquer direito nao constitui renuncia ao mesmo</li>
-      <li>Estes termos constituem o acordo integral entre voce e a BeecodeIT em relacao ao uso do Revvy</li>
-    </ul>
-
-    <h2>15. Contato</h2>
-    <div class="contact-box">
-      <p><strong>BeecodeIT</strong></p>
-      <p>CNPJ: 50.025.597/0001-05</p>
-      <p>Email: <a href="mailto:contato@beecodeit.com">contato@beecodeit.com</a></p>
-      <p>Suporte: <a href="mailto:suporte@beecodeit.com">suporte@beecodeit.com</a></p>
+    <div class="footer">
+      <p>
+        &copy; 2026 BeecodeIT. Todos os direitos reservados. | All rights
+        reserved.
+      </p>
     </div>
 
-  </div>
-
-  <!-- ══════════════════════════ ENGLISH ══════════════════════════ -->
-  <div class="content-section" id="content-en">
-
-    <p class="effective-date">Effective date: March 11, 2026</p>
-
-    <p>Welcome to <strong>Revvy</strong>! These Terms of Use govern the use of the Revvy application, developed and maintained by <strong>BeecodeIT</strong> (CNPJ: 50.025.597/0001-05). By using the application, you agree to these terms.</p>
-
-    <h2>1. Acceptance of Terms</h2>
-    <p>By creating an account or using Revvy, you declare that you have read, understood, and agreed to these Terms of Use and our <a href="./privacy.html">Privacy Policy</a>. If you do not agree with any part of these terms, you should not use the application.</p>
-
-    <h2>2. Service Description</h2>
-    <p>Revvy is a vehicle management application that allows you to:</p>
-    <ul>
-      <li>Register and manage vehicles</li>
-      <li>Track fuel consumption and refueling</li>
-      <li>Record maintenance and repairs</li>
-      <li>Monitor mileage and costs</li>
-      <li>Generate charts and reports (Pro features)</li>
-      <li>Compare fuel efficiency (Pro features)</li>
-      <li>Export data as PDF (Pro features)</li>
-    </ul>
-
-    <h2>3. Plans and Subscription</h2>
-
-    <h3>3.1 Free Plan</h3>
-    <p>The free plan allows registration of 1 (one) vehicle with access to basic features: maintenance logging, mileage tracking, and fuel recording.</p>
-
-    <h3>3.2 Pro Plan</h3>
-    <p>The Pro plan provides access to advanced features and support for up to 5 vehicles.</p>
-
-    <table class="plan-table">
-      <thead>
-        <tr><th>Period</th><th>Price</th><th>Details</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Monthly</td><td>R$ 14.90/month</td><td>Billed monthly, cancel anytime</td></tr>
-        <tr><td>Annual</td><td>R$ 119.90/year</td><td>Equivalent to R$ 9.99/month (33% savings)</td></tr>
-      </tbody>
-    </table>
-
-    <h3>3.3 Payment and Renewal</h3>
-    <ul>
-      <li>Payments are processed by the <strong>App Store</strong> (iOS) or <strong>Google Play</strong> (Android)</li>
-      <li>Subscriptions automatically renew at the end of each period unless previously canceled</li>
-      <li>Cancellation can be done at any time through your app store settings</li>
-      <li>Cancellation takes effect at the end of the already paid period</li>
-      <li>No partial refunds for unused periods, except as required by law or App Store/Google Play policies</li>
-    </ul>
-
-    <div class="highlight-box">
-      <p><strong>Important:</strong> BeecodeIT does not process payments directly. All financial transactions are conducted through the App Store or Google Play, subject to the terms and policies of those platforms.</p>
-    </div>
-
-    <h2>4. Registration and Account</h2>
-
-    <h3>4.1 Requirements</h3>
-    <ul>
-      <li>You must be at least 18 years old to use Revvy</li>
-      <li>Information provided during registration must be truthful and up to date</li>
-      <li>Each person should maintain only one account</li>
-    </ul>
-
-    <h3>4.2 Account Security</h3>
-    <ul>
-      <li>You are responsible for maintaining the confidentiality of your access credentials</li>
-      <li>Notify us immediately in case of unauthorized use of your account</li>
-      <li>BeecodeIT is not responsible for unauthorized access resulting from your negligence in protecting credentials</li>
-    </ul>
-
-    <h2>5. Acceptable Use</h2>
-    <p>By using Revvy, you agree to:</p>
-    <ul>
-      <li>Use the application only for legitimate vehicle management purposes</li>
-      <li>Not attempt to access other users' data</li>
-      <li>Not reverse engineer, decompile, or modify the application</li>
-      <li>Not use the application for any illegal or unauthorized purpose</li>
-      <li>Not attempt to overload or interfere with the service's servers or infrastructure</li>
-      <li>Not use bots, scrapers, or automated tools to access the service</li>
-    </ul>
-
-    <h2>6. Intellectual Property</h2>
-    <p>Revvy, including its design, source code, logos, text, graphics, and other visual elements, is protected by intellectual property laws and belongs to BeecodeIT. You receive a limited, non-exclusive, non-transferable license for personal use of the application.</p>
-
-    <h2>7. User Content</h2>
-    <p>The data you enter into Revvy (vehicle information, maintenance, fuel records, photos) remains your property. By using the service, you grant us a limited license to store, process, and display this data exclusively to provide the application's features.</p>
-
-    <h2>8. Service Availability</h2>
-    <ul>
-      <li>We will strive to keep Revvy available 24 hours a day, 7 days a week</li>
-      <li>The service may be temporarily unavailable for maintenance, updates, or reasons beyond our control</li>
-      <li>We do not guarantee the service will be uninterrupted or error-free</li>
-      <li>We reserve the right to modify, suspend, or discontinue features with reasonable prior notice</li>
-    </ul>
-
-    <h2>9. Limitation of Liability</h2>
-
-    <div class="warning-box">
-      <p><strong>Important notice:</strong> Revvy is a vehicle management <strong>assistance</strong> tool. The information and calculations provided by the application are based on user-entered data and should be used as reference only.</p>
-    </div>
-
-    <ul>
-      <li>BeecodeIT is not responsible for decisions made based on information from the application</li>
-      <li>Consumption calculations, costs, and maintenance reminders are estimates and do not replace professional guidance</li>
-      <li>BeecodeIT is not responsible for data loss resulting from technical failures, provided reasonable security measures have been adopted</li>
-      <li>In no event shall BeecodeIT's total liability exceed the amount paid by the user in the last 12 months</li>
-    </ul>
-
-    <h2>10. Account Deletion</h2>
-    <p>You may request account deletion at any time. Upon deleting your account:</p>
-    <ul>
-      <li>All your personal data will be removed within 30 days</li>
-      <li>Vehicle, maintenance, fuel, and photo data will be permanently deleted</li>
-      <li>Active subscriptions must be canceled separately through the App Store or Google Play</li>
-      <li>This action is irreversible</li>
-    </ul>
-
-    <h2>11. Suspension and Termination</h2>
-    <p>BeecodeIT reserves the right to suspend or terminate your account, without prior notice, if:</p>
-    <ul>
-      <li>There is a violation of these Terms of Use</li>
-      <li>Fraudulent or abusive activity is detected</li>
-      <li>It is necessary for legal or regulatory reasons</li>
-    </ul>
-
-    <h2>12. Changes to Terms</h2>
-    <p>We may update these Terms of Use periodically. Significant changes will be communicated through the application with at least 15 days advance notice. Continued use of Revvy after changes constitutes acceptance of the new terms.</p>
-
-    <h2>13. Applicable Law and Jurisdiction</h2>
-    <p>These terms are governed by the laws of the Federative Republic of Brazil. Any dispute shall be submitted to the jurisdiction of BeecodeIT's headquarters, waiving any other, however privileged it may be.</p>
-
-    <h2>14. General Provisions</h2>
-    <ul>
-      <li>If any provision of these terms is found invalid, the remaining provisions remain in full force</li>
-      <li>Failure to exercise any right does not constitute a waiver thereof</li>
-      <li>These terms constitute the entire agreement between you and BeecodeIT regarding the use of Revvy</li>
-    </ul>
-
-    <h2>15. Contact</h2>
-    <div class="contact-box">
-      <p><strong>BeecodeIT</strong></p>
-      <p>CNPJ: 50.025.597/0001-05</p>
-      <p>Email: <a href="mailto:contato@beecodeit.com">contato@beecodeit.com</a></p>
-      <p>Support: <a href="mailto:suporte@beecodeit.com">suporte@beecodeit.com</a></p>
-    </div>
-
-  </div>
-
-</div>
-
-<div class="footer">
-  <p>&copy; 2026 BeecodeIT. Todos os direitos reservados. | All rights reserved.</p>
-</div>
-
-<script>
-  function switchLang(lang) {
-    document.getElementById('content-pt').classList.toggle('active', lang === 'pt');
-    document.getElementById('content-en').classList.toggle('active', lang === 'en');
-    document.getElementById('btn-pt').classList.toggle('active', lang === 'pt');
-    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-    document.getElementById('header-subtitle').textContent =
-      lang === 'pt' ? 'Termos de Uso' : 'Terms of Use';
-    document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en';
-  }
-</script>
-
-</body>
+    <script>
+      function switchLang(lang) {
+        document
+          .getElementById("content-pt")
+          .classList.toggle("active", lang === "pt");
+        document
+          .getElementById("content-en")
+          .classList.toggle("active", lang === "en");
+        document
+          .getElementById("btn-pt")
+          .classList.toggle("active", lang === "pt");
+        document
+          .getElementById("btn-en")
+          .classList.toggle("active", lang === "en");
+        document.getElementById("header-subtitle").textContent =
+          lang === "pt" ? "Termos de Uso" : "Terms of Use";
+        document.documentElement.lang = lang === "pt" ? "pt-BR" : "en";
+      }
+    </script>
+  </body>
 </html>
