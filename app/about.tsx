@@ -32,11 +32,7 @@ export default function AboutScreen() {
             pressed && styles.headerButtonPressed,
           ]}
         >
-          <Ionicons
-            name="chevron-back"
-            size={24}
-            color={Colors.dark.text}
-          />
+          <Ionicons name="chevron-back" size={24} color={Colors.dark.text} />
         </Pressable>
 
         <Text style={styles.headerTitle}>Sobre o App</Text>
@@ -66,9 +62,7 @@ export default function AboutScreen() {
         <View style={styles.linksSection}>
           <Pressable
             onPress={() =>
-              Linking.openURL(
-                "https://beecodeit.com/revy/docs/index.html"
-              )
+              Linking.openURL("https://torugok9.github.io/revy/terms.html")
             }
             style={({ pressed }) => [
               styles.linkItem,
@@ -90,9 +84,7 @@ export default function AboutScreen() {
           </Pressable>
 
           <Pressable
-            onPress={() =>
-              Linking.openURL("mailto:contato@beecodeit.com")
-            }
+            onPress={() => Linking.openURL("mailto:comercial@beecodeit.com")}
             style={({ pressed }) => [
               styles.linkItem,
               pressed && styles.linkItemPressed,
@@ -124,12 +116,8 @@ export default function AboutScreen() {
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Desenvolvido por BeecodeIT
-          </Text>
-          <Text style={styles.footerText}>
-            CNPJ: 50.025.597/0001-05
-          </Text>
+          <Text style={styles.footerText}>Desenvolvido por BeecodeIT</Text>
+          <Text style={styles.footerText}>CNPJ: 50.025.597/0001-05</Text>
         </View>
       </ScrollView>
     </View>
