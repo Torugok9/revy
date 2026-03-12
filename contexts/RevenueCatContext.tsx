@@ -1,5 +1,6 @@
 import { useAuthContext } from "@/contexts/AuthContext";
 import type { FeatureKey } from "@/types/plans";
+import Constants from "expo-constants";
 import React, {
   createContext,
   useCallback,
@@ -9,6 +10,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { Platform } from "react-native";
 import Purchases, {
   CustomerInfo,
   LOG_LEVEL,
@@ -17,7 +19,11 @@ import Purchases, {
 } from "react-native-purchases";
 
 // ─── Constants ──────────────────────────────────────────────────────
-const API_KEY = "test_ZGtkYhfUSqBfNYiCaywQsqloiKs";
+const API_KEY = Platform.select({
+  ios: Constants.expoConfig?.extra?.revenueCatIosKey,
+  android: Constants.expoConfig?.extra?.revenueCatAndroidKey,
+})!;
+
 const ENTITLEMENT_ID = "Revvy Pro";
 
 // Mapeamento de entitlements do RevenueCat para features do app
@@ -93,6 +99,8 @@ export function RevenueCatProvider({
         console.warn(
           "[RevenueCat] SDK nativo indisponível. Rodando em modo free (Expo Go).",
         );
+        console.warn("[RevenueCat] Erro real:", error); // <- adiciona essa linha
+
         sdkReady.current = false;
         setSdkAvailable(false);
         setLoading(false);
