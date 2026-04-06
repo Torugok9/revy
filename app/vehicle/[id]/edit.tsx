@@ -181,7 +181,7 @@ export default function VehicleEditScreen() {
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Erro ao salvar veículo";
-      console.error("handleSave error:", err);
+      if (__DEV__) console.error("handleSave error:", err);
       alert(message);
     } finally {
       setIsLoading(false);

@@ -200,7 +200,7 @@ export default function NewVehicleScreen() {
         });
 
       if (error) {
-        console.warn("Erro ao fazer upload da foto:", error.message);
+        if (__DEV__) console.warn("Erro ao fazer upload da foto:", error.message);
         return null;
       }
 
@@ -210,7 +210,7 @@ export default function NewVehicleScreen() {
 
       return publicUrl;
     } catch (err) {
-      console.warn("Erro no upload da foto:", err);
+      if (__DEV__) console.warn("Erro no upload da foto:", err);
       return null;
     }
   };
@@ -288,7 +288,7 @@ export default function NewVehicleScreen() {
         err instanceof Error
           ? err.message
           : "Não foi possível salvar o veículo. Tente novamente.";
-      console.error("handleSave error:", err);
+      if (__DEV__) console.error("handleSave error:", err);
       alert(message);
       setIsLoading(false);
     }

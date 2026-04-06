@@ -5,7 +5,7 @@ const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn(
+  if (__DEV__) console.warn(
     'Supabase URL or Anon Key is missing. Please configure your .env file.'
   );
 }

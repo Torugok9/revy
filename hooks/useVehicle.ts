@@ -47,7 +47,7 @@ export function useVehicle(vehicleId: string): UseVehicleResult {
       const message =
         err instanceof Error ? err.message : "Erro ao carregar veículo";
       setError(message);
-      console.error("useVehicle error:", err);
+      if (__DEV__) console.error("useVehicle error:", err);
     } finally {
       setLoading(false);
     }

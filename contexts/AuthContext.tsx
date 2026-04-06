@@ -162,14 +162,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq("user_id", currentUser.id);
 
       if (vehiclesError) {
-        console.error("Erro ao excluir veículos:", vehiclesError);
+        if (__DEV__) console.error("Erro ao excluir veículos:", vehiclesError);
       }
 
       // 2. Chamar RPC para excluir a conta de autenticação no servidor
       const { error: rpcError } = await supabase.rpc("delete_user_account");
 
       if (rpcError) {
-        console.error("Erro ao excluir conta via RPC:", rpcError);
+        if (__DEV__) console.error("Erro ao excluir conta via RPC:", rpcError);
         // Se o RPC falhar, ainda assim fazemos signOut
       }
 
@@ -264,7 +264,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           });
         }
       } catch (err) {
-        console.error("Erro ao inicializar autenticação:", err);
+        if (__DEV__) console.error("Erro ao inicializar autenticação:", err);
       } finally {
         setLoading(false);
       }

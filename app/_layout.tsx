@@ -93,7 +93,7 @@ export default function RootLayout() {
           DMSans_700Bold,
         });
       } catch (e) {
-        console.warn(e);
+        if (__DEV__) console.warn(e);
       } finally {
         setFontsLoaded(true);
         SplashScreen.hideAsync();

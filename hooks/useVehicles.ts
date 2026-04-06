@@ -44,7 +44,7 @@ export function useVehicles(): UseVehiclesResult {
       const message =
         err instanceof Error ? err.message : "Erro ao carregar veículos";
       setError(message);
-      console.error("useVehicles error:", err);
+      if (__DEV__) console.error("useVehicles error:", err);
     } finally {
       setLoading(false);
     }

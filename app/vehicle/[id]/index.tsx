@@ -123,7 +123,7 @@ export default function VehicleDetailScreen() {
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Erro ao excluir veículo";
-      console.error("handleDeleteVehicle error:", err);
+      if (__DEV__) console.error("handleDeleteVehicle error:", err);
       alert(message);
     } finally {
       setIsDeleting(false);
@@ -142,7 +142,7 @@ export default function VehicleDetailScreen() {
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Erro ao excluir manutenção";
-      console.error("handleDeleteMaintenance error:", err);
+      if (__DEV__) console.error("handleDeleteMaintenance error:", err);
       alert(message);
     } finally {
       setIsDeleting(false);
@@ -169,7 +169,7 @@ export default function VehicleDetailScreen() {
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Erro ao excluir registro";
-      console.error("handleDeleteOdometerLog error:", err);
+      if (__DEV__) console.error("handleDeleteOdometerLog error:", err);
       alert(message);
     } finally {
       setIsDeleting(false);

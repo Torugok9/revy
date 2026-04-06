@@ -46,7 +46,7 @@ export function useMaintenances(vehicleId: string): UseMaintenancesResult {
       const message =
         err instanceof Error ? err.message : "Erro ao carregar manutenções";
       setError(message);
-      console.error("useMaintenances error:", err);
+      if (__DEV__) console.error("useMaintenances error:", err);
     } finally {
       setLoading(false);
     }
@@ -76,7 +76,7 @@ export function useMaintenances(vehicleId: string): UseMaintenancesResult {
           err instanceof Error
             ? err.message
             : "Erro ao excluir manutenção";
-        console.error("deleteMaintenance error:", err);
+        if (__DEV__) console.error("deleteMaintenance error:", err);
         throw new Error(message);
       }
     },

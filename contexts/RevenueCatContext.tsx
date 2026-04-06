@@ -83,6 +83,9 @@ export function RevenueCatProvider({
   const sdkReady = useRef(false);
   const [sdkAvailable, setSdkAvailable] = useState(false);
 
+  // Evita chamadas duplicadas de offerings
+  const fetchingOfferings = useRef(false);
+
   // Inicializar o SDK do RevenueCat
   useEffect(() => {
     async function init() {
@@ -91,15 +94,22 @@ export function RevenueCatProvider({
           Purchases.setLogLevel(LOG_LEVEL.DEBUG);
         }
 
-        Purchases.configure({ apiKey: API_KEY });
+        Purchases.configure({
+          apiKey: API_KEY,
+          entitlementVerificationMode: __DEV__
+            ? undefined
+            : "informational",
+        });
         sdkReady.current = true;
         setSdkAvailable(true);
       } catch (error) {
         // Módulo nativo não disponível (Expo Go) — opera em modo degradado
-        console.warn(
-          "[RevenueCat] SDK nativo indisponível. Rodando em modo free (Expo Go).",
-        );
-        console.warn("[RevenueCat] Erro real:", error); // <- adiciona essa linha
+        if (__DEV__) {
+          console.warn(
+            "[RevenueCat] SDK nativo indisponível. Rodando em modo free (Expo Go).",
+          );
+          console.warn("[RevenueCat] Erro real:", error);
+        }
 
         sdkReady.current = false;
         setSdkAvailable(false);
@@ -110,58 +120,70 @@ export function RevenueCatProvider({
     init();
   }, []);
 
-  // Identificar o usuário quando fizer login/logout
+  // Buscar offerings (função reutilizável, com guard contra chamadas duplicadas)
+  const fetchOfferings = useCallback(async () => {
+    if (!sdkReady.current || fetchingOfferings.current) return;
+
+    fetchingOfferings.current = true;
+    try {
+      const offerings = await Purchases.getOfferings();
+      if (offerings.current) {
+        setCurrentOffering(offerings.current);
+      }
+    } catch (error) {
+      if (__DEV__) console.error("[RevenueCat] Erro ao carregar offerings:", error);
+    } finally {
+      fetchingOfferings.current = false;
+    }
+  }, []);
+
+  // Identificar o usuário e então carregar dados
+  // Unificado em um único effect para evitar race condition
   useEffect(() => {
     if (!sdkReady.current) return;
 
-    async function identifyUser() {
+    let cancelled = false;
+
+    async function identifyAndLoad() {
       try {
+        setLoading(true);
+
+        // 1. Primeiro: identificar o usuário
         if (user?.id) {
           const { customerInfo: info } = await Purchases.logIn(user.id);
-          setCustomerInfo(info);
+          if (!cancelled) setCustomerInfo(info);
         } else {
           // Só faz logOut se não for anônimo
           const isAnonymous = await Purchases.isAnonymous();
           if (!isAnonymous) {
             await Purchases.logOut();
           }
-          setCustomerInfo(null);
-        }
-      } catch (error) {
-        console.error("[RevenueCat] Erro ao identificar usuário:", error);
-      }
-    }
-
-    identifyUser();
-  }, [user?.id, sdkAvailable]);
-
-  // Carregar ofertas e informações do cliente
-  useEffect(() => {
-    if (!sdkReady.current) return;
-
-    async function loadData() {
-      try {
-        setLoading(true);
-
-        const [offerings, info] = await Promise.all([
-          Purchases.getOfferings(),
-          Purchases.getCustomerInfo(),
-        ]);
-
-        if (offerings.current) {
-          setCurrentOffering(offerings.current);
+          if (!cancelled) setCustomerInfo(null);
         }
 
-        setCustomerInfo(info);
+        // 2. Depois: carregar offerings (agora com o usuário correto)
+        if (!cancelled) {
+          await fetchOfferings();
+        }
+
+        // 3. Buscar customer info atualizado
+        if (!cancelled) {
+          const info = await Purchases.getCustomerInfo();
+          if (!cancelled) setCustomerInfo(info);
+        }
       } catch (error) {
-        console.error("[RevenueCat] Erro ao carregar dados:", error);
+        if (__DEV__) console.error("[RevenueCat] Erro ao identificar/carregar:", error);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
 
-    loadData();
-  }, [sdkAvailable]);
+    identifyAndLoad();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, sdkAvailable, fetchOfferings]);
 
   // Listener para atualizações de customer info em tempo real
   useEffect(() => {
@@ -245,7 +267,7 @@ export function RevenueCatProvider({
       const info = await Purchases.getCustomerInfo();
       setCustomerInfo(info);
     } catch (error) {
-      console.error("[RevenueCat] Erro ao recarregar customer info:", error);
+      if (__DEV__) console.error("[RevenueCat] Erro ao recarregar customer info:", error);
     }
   }, []);
 

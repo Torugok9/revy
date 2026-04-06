@@ -49,7 +49,7 @@ export function useUserPlan(): UseUserPlanResult {
           ? err.message
           : "Erro ao carregar plano do usuário";
       setError(message);
-      console.error("useUserPlan error:", err);
+      if (__DEV__) console.error("useUserPlan error:", err);
     } finally {
       setLoading(false);
     }

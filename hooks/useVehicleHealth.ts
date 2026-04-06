@@ -63,7 +63,7 @@ export function useVehicleHealth(vehicleId: string | null): UseVehicleHealthResu
       const message =
         err instanceof Error ? err.message : "Erro ao carregar saúde do veículo";
       setError(message);
-      console.error("useVehicleHealth error:", err);
+      if (__DEV__) console.error("useVehicleHealth error:", err);
     } finally {
       setLoading(false);
     }

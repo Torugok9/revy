@@ -118,7 +118,7 @@ export function useSubscription(): UseSubscriptionResult {
           return false;
       }
     } catch (err: any) {
-      console.error("[Paywall] Erro ao apresentar paywall:", err);
+      if (__DEV__) console.error("[Paywall] Erro ao apresentar paywall:", err);
       return false;
     }
   }, [sdkAvailable, refreshCustomerInfo]);
@@ -150,7 +150,7 @@ export function useSubscription(): UseSubscriptionResult {
 
       return false;
     } catch (err: any) {
-      console.error("[Paywall] Erro ao apresentar paywall:", err);
+      if (__DEV__) console.error("[Paywall] Erro ao apresentar paywall:", err);
       return false;
     }
   }, [sdkAvailable, refreshCustomerInfo]);
@@ -169,12 +169,12 @@ export function useSubscription(): UseSubscriptionResult {
             await refreshCustomerInfo();
           },
           onRestoreFailed: ({ error: restoreError }) => {
-            console.error("[CustomerCenter] Restore falhou:", restoreError);
+            if (__DEV__) console.error("[CustomerCenter] Restore falhou:", restoreError);
           },
         },
       });
     } catch (err: any) {
-      console.error("[CustomerCenter] Erro:", err);
+      if (__DEV__) console.error("[CustomerCenter] Erro:", err);
       try {
         await Linking.openURL("https://apps.apple.com/account/subscriptions");
       } catch {

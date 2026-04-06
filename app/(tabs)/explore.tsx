@@ -134,7 +134,7 @@ export default function SettingsScreen() {
             label="Notificações"
             onPress={() => {
               // TODO: Implementar configurações de notificações
-              console.log("Notificações");
+              if (__DEV__) console.log("Notificações");
             }}
           />
         </View>

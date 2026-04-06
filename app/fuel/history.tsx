@@ -121,7 +121,7 @@ export default function FuelHistoryScreen() {
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Erro ao excluir registro";
-      console.error("handleDeleteFuelLog error:", err);
+      if (__DEV__) console.error("handleDeleteFuelLog error:", err);
       alert(message);
     } finally {
       setIsDeleting(false);

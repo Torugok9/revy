@@ -151,7 +151,7 @@ export function useMultiStepForm<T extends Record<string, any>>({
         JSON.stringify(progress)
       );
     } catch (error) {
-      console.error("Failed to save form progress:", error);
+      if (__DEV__) console.error("Failed to save form progress:", error);
     }
   }, [currentStep, formData, storageKey]);
 
@@ -168,7 +168,7 @@ export function useMultiStepForm<T extends Record<string, any>>({
         return true;
       }
     } catch (error) {
-      console.error("Failed to load form progress:", error);
+      if (__DEV__) console.error("Failed to load form progress:", error);
     }
 
     return false;
@@ -181,7 +181,7 @@ export function useMultiStepForm<T extends Record<string, any>>({
     try {
       await AsyncStorage.removeItem(`${storageKey}_progress`);
     } catch (error) {
-      console.error("Failed to clear form progress:", error);
+      if (__DEV__) console.error("Failed to clear form progress:", error);
     }
   }, [storageKey]);
 
