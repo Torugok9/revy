@@ -3,10 +3,14 @@ import { LayoutChangeEvent, Platform, Pressable, StyleSheet, View } from "react-
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import * as Haptics from "expo-haptics";
 import { BlurView } from "expo-blur";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import Animated, {
   Easing,
   useAnimatedStyle,
   useSharedValue,
+  withRepeat,
+  withSequence,
   withTiming,
 } from "react-native-reanimated";
 import { BorderRadius, Colors, Fonts, Spacing } from "@/constants/theme";
@@ -88,6 +92,46 @@ function TabItem({
       <Animated.View style={[styles.iconContainer, iconContainerStyle]}>{icon}</Animated.View>
       <Animated.Text style={[styles.sideLabel, { color }, labelStyle]} numberOfLines={1}>
         {label}
+      </Animated.Text>
+    </Pressable>
+  );
+}
+
+function CenterChatButton() {
+  const router = useRouter();
+  const glowOpacity = useSharedValue(0.5);
+
+  useEffect(() => {
+    glowOpacity.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 1800, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0.5, { duration: 1800, easing: Easing.inOut(Easing.ease) }),
+      ),
+      -1,
+      false,
+    );
+  }, [glowOpacity]);
+
+  const glowStyle = useAnimatedStyle(() => ({
+    opacity: glowOpacity.value,
+  }));
+
+  return (
+    <Pressable
+      onPress={() => {
+        if (Platform.OS === "ios") {
+          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        }
+        router.push("/chat");
+      }}
+      style={styles.centerPressable}
+    >
+      <Animated.View style={[styles.centerGlow, glowStyle]} />
+      <View style={styles.centerButton}>
+        <Ionicons name="chatbubble-ellipses" size={22} color="#FFFFFF" />
+      </View>
+      <Animated.Text style={[styles.sideLabel, { color: Colors.dark.primary }]} numberOfLines={1}>
+        Revy I.A.
       </Animated.Text>
     </Pressable>
   );
@@ -218,22 +262,25 @@ export function FloatingTabBar({ state, descriptors, navigation, insets }: Botto
         />
 
         <View style={styles.sideRow}>
-          {state.routes.map((route) => {
+          {state.routes.map((route, index) => {
             const options = descriptors[route.key].options;
             const isFocused = state.index === routeIndexMap[route.key];
             const color = isFocused ? palette.tabIconSelected : palette.tabIconDefault;
+            const midpoint = Math.floor(state.routes.length / 2);
 
             return (
-              <TabItem
-                key={route.key}
-                color={color}
-                icon={renderRouteIcon(route, isFocused)}
-                isFocused={isFocused}
-                label={resolveLabel(options, route.name)}
-                onLayout={(event) => updateLayout(route.key, event)}
-                onLongPress={() => handleLongPress(route)}
-                onPress={() => handlePress(route, isFocused)}
-              />
+              <React.Fragment key={route.key}>
+                {index === midpoint && <CenterChatButton />}
+                <TabItem
+                  color={color}
+                  icon={renderRouteIcon(route, isFocused)}
+                  isFocused={isFocused}
+                  label={resolveLabel(options, route.name)}
+                  onLayout={(event) => updateLayout(route.key, event)}
+                  onLongPress={() => handleLongPress(route)}
+                  onPress={() => handlePress(route, isFocused)}
+                />
+              </React.Fragment>
             );
           })}
         </View>
@@ -296,5 +343,29 @@ const styles = StyleSheet.create({
     width: INDICATOR_WIDTH,
     height: 4,
     borderRadius: BorderRadius.full,
+  },
+  centerPressable: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 6,
+    paddingHorizontal: 4,
+    gap: 2,
+  },
+  centerButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.dark.primary,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  centerGlow: {
+    ...StyleSheet.absoluteFillObject,
+    top: 2,
+    left: -4,
+    right: -4,
+    bottom: 14,
+    borderRadius: 26,
+    backgroundColor: Colors.dark.primaryGlow,
   },
 });

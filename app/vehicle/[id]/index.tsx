@@ -330,6 +330,13 @@ export default function VehicleDetailScreen() {
               router.push(`/odometer/new?vehicleId=${vehicleId}`)
             }
           />
+          <QuickActionButton
+            icon="chatbubble-ellipses-outline"
+            label="Assistente I.A."
+            onPress={() =>
+              router.push(`/chat?vehicleId=${vehicleId}`)
+            }
+          />
         </View>
 
         {/* Odometer Logs */}
