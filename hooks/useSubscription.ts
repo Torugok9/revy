@@ -1,6 +1,11 @@
 import { ENTITLEMENT_ID, useRevenueCat } from "@/contexts/RevenueCatContext";
-import { useCallback, useState } from "react";
-import { Alert, Linking } from "react-native";
+import {
+  getPurchaseErrorInfo,
+  type PurchaseErrorAction,
+  type PurchaseErrorInfo,
+} from "@/constants/purchase-errors";
+import { useCallback, useRef, useState } from "react";
+import { Alert, Linking, Platform } from "react-native";
 import RevenueCatUI, { PAYWALL_RESULT } from "react-native-purchases-ui";
 
 interface UseSubscriptionResult {
@@ -20,6 +25,18 @@ interface UseSubscriptionResult {
   loading: boolean;
   /** Mensagem de erro, se houver */
   error: string | null;
+  /** Props para o PurchaseErrorSheet */
+  errorSheet: {
+    visible: boolean;
+    errorInfo: PurchaseErrorInfo | null;
+    onAction: (actionType: PurchaseErrorAction) => void;
+    onDismiss: () => void;
+  };
+  /** Props para o PurchaseSuccessSheet */
+  successSheet: {
+    visible: boolean;
+    onDismiss: () => void;
+  };
 }
 
 function showSdkUnavailableAlert() {
@@ -32,6 +49,11 @@ function showSdkUnavailableAlert() {
 export function useSubscription(): UseSubscriptionResult {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorSheetVisible, setErrorSheetVisible] = useState(false);
+  const [currentErrorInfo, setCurrentErrorInfo] =
+    useState<PurchaseErrorInfo | null>(null);
+  const [successSheetVisible, setSuccessSheetVisible] = useState(false);
+  const lastBillingPeriod = useRef<"monthly" | "yearly">("monthly");
   const {
     currentOffering,
     purchasePackage,
@@ -41,6 +63,48 @@ export function useSubscription(): UseSubscriptionResult {
     sdkAvailable,
   } = useRevenueCat();
 
+  // Processar erro de compra e exibir sheet adequado
+  const handlePurchaseError = useCallback((err: unknown) => {
+    const info = getPurchaseErrorInfo(err);
+    if (!info) return; // erro silencioso (ex: cancelamento)
+
+    if (__DEV__) console.error("[Purchase] Erro:", err);
+
+    setCurrentErrorInfo(info);
+    setErrorSheetVisible(true);
+  }, []);
+
+  // Despachar ação do sheet de erro
+  const handleErrorAction = useCallback(
+    async (actionType: PurchaseErrorAction) => {
+      setErrorSheetVisible(false);
+
+      switch (actionType) {
+        case "dismiss":
+          break;
+        case "retry":
+          // Re-executa subscribe com o último período usado
+          setTimeout(() => subscribe(lastBillingPeriod.current), 300);
+          break;
+        case "restore":
+          setTimeout(() => restorePurchases(), 300);
+          break;
+        case "contact":
+          Linking.openURL("mailto:suporte@revyapp.com.br");
+          break;
+        case "settings":
+          if (Platform.OS === "ios") {
+            Linking.openURL("app-settings:");
+          } else {
+            Linking.openSettings();
+          }
+          break;
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
   // Comprar assinatura diretamente por período
   const subscribe = useCallback(
     async (billingPeriod: "monthly" | "yearly") => {
@@ -49,6 +113,7 @@ export function useSubscription(): UseSubscriptionResult {
         return;
       }
 
+      lastBillingPeriod.current = billingPeriod;
       setLoading(true);
       setError(null);
 
@@ -77,21 +142,17 @@ export function useSubscription(): UseSubscriptionResult {
         const success = await purchasePackage(pkg);
 
         if (success) {
-          Alert.alert(
-            "Assinatura ativada!",
-            "Bem-vindo ao Revvy Pro! Aproveite todos os recursos premium.",
-          );
+          setSuccessSheetVisible(true);
         }
       } catch (err: any) {
-        const message =
-          err?.message || "Erro ao processar assinatura";
+        const message = err?.message || "Erro ao processar assinatura";
         setError(message);
-        Alert.alert("Erro", message);
+        handlePurchaseError(err);
       } finally {
         setLoading(false);
       }
     },
-    [sdkAvailable, currentOffering, purchasePackage],
+    [sdkAvailable, currentOffering, purchasePackage, handlePurchaseError],
   );
 
   // Apresentar paywall nativo do RevenueCat
@@ -220,14 +281,13 @@ export function useSubscription(): UseSubscriptionResult {
         );
       }
     } catch (err: any) {
-      const message =
-        err?.message || "Erro ao restaurar compras";
+      const message = err?.message || "Erro ao restaurar compras";
       setError(message);
-      Alert.alert("Erro", message);
+      handlePurchaseError(err);
     } finally {
       setLoading(false);
     }
-  }, [sdkAvailable, rcRestorePurchases]);
+  }, [sdkAvailable, rcRestorePurchases, handlePurchaseError]);
 
   return {
     subscribe,
@@ -238,5 +298,15 @@ export function useSubscription(): UseSubscriptionResult {
     restorePurchases,
     loading,
     error,
+    errorSheet: {
+      visible: errorSheetVisible,
+      errorInfo: currentErrorInfo,
+      onAction: handleErrorAction,
+      onDismiss: () => setErrorSheetVisible(false),
+    },
+    successSheet: {
+      visible: successSheetVisible,
+      onDismiss: () => setSuccessSheetVisible(false),
+    },
   };
 }

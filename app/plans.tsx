@@ -1,3 +1,5 @@
+import { PurchaseErrorSheet } from "@/components/PurchaseErrorSheet";
+import { PurchaseSuccessSheet } from "@/components/PurchaseSuccessSheet";
 import { FEATURE_DISPLAY } from "@/constants/features";
 import { BorderRadius, Colors, Fonts, Spacing } from "@/constants/theme";
 import { useFeaturesContext } from "@/contexts/FeaturesContext";
@@ -109,6 +111,8 @@ export default function PlansScreen() {
     manageSubscription,
     restorePurchases,
     loading,
+    errorSheet,
+    successSheet,
   } = useSubscription();
 
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("yearly");
@@ -459,6 +463,9 @@ export default function PlansScreen() {
 
         <View style={{ height: Spacing["4xl"] }} />
       </ScrollView>
+
+      <PurchaseErrorSheet {...errorSheet} />
+      <PurchaseSuccessSheet {...successSheet} />
     </View>
   );
 }
