@@ -1,50 +1,117 @@
-# Welcome to your Expo app 👋
+# Revvy
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+App mobile para gerenciamento completo de veiculos pessoais: manutencoes, abastecimentos, quilometragem e custos. Construido com React Native e Expo.
 
-## Get started
+<!-- screenshot: tela de dashboard mostrando health card do veiculo, stats de km e combustivel -->
 
-1. Install dependencies
+## O problema
 
-   ```bash
-   npm install
-   ```
+Manter o historico de manutencoes, gastos com combustivel e quilometragem de um carro e algo que a maioria das pessoas faz em planilhas, anotacoes soltas ou simplesmente nao faz. Quando chega a hora de vender o veiculo ou entender por que os custos aumentaram, a informacao nao existe ou esta espalhada.
 
-2. Start the app
+Revvy centraliza tudo isso em um app com dashboard visual, alertas de manutencao e um assistente mecanico por chat.
 
-   ```bash
-   npx expo start
-   ```
+## O que faz
 
-In the output, you'll find options to open the app in a
+- **Dashboard por veiculo** com indicador de saude, stats de manutencao, quilometragem e combustivel
+- **Garagem** para cadastro e gerenciamento de multiplos veiculos (marca, modelo, ano, placa, km, foto)
+- **Registro de manutencoes** (revisao, troca de peca, reparo) com custo, oficina, foto de nota fiscal e proxima manutencao
+- **Registro de abastecimentos** com tipo de combustivel, litros, preco, km e calculo de consumo (km/l)
+- **Comparacao de combustivel** (gasolina vs etanol) com recomendacao de qual compensa mais
+- **Controle de quilometragem** com historico e graficos
+- **Tela de analises** com graficos de custos e consumo
+- **Assistente Mecanico** via chat (IA) com sessoes por veiculo e limites de uso por plano
+- **Sistema de planos** (Free / Premium) com controle de features via RevenueCat
+- **Autenticacao** via Supabase (OAuth)
+- **Onboarding** para novos usuarios
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Quick start
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Pre-requisitos
 
-## Get a fresh project
+- Node.js >= 18
+- Expo CLI (`npm install -g expo-cli` ou use via `npx`)
+- Conta no [Supabase](https://supabase.com) com projeto configurado (auth, tabelas, funcoes RPC)
+- Conta no [RevenueCat](https://www.revenuecat.com) para gerenciamento de assinaturas
+- Para rodar no dispositivo: Expo Go ou build de desenvolvimento
+- Para iOS Simulator: Xcode
+- Para Android Emulator: Android Studio
 
-When you're ready, run:
+### Instalacao
 
 ```bash
-npm run reset-project
+# Clone
+git clone <repo-url>
+cd revy
+
+# Dependencias
+npm install
+
+# Configuracao
+# Crie um arquivo .env na raiz com as variaveis:
+# EXPO_PUBLIC_SUPABASE_URL=<sua-url-do-supabase>
+# EXPO_PUBLIC_SUPABASE_ANON_KEY=<sua-anon-key>
+# EXPO_PUBLIC_RC_KEY_IOS_PROD=<chave-revenuecat-ios>
+# EXPO_PUBLIC_RC_KEY_ANDROID_PROD=<chave-revenuecat-android>
+
+# Rodar
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Verificacao
 
-## Learn more
+Escaneie o QR code com Expo Go no celular, ou pressione `i` para iOS Simulator / `a` para Android Emulator. Voce deve ver a tela de onboarding ou login.
 
-To learn more about developing your project with Expo, look at the following resources:
+## Estrutura do projeto
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```
+app/
+├── (tabs)/           # Telas principais (Dashboard, Analises, Garagem, Config)
+├── auth.tsx          # Tela de autenticacao
+├── onboarding.tsx    # Onboarding de novos usuarios
+├── plans.tsx         # Tela de planos e assinatura
+├── chat/             # Assistente Mecanico (sessoes, mensagens)
+├── fuel/             # Registro e historico de abastecimentos
+├── maintenance/      # Registro de manutencoes
+├── odometer/         # Registro de quilometragem
+├── vehicle/          # Cadastro e detalhes de veiculos
+└── profile/          # Perfil e plano do usuario
+components/
+├── dashboard/        # Cards, stats, health, selecao de veiculo
+├── chat/             # UI do assistente mecanico
+├── navigation/       # FloatingTabBar
+├── ui/               # Componentes base reutilizaveis
+├── analytics/        # Componentes de graficos e analises
+└── vehicles/         # Componentes de listagem de veiculos
+contexts/             # AuthContext, FeaturesContext, RevenueCatContext
+hooks/                # Hooks de dominio (useChat, useFuel, useVehicles, etc.)
+lib/                  # Clientes externos (Supabase, OAuth)
+types/                # Tipagens de dominio (vehicle, fuel, chat, plans)
+constants/            # Theme, features catalog, purchase errors
+utils/                # Formatadores e validacoes
+```
 
-## Join the community
+## Stack
 
-Join our community of developers creating universal apps.
+| Tecnologia | Uso |
+| --- | --- |
+| Expo SDK 54 | Framework e build |
+| React Native 0.81 | UI nativa |
+| Expo Router | Navegacao file-based |
+| Supabase | Auth, banco de dados, RPC |
+| RevenueCat | Assinaturas in-app |
+| React Native Reanimated | Animacoes |
+| DM Sans | Tipografia |
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Scripts uteis
+
+```bash
+npx expo start        # Dev server (QR code para Expo Go)
+npx expo start --web  # Versao web
+npx expo run:ios      # Build e roda no iOS Simulator
+npx expo run:android  # Build e roda no Android Emulator
+npm run lint          # ESLint
+```
+
+## Licenca
+
+<!-- PREENCHER: definir licenca -->

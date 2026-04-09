@@ -41,3 +41,6 @@ app-example
 # generated native folders
 /ios
 /android
+
+# arquivos do claude c/ agents e skills
+.claude/
